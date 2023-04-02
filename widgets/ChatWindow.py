@@ -1,6 +1,6 @@
-from chat import chat
+from chat import Chatbot
 from config import options
-
+from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import (
     QAction,
     QDialog,
@@ -14,6 +14,21 @@ from PyQt5.QtWidgets import (
 )
 
 from widgets.ConfigDialog import ConfigDialog
+
+
+class ChatThread(QThread):
+    response_signal = pyqtSignal(str)
+
+    def __init__(self, message, engine, temperature):
+        super().__init__()
+        self.message = message
+        self.engine = engine
+        self.temperature = temperature
+
+    def run(self):
+        chatbot = Chatbot()
+        response = chatbot.chat(self.message, self.engine, self.temperature)
+        self.response_signal.emit(response)
 
 
 class ChatWindow(QMainWindow):
@@ -85,9 +100,14 @@ class ChatWindow(QMainWindow):
     def send_message(self):
         message = self.prompt.toPlainText()
         self.chat_log.append("User: " + message + "\n")
-        response = chat(message, self.engine, self.temperature)
-        self.chat_log.append("Assistant: " + response + "\n")
         self.prompt.clear()
+
+        self.chat_thread = ChatThread(message, self.engine, self.temperature)
+        self.chat_thread.response_signal.connect(self.handle_response)
+        self.chat_thread.start()
+
+    def handle_response(self, response):
+        self.chat_log.append("Assistant: " + response + "\n")
         self.prompt.setFocus()
 
     def resizeTextEdit(self):
