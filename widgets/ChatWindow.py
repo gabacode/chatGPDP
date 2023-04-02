@@ -1,5 +1,8 @@
 from chat import Chatbot
-from config import options
+from config import options, colors
+
+from PyQt5.QtGui import QTextCharFormat, QBrush, QColor
+
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import (
     QAction,
@@ -99,9 +102,21 @@ class ChatWindow(QMainWindow):
         self.setCentralWidget(widget)
         self.prompt.setFocus()
 
+    def append_message(self, mode, message):
+        cursor = self.chat_log.textCursor()
+        format = QTextCharFormat()
+        format.setForeground(QBrush(QColor(colors[mode])))
+        if mode == "user":
+            cursor.insertText("User: " + message + "\n", format)
+        elif mode == "assistant":
+            cursor.insertText("Assistant: " + message + "\n", format)
+        cursor.insertText("\n")
+        self.chat_log.setTextCursor(cursor)
+        self.chat_log.ensureCursorVisible()
+
     def send_message(self):
         message = self.prompt.toPlainText()
-        self.chat_log.append("User: " + message + "\n")
+        self.append_message("user", message)
         self.prompt.clear()
 
         if hasattr(self, "chat_thread") and self.chat_thread.isRunning():
@@ -113,7 +128,7 @@ class ChatWindow(QMainWindow):
         self.chat_thread.start()
 
     def handle_response(self, response):
-        self.chat_log.append("Assistant: " + response + "\n")
+        self.append_message("assistant", response)
         self.prompt.setFocus()
 
     def resizeTextEdit(self):

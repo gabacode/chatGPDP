@@ -1,6 +1,12 @@
 from PyQt5.QtGui import QFont
 
-initial_prompt = "You are a useful and intelligent person."
+initial_prompt = "You are a useful and intelligent person. You're a Python master!"
+
+colors = {
+    "user": "#4CD964",
+    "assistant": "#007AFF",
+    "system": "#d0d0d0",
+}
 
 engines = {
     "gpt-3.5-turbo-0301": {
