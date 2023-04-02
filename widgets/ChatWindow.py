@@ -15,6 +15,8 @@ from PyQt5.QtWidgets import (
 
 from widgets.ConfigDialog import ConfigDialog
 
+chatbot = Chatbot()
+
 
 class ChatThread(QThread):
     response_signal = pyqtSignal(str)
@@ -26,7 +28,6 @@ class ChatThread(QThread):
         self.temperature = temperature
 
     def run(self):
-        chatbot = Chatbot()
         response = chatbot.chat(self.message, self.engine, self.temperature)
         self.response_signal.emit(response)
 
@@ -71,6 +72,7 @@ class ChatWindow(QMainWindow):
 
         # [SEND BUTTON]
         send_button = QPushButton("Send", self)
+        send_button.setEnabled(not chatbot.is_thinking)
         send_button.clicked.connect(self.send_message)
 
         # [EXIT BUTTON]
@@ -101,6 +103,10 @@ class ChatWindow(QMainWindow):
         message = self.prompt.toPlainText()
         self.chat_log.append("User: " + message + "\n")
         self.prompt.clear()
+
+        if hasattr(self, "chat_thread") and self.chat_thread.isRunning():
+            self.chat_thread.terminate()
+            self.chat_thread.wait()
 
         self.chat_thread = ChatThread(message, self.engine, self.temperature)
         self.chat_thread.response_signal.connect(self.handle_response)
