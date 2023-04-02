@@ -1,6 +1,70 @@
+import os
 import sys
 from chat import chat
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QPushButton, QVBoxLayout, QWidget
+from config import options
+from PyQt5.QtWidgets import (
+    QAction,
+    QApplication,
+    QDialog,
+    QLabel,
+    QLineEdit,
+    QMenu,
+    QMainWindow,
+    QTextEdit,
+    QPushButton,
+    QVBoxLayout,
+    QDialogButtonBox,
+    QWidget,
+)
+
+
+class ConfigDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.env_path = ".env"
+        self.setWindowTitle("Configuration")
+        self.setFixedWidth(600)
+        layout = QVBoxLayout(self)
+
+        # Add the options
+        options = self.read_env()
+        for option in options:
+            option_label = QLabel(option[0])
+            option_edit = QLineEdit(option[1])
+            layout.addWidget(option_label)
+            layout.addWidget(option_edit)
+
+        # Add the buttons
+        button_box = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+        layout.addWidget(button_box)
+
+    def init_env(self):
+        if not os.path.exists(".env"):
+            with open(".env", "w") as f:
+                f.write("OPENAI_API_KEY=")
+
+    def read_env(self):
+        self.init_env()
+        options = []
+        with open(self.env_path, "r") as f:
+            for line in f:
+                key, value = line.strip().split("=")
+                options.append((key, value))
+        return options
+
+    def write_env(self):
+        updated_options = []
+        for i in range(self.layout().count()):
+            widget = self.layout().itemAt(i).widget()
+            if isinstance(widget, QLineEdit):
+                key = widget.parent().findChild(QLabel).text()
+                value = widget.text()
+                updated_options.append((key, value))
+        with open(self.env_path, "w") as f:
+            for option in updated_options:
+                f.write(f"{option[0]}={option[1]}\n")
 
 
 class ChatWindow(QMainWindow):
@@ -10,13 +74,30 @@ class ChatWindow(QMainWindow):
         self.temperature = 0.618
         self.setWindowTitle("Chat")
 
+        # [MENU]
+        menubar = self.menuBar()
+
+        # [OPTIONS]
+        options_menu = QMenu("Options", self)
+        menubar.addMenu(options_menu)
+
+        # [CONFIG]
+        set_config_action = QAction("Configuration", self)
+        set_config_action.triggered.connect(self.show_config_dialog)
+        options_menu.addAction(set_config_action)
+
         # [CHATLOG]
         self.chat_log = QTextEdit(self)
+        self.chat_log.setFont(options["default_font"])
+        self.chat_log.setStyleSheet(options["styles"]["box"])
         self.chat_log.setReadOnly(True)
 
         # [PROMPT]
         self.prompt = QTextEdit(self)
-        self.prompt.setLineWrapMode(QTextEdit.NoWrap)
+        self.prompt.setAcceptRichText(False)
+        self.prompt.setPlaceholderText("Type your message here...")
+        self.prompt.setFont(options["default_font"])
+        self.prompt.setStyleSheet(options["styles"]["box"])
         self.prompt.textChanged.connect(self.resizeTextEdit)
 
         # [SEND BUTTON]
@@ -53,6 +134,13 @@ class ChatWindow(QMainWindow):
         scrollbarHeight = self.prompt.verticalScrollBar().sizeHint().height()
         contentHeight = documentHeight + scrollbarHeight
         self.prompt.setFixedHeight(int(contentHeight))
+
+    def show_config_dialog(self):
+        config_dialog = ConfigDialog(self)
+        if config_dialog.exec_() == QDialog.Accepted:
+            config_dialog.write_env()
+        else:
+            config_dialog.close()
 
     def exit_chat(self):
         self.close()

@@ -5,13 +5,10 @@ from utils import log
 from datetime import datetime
 from dotenv import load_dotenv
 
-"""
-Put your Open AI API key in a .env file
-"""
 
 load_dotenv()
 openai.api_key = os.environ["OPENAI_API_KEY"]
-initial_prompt = "You are the Italian Garante. You are investigating the Italian government's response to the chatGPT privacy policy. You are looking for evidence of corruption. You are looking for evidence of incompetence. You are looking for evidence of negligence. You are looking for evidence of malfeasance. You are looking for evidence of misfeasance. You are looking for evidence of nonfeasance. You are looking for evidence of abuse of power. You are looking for evidence of abuse of authority. You are looking for evidence of abuse of discretion. You are looking for evidence of abuse of process. You are looking for evidence of abuse of trust. You are looking for evidence of abuse of office. You are looking for evidence of abuse of position. You are looking for evidence of abuse"
+initial_prompt = "You are a useful and intelligent person."
 history = []
 
 if not os.path.exists("chatlogs"):
