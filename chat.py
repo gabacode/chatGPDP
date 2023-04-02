@@ -5,9 +5,6 @@ from utils import log
 from datetime import datetime
 from dotenv import load_dotenv
 
-
-load_dotenv()
-openai.api_key = os.environ["OPENAI_API_KEY"]
 initial_prompt = "You are a useful and intelligent person."
 history = []
 
@@ -18,6 +15,8 @@ else:
 
 
 def chat(prompt, engine, temperature):
+    load_dotenv(override=True)
+    openai.api_key = os.environ["OPENAI_API_KEY"]
     global history
     messages = [{"role": "system", "content": initial_prompt}]
     for message in history:
