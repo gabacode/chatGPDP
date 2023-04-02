@@ -25,6 +25,7 @@ def chat(prompt, engine, temperature):
     messages = [{"role": "system", "content": initial_prompt}]
     for message in history:
         messages.append(message)
+    history.append({"role": "user", "content": prompt})
     messages.append({"role": "user", "content": prompt})
     try:
         response = openai.ChatCompletion.create(
