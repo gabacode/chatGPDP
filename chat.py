@@ -6,7 +6,6 @@ from datetime import datetime
 from dotenv import load_dotenv
 
 initial_prompt = "You are a useful and intelligent person."
-history = []
 
 if not os.path.exists("chatlogs"):
     os.mkdir("chatlogs")
@@ -15,6 +14,8 @@ else:
 if not os.path.exists(".env"):
     with open(".env", "w") as f:
         f.write("OPENAI_API_KEY=")
+
+history = []
 
 
 def chat(prompt, engine, temperature):

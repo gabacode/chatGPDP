@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (
     QTextEdit,
     QPushButton,
     QVBoxLayout,
+    QScrollArea,
     QWidget,
 )
 
@@ -68,9 +69,16 @@ class ChatWindow(QMainWindow):
         layout.addWidget(send_button)
         layout.addWidget(exit_button)
 
+        # [SCROLL AREA]
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setWidget(QWidget())
+        scroll_area.widget().setLayout(layout)
+
         # Create widget and init the layout
         widget = QWidget()
-        widget.setLayout(layout)
+        widget.setLayout(QVBoxLayout())
+        widget.layout().addWidget(scroll_area)
         self.setCentralWidget(widget)
         self.prompt.setFocus()
 
