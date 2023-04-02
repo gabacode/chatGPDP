@@ -38,5 +38,5 @@ def chat(prompt, engine, temperature):
         log("\n" + "User: " + prompt + "\n" + "Assistant: " + response_text + "\n")
         history.append({"role": "system", "content": response_text})
         return response_text
-    except openai.InvalidRequestError as e:
-        print(e)
+    except Exception as e:
+        return "I'm sorry, we got an error:" + "\n" + str(e)

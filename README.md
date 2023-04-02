@@ -25,7 +25,7 @@ OPENAI_API_KEY=<your key here>
 - Run the script.
 
 ```bash
-python3 qt.py
+python3 main.py
 ```
 
 - Ask any questions to your favourite fictional character!
