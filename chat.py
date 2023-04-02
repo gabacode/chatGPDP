@@ -1,12 +1,10 @@
 import os
 import openai
-from config import engines
+from config import engines, initial_prompt
 from utils import log
 from datetime import datetime
 from dotenv import load_dotenv
 
-
-initial_prompt = "You are a useful and intelligent person."
 
 if not os.path.exists("chatlogs"):
     os.mkdir("chatlogs")
@@ -59,5 +57,5 @@ def chat(prompt, engine, temperature):
     response_chunks = [call_api(engine, chunk, max_tokens, temperature) for chunk in chunks]
     response_text = "".join(response_chunks)
     log("\n" + "User: " + prompt + "\n" + "Assistant: " + response_text + "\n")
-    history.append({"role": "system", "content": response_text})
+    history.append({"role": "assistant", "content": response_text})
     return response_text

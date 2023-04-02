@@ -1,5 +1,7 @@
 from PyQt5.QtGui import QFont
 
+initial_prompt = "You are a useful and intelligent person."
+
 engines = {
     "gpt-3.5-turbo-0301": {
         "name": "gpt-3.5-turbo-0301",
