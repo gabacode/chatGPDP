@@ -12,6 +12,9 @@ if not os.path.exists("chatlogs"):
     os.mkdir("chatlogs")
 else:
     log("\n" + "[Session started at " + str(datetime.now()) + "]\n")
+if not os.path.exists(".env"):
+    with open(".env", "w") as f:
+        f.write("OPENAI_API_KEY=")
 
 
 def chat(prompt, engine, temperature):

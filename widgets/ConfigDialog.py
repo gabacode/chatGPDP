@@ -30,13 +30,7 @@ class ConfigDialog(QDialog):
         button_box.rejected.connect(self.reject)
         layout.addWidget(button_box)
 
-    def init_env(self):
-        if not os.path.exists(".env"):
-            with open(".env", "w") as f:
-                f.write("OPENAI_API_KEY=")
-
     def read_env(self):
-        self.init_env()
         options = []
         with open(self.env_path, "r") as f:
             for line in f:
