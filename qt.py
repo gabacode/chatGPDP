@@ -78,13 +78,18 @@ class ChatWindow(QMainWindow):
         menubar = self.menuBar()
 
         # [OPTIONS]
-        options_menu = QMenu("Options", self)
+        options_menu = QMenu("Menu", self)
         menubar.addMenu(options_menu)
 
         # [CONFIG]
         set_config_action = QAction("Configuration", self)
         set_config_action.triggered.connect(self.show_config_dialog)
         options_menu.addAction(set_config_action)
+
+        # [EXIT]
+        exit_action = QAction("Exit", self)
+        exit_action.triggered.connect(self.exit_chat)
+        options_menu.addAction(exit_action)
 
         # [CHATLOG]
         self.chat_log = QTextEdit(self)
