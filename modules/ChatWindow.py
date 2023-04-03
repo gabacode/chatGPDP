@@ -22,6 +22,7 @@ from PyQt5.QtWidgets import (
 )
 from modules.Utilities import Utilities
 from modules.ConfigDialog import ConfigDialog
+from modules.PersonalityDialog import PersonalityDialog
 
 
 chatbot = Chatbot([{"role": "system", "content": initial_prompt}])
@@ -35,44 +36,50 @@ class ChatWindow(QMainWindow):
         self.options = Utilities.get_engine_names(engines)
         self.engine = self.engine, *_ = self.options
         self.temperature = 0.618
-        self.setWindowTitle("Chat")
+        self.setWindowTitle("ChatGPDP")
         self.is_loading = False
         self.loading_signal.connect(self.set_loading)
 
         # [MENU]
         menubar = self.menuBar()
 
-        # [OPTIONS]
-        options_menu = QMenu("Menu", self)
-        menubar.addMenu(options_menu)
-
+        file_menu = QMenu("File", self)
+        options_menu = QMenu("Options", self)
         help_menu = QMenu("Help", self)
+
+        menubar.addMenu(file_menu)
+        menubar.addMenu(options_menu)
         menubar.addMenu(help_menu)
 
         # [NEW CHAT]
         new_action = QAction("New Chat", self)
         new_action.triggered.connect(self.restart_chat)
-        options_menu.addAction(new_action)
+        file_menu.addAction(new_action)
 
         # [LOAD CHAT]
         load_action = QAction("Load Chat", self)
         load_action.triggered.connect(self.load_history)
-        options_menu.addAction(load_action)
+        file_menu.addAction(load_action)
 
         # [SAVE CHAT]
         save_action = QAction("Save Chat", self)
         save_action.triggered.connect(self.save_history)
-        options_menu.addAction(save_action)
-
-        # [CONFIGURATION]
-        set_config_action = QAction("Settings", self)
-        set_config_action.triggered.connect(self.show_config_dialog)
-        options_menu.addAction(set_config_action)
+        file_menu.addAction(save_action)
 
         # [EXIT]
         exit_action = QAction("Exit", self)
         exit_action.triggered.connect(self.exit_chat)
-        options_menu.addAction(exit_action)
+        file_menu.addAction(exit_action)
+
+        # [CHANGE PERSONALITY]
+        change_personality_action = QAction("Change Personality...", self)
+        change_personality_action.triggered.connect(self.change_personality)
+        options_menu.addAction(change_personality_action)
+
+        # [SETTINGS]
+        set_config_action = QAction("Set API Key...", self)
+        set_config_action.triggered.connect(self.show_config_dialog)
+        options_menu.addAction(set_config_action)
 
         # [GET API KEY]
         get_api_key_action = QAction("Get API Key...", self)
@@ -205,6 +212,11 @@ class ChatWindow(QMainWindow):
             config_dialog.write_env()
         else:
             config_dialog.close()
+
+    def change_personality(self):
+        personality_dialog = PersonalityDialog(self)
+        if personality_dialog.exec_() == QDialog.Accepted:
+            self.restart_chat()
 
     def restart_chat(self):
         os.execl(sys.executable, sys.executable, *sys.argv)
