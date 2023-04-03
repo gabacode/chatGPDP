@@ -164,9 +164,9 @@ class ChatWindow(QMainWindow):
         cursor = self.chat_log.textCursor()
         format = QTextCharFormat()
         format.setForeground(QBrush(QColor(colors[mode])))
+        cursor.movePosition(QTextCursor.End)
         cursor.insertText(f"[{mode.capitalize()}]: {message}\n", format)
         cursor.insertText("\n")
-        self.chat_log.setTextCursor(cursor)
         self.chat_log.moveCursor(QTextCursor.End)
         self.chat_log.ensureCursorVisible()
 
