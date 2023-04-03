@@ -6,6 +6,8 @@ channels:
 dependencies:
   - python=3.10
   - openai==0.27.2
-  - pyqt==5.15.7
   - python-dotenv==1.0.0
+  - pip
+  - pip:
+      - pyqt5==5.15.9
 

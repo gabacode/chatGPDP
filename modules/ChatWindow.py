@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 from config import engines, options, colors, initial_prompt
 from modules.Chatbot import Chatbot
 
@@ -22,7 +23,7 @@ from PyQt5.QtWidgets import (
 )
 from utils import get_engine_names, load_chat, save_chat
 
-from widgets.ConfigDialog import ConfigDialog
+from modules.ConfigDialog import ConfigDialog
 
 
 chatbot = Chatbot([{"role": "system", "content": initial_prompt}])

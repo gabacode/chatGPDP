@@ -1,3 +1,5 @@
+from config import initial_prompt
+
 from PyQt5.QtWidgets import (
     QDialog,
     QLabel,
@@ -5,8 +7,6 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QDialogButtonBox,
 )
-
-from config import initial_prompt
 
 
 class ConfigDialog(QDialog):

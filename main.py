@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import (
     QApplication,
 )
-from widgets.ChatWindow import ChatWindow
+from modules.ChatWindow import ChatWindow
 
 
 if __name__ == "__main__":
