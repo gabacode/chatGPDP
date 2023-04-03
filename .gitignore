@@ -1,3 +1,5 @@
 .env
 __pycache__
 chatlogs/*.txt
+chatlogs/*.json
+chatlogs/*/*
