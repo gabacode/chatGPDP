@@ -32,3 +32,14 @@ python3 main.py
 
 - Enjoy!
 
+## Why?
+
+We shouldn't really need a reason to publish a project like this, but particular times call for particular measures.
+
+GPDP stands for "Giving Power to Democratic Participation", it's a censorship-resistant (for now) way of accessing to OpenAI's [GPT-3.5 models](https://platform.openai.com/docs/models/gpt-3-5) while their GDPR compliance is being evaluated.
+
+Also, being open source, means that you can understand and learn how to build a similar bot, giving you a degree of "freedom" in setting your initial prompt, to experiment with different bot personalities, and satisfying your curiosity.
+
+Being an embedded and portable solution, means that you can share your conversations across different devices, and even with your friends.
+
+Use this technology responsibly, and don't forget to have fun!
