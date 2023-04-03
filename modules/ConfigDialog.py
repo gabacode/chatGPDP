@@ -1,5 +1,3 @@
-from config import initial_prompt
-
 from PyQt5.QtWidgets import (
     QDialog,
     QLabel,
@@ -17,12 +15,12 @@ class ConfigDialog(QDialog):
         self.setFixedWidth(600)
         layout = QVBoxLayout(self)
 
-        initial_prompt_label = QLabel("Personality:")
-        initial_prompt_text = QLabel(initial_prompt)
-        layout.addWidget(initial_prompt_label)
-        layout.addWidget(initial_prompt_text)
+        # initial_prompt_label = QLabel("Personality:")
+        # initial_prompt_text = QLabel(initial_prompt)
+        # layout.addWidget(initial_prompt_label)
+        # layout.addWidget(initial_prompt_text)
 
-        layout.addWidget(QLabel(""))
+        # layout.addWidget(QLabel(""))
 
         # Add the options
         options = self.read_env()
