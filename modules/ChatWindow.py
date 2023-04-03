@@ -3,26 +3,24 @@ import sys
 from config import engines, options, colors, initial_prompt
 from modules.Chatbot import Chatbot
 
-from PyQt5.QtGui import QTextCharFormat, QBrush, QColor, QDesktopServices, QTextCursor
-
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, QUrl
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, QUrl, pyqtSlot
+from PyQt5.QtGui import QDesktopServices, QTextCharFormat, QBrush, QColor, QTextCursor
 from PyQt5.QtWidgets import (
     QAction,
     QComboBox,
     QDialog,
-    QMenu,
     QFileDialog,
     QLabel,
     QMainWindow,
+    QPushButton,
+    QScrollArea,
     QSlider,
     QTextEdit,
-    QPushButton,
     QVBoxLayout,
-    QScrollArea,
     QWidget,
+    QMenu,
 )
-from utils import get_engine_names, load_chat, save_chat
-
+from modules.Utilities import Utilities
 from modules.ConfigDialog import ConfigDialog
 
 
@@ -34,8 +32,8 @@ class ChatWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.options = get_engine_names(engines)
-        self.engine = self.options[0]
+        self.options = Utilities.get_engine_names(engines)
+        self.engine = self.engine, *_ = self.options
         self.temperature = 0.618
         self.setWindowTitle("Chat")
         self.is_loading = False
@@ -157,10 +155,11 @@ class ChatWindow(QMainWindow):
         self.temperature = value / 1000.0
         self.temperature_label.setText(f"Select a temperature: {self.temperature}")
 
-    def set_loading(self, value):
-        self.is_loading = value
-        self.send_button.setEnabled(not value)
-        self.send_button.setText("Evaluating..." if value else "Send")
+    @pyqtSlot(bool)
+    def set_loading(self, is_loading):
+        self.is_loading = is_loading
+        self.send_button.setEnabled(not is_loading)
+        self.send_button.setText("Evaluating..." if is_loading else "Send")
 
     def append_message(self, mode, message):
         cursor = self.chat_log.textCursor()
@@ -216,14 +215,14 @@ class ChatWindow(QMainWindow):
         file_name, _ = QFileDialog.getSaveFileName(self, "Save File", chatlogs_directory, "JSON Files (*.json)")
         if file_name:
             history = chatbot.get_history()
-            save_chat(file_name, history)
+            Utilities.save_chat(file_name, history)
 
     def load_history(self):
         global chatbot
         chatlogs_directory = "chatlogs"
         file_name, _ = QFileDialog.getOpenFileName(self, "Open File", chatlogs_directory, "JSON Files (*.json)")
         if file_name:
-            history = load_chat(file_name)
+            history = Utilities.load_chat(file_name)
             self.chat_log.clear()
             for message in history:
                 if message["role"] == "user":
