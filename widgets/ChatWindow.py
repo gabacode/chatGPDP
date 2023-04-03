@@ -2,7 +2,7 @@ import os, sys
 from chat import Chatbot
 from config import engines, options, colors, initial_prompt
 
-from PyQt5.QtGui import QTextCharFormat, QBrush, QColor, QDesktopServices
+from PyQt5.QtGui import QTextCharFormat, QBrush, QColor, QDesktopServices, QTextCursor
 
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QUrl
 from PyQt5.QtWidgets import (
@@ -167,6 +167,7 @@ class ChatWindow(QMainWindow):
         cursor.insertText(f"[{mode.capitalize()}]: {message}\n", format)
         cursor.insertText("\n")
         self.chat_log.setTextCursor(cursor)
+        self.chat_log.moveCursor(QTextCursor.End)
         self.chat_log.ensureCursorVisible()
 
     def send_message(self):
