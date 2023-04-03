@@ -21,8 +21,9 @@ from PyQt5.QtWidgets import (
     QMenu,
 )
 from modules.Utilities import Utilities
-from modules.ConfigDialog import ConfigDialog
-from modules.PersonalityDialog import PersonalityDialog
+from modules.dialogs.AboutDialog import AboutDialog
+from modules.dialogs.ConfigDialog import ConfigDialog
+from modules.dialogs.PersonalityDialog import PersonalityDialog
 
 
 chatbot = Chatbot([{"role": "system", "content": initial_prompt}])
@@ -80,6 +81,11 @@ class ChatWindow(QMainWindow):
         set_config_action = QAction("Set API Key...", self)
         set_config_action.triggered.connect(self.show_config_dialog)
         options_menu.addAction(set_config_action)
+
+        # [ABOUT]
+        about_action = QAction("About...", self)
+        about_action.triggered.connect(self.show_about_dialog)
+        help_menu.addAction(about_action)
 
         # [GET API KEY]
         get_api_key_action = QAction("Get API Key...", self)
@@ -205,6 +211,10 @@ class ChatWindow(QMainWindow):
         scrollbarHeight = self.prompt.verticalScrollBar().sizeHint().height()
         contentHeight = documentHeight + scrollbarHeight
         self.prompt.setFixedHeight(int(contentHeight))
+
+    def show_about_dialog(self):
+        about_dialog = AboutDialog(self)
+        about_dialog.exec_()
 
     def show_config_dialog(self):
         config_dialog = ConfigDialog(self)
