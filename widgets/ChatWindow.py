@@ -25,11 +25,15 @@ chatbot = Chatbot([{"role": "system", "content": initial_prompt}])
 
 
 class ChatWindow(QMainWindow):
+    loading_signal = pyqtSignal(bool)
+
     def __init__(self):
         super().__init__()
         self.engine = "gpt-3.5-turbo-0301"
         self.temperature = 0.618
         self.setWindowTitle("Chat")
+        self.is_loading = False
+        self.loading_signal.connect(self.set_loading)
 
         # [MENU]
         menubar = self.menuBar()
@@ -69,9 +73,8 @@ class ChatWindow(QMainWindow):
         self.prompt.textChanged.connect(self.resizeTextEdit)
 
         # [SEND BUTTON]
-        send_button = QPushButton("Send", self)
-        send_button.setEnabled(not chatbot.is_thinking)
-        send_button.clicked.connect(self.send_message)
+        self.send_button = QPushButton("Send", self)
+        self.send_button.clicked.connect(self.send_message)
 
         # [RESTART BUTTON]
         restart_button = QPushButton("Restart", self)
@@ -85,7 +88,7 @@ class ChatWindow(QMainWindow):
         layout = QVBoxLayout()
         layout.addWidget(self.chat_log)
         layout.addWidget(self.prompt)
-        layout.addWidget(send_button)
+        layout.addWidget(self.send_button)
         layout.addWidget(restart_button)
         layout.addWidget(exit_button)
 
@@ -101,6 +104,11 @@ class ChatWindow(QMainWindow):
         widget.layout().addWidget(scroll_area)
         self.setCentralWidget(widget)
         self.prompt.setFocus()
+
+    def set_loading(self, value):
+        self.is_loading = value
+        self.send_button.setEnabled(not value)
+        self.send_button.setText("Evaluating..." if value else "Send")
 
     def append_message(self, mode, message):
         cursor = self.chat_log.textCursor()
@@ -119,6 +127,9 @@ class ChatWindow(QMainWindow):
         self.append_message("user", message)
         self.prompt.clear()
 
+        self.is_loading = True
+        self.loading_signal.emit(True)
+
         if hasattr(self, "chat_thread") and self.chat_thread.isRunning():
             self.chat_thread.terminate()
             self.chat_thread.wait()
@@ -129,6 +140,8 @@ class ChatWindow(QMainWindow):
 
     def handle_response(self, response):
         self.append_message("assistant", response)
+        self.is_loading = False
+        self.loading_signal.emit(False)
         self.prompt.setFocus()
 
     def resizeTextEdit(self):

@@ -15,15 +15,12 @@ class Chatbot:
         load_dotenv(override=True)
         openai.api_key = os.environ["OPENAI_API_KEY"]
         self.history = history
-        self.is_thinking = False
 
     def create_messages(self, prompt):
         self.history.append({"role": "user", "content": prompt})
         return self.history
 
     def call_api(self, engine, messages, max_tokens, temperature):
-        self.is_thinking = True
-        print(messages)
         try:
             response = openai.ChatCompletion.create(
                 model=engines[engine]["name"],
@@ -38,8 +35,6 @@ class Chatbot:
             return response_text
         except Exception as e:
             return "I'm sorry, we got an error:" + "\n" + str(e)
-        finally:
-            self.is_thinking = False
 
     def chat(self, prompt, engine, temperature):
         messages = self.create_messages(prompt)
