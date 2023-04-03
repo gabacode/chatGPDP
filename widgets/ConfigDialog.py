@@ -12,7 +12,7 @@ class ConfigDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.env_path = ".env"
-        self.setWindowTitle("Configuration")
+        self.setWindowTitle("Settings")
         self.setFixedWidth(600)
         layout = QVBoxLayout(self)
 

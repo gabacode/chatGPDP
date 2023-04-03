@@ -53,7 +53,7 @@ class ChatWindow(QMainWindow):
         options_menu.addAction(save_action)
 
         # [CONFIGURATION]
-        set_config_action = QAction("Configuration", self)
+        set_config_action = QAction("Settings", self)
         set_config_action.triggered.connect(self.show_config_dialog)
         options_menu.addAction(set_config_action)
 
