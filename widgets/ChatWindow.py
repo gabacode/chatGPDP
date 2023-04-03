@@ -1,23 +1,26 @@
 import os, sys
 from chat import Chatbot
-from config import options, colors, initial_prompt
+from config import engines, options, colors, initial_prompt
 
 from PyQt5.QtGui import QTextCharFormat, QBrush, QColor
 
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtWidgets import (
     QAction,
+    QComboBox,
     QDialog,
     QMenu,
     QFileDialog,
+    QLabel,
     QMainWindow,
+    QSlider,
     QTextEdit,
     QPushButton,
     QVBoxLayout,
     QScrollArea,
     QWidget,
 )
-from utils import load_chat, save_chat
+from utils import get_engine_names, load_chat, save_chat
 
 from widgets.ConfigDialog import ConfigDialog
 
@@ -29,7 +32,8 @@ class ChatWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.engine = "gpt-3.5-turbo-0301"
+        self.options = get_engine_names(engines)
+        self.engine = self.options[0]
         self.temperature = 0.618
         self.setWindowTitle("Chat")
         self.is_loading = False
@@ -62,6 +66,23 @@ class ChatWindow(QMainWindow):
         exit_action.triggered.connect(self.exit_chat)
         options_menu.addAction(exit_action)
 
+        # [SELECT ENGINE]
+        model_label = QLabel("Select a model:", self)
+        model_dropdown = QComboBox(self)
+        model_dropdown.addItems(self.options)
+        model_dropdown.setCurrentIndex(0)
+        model_dropdown.activated[str].connect(self.change_engine)
+
+        # [SELECT TEMPERATURE]
+        self.temperature_label = QLabel(f"Select a temperature: {self.temperature}", self)
+        temperature_slider = QSlider(Qt.Horizontal, self)
+        temperature_slider.setMinimum(0)
+        temperature_slider.setMaximum(1000)
+        temperature_slider.setValue(618)
+        temperature_slider.setTickInterval(10)
+        temperature_slider.setTickPosition(QSlider.TicksBelow)
+        temperature_slider.valueChanged.connect(self.change_temperature)
+
         # [CHATLOG]
         self.chat_log = QTextEdit(self)
         self.chat_log.setFont(options["default_font"])
@@ -91,6 +112,10 @@ class ChatWindow(QMainWindow):
 
         # [LAYOUT]
         layout = QVBoxLayout()
+        layout.addWidget(model_label)
+        layout.addWidget(model_dropdown)
+        layout.addWidget(self.temperature_label)
+        layout.addWidget(temperature_slider)
         layout.addWidget(self.chat_log)
         layout.addWidget(self.prompt)
         layout.addWidget(self.send_button)
@@ -109,6 +134,13 @@ class ChatWindow(QMainWindow):
         widget.layout().addWidget(scroll_area)
         self.setCentralWidget(widget)
         self.prompt.setFocus()
+
+    def change_engine(self, text):
+        self.engine = text
+
+    def change_temperature(self, value):
+        self.temperature = value / 1000.0
+        self.temperature_label.setText(f"Select a temperature: {self.temperature}")
 
     def set_loading(self, value):
         self.is_loading = value

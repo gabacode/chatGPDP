@@ -25,3 +25,10 @@ def load_chat(file):
         return history
     except:
         return []
+
+
+def get_engine_names(engines_dict):
+    engine_names = []
+    for engine in engines_dict.values():
+        engine_names.append(engine["name"])
+    return engine_names
