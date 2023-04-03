@@ -4,7 +4,7 @@ Chat with your favourite fictional characters!
 
 This is a fake scenario and should not be taken seriously.
 
-Change the `initial_prompt` variable in `config.py` to change your fictional character's desired behavior.
+Change the text in the `initial_prompt.txt` file to change your fictional character's desired behavior.
 
 ## Instructions
 

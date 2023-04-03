@@ -1,4 +1,3 @@
-import os
 from PyQt5.QtWidgets import (
     QDialog,
     QLabel,
@@ -6,6 +5,8 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QDialogButtonBox,
 )
+
+from config import initial_prompt
 
 
 class ConfigDialog(QDialog):
@@ -16,6 +17,13 @@ class ConfigDialog(QDialog):
         self.setFixedWidth(600)
         layout = QVBoxLayout(self)
 
+        initial_prompt_label = QLabel("Personality:")
+        initial_prompt_text = QLabel(initial_prompt)
+        layout.addWidget(initial_prompt_label)
+        layout.addWidget(initial_prompt_text)
+
+        layout.addWidget(QLabel(""))
+
         # Add the options
         options = self.read_env()
         for option in options:
@@ -23,6 +31,8 @@ class ConfigDialog(QDialog):
             option_edit = QLineEdit(option[1])
             layout.addWidget(option_label)
             layout.addWidget(option_edit)
+
+        layout.addWidget(QLabel(""))
 
         # Add the buttons
         button_box = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)

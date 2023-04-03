@@ -1,6 +1,6 @@
 from PyQt5.QtGui import QFont
 
-initial_prompt = "You are a useful and intelligent person. You're a Python master!"
+initial_prompt = open("initial_prompt.txt", "r").read().strip()
 
 colors = {
     "user": "#4CD964",
