@@ -25,7 +25,7 @@ OPENAI_API_KEY=<your key here>
 - Run the script.
 
 ```bash
-python3 main.py
+python3 app.py
 ```
 
 - Ask any questions to your favourite fictional character!
@@ -43,3 +43,4 @@ Also, being open source, means that you can understand and learn how to build a 
 Being an embedded and portable solution, means that you can share your conversations across different devices, and even with your friends.
 
 Use this technology responsibly, and don't forget to have fun!
+
