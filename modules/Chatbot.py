@@ -11,9 +11,12 @@ class Chatbot:
         if not os.path.exists(".env"):
             with open(".env", "w") as f:
                 f.write("OPENAI_API_KEY=")
+        self.reload_env()
+        self.history = history
+
+    def reload_env(self):
         load_dotenv(override=True)
         openai.api_key = os.environ["OPENAI_API_KEY"]
-        self.history = history
 
     def create_messages(self, prompt):
         message = {"role": "user", "content": prompt}

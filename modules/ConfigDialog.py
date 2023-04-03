@@ -6,6 +6,8 @@ from PyQt5.QtWidgets import (
     QDialogButtonBox,
 )
 
+from modules.Chatbot import Chatbot
+
 
 class ConfigDialog(QDialog):
     def __init__(self, parent=None):
@@ -14,13 +16,6 @@ class ConfigDialog(QDialog):
         self.setWindowTitle("Settings")
         self.setFixedWidth(600)
         layout = QVBoxLayout(self)
-
-        # initial_prompt_label = QLabel("Personality:")
-        # initial_prompt_text = QLabel(initial_prompt)
-        # layout.addWidget(initial_prompt_label)
-        # layout.addWidget(initial_prompt_text)
-
-        # layout.addWidget(QLabel(""))
 
         # Add the options
         options = self.read_env()
@@ -57,3 +52,4 @@ class ConfigDialog(QDialog):
         with open(self.env_path, "w") as f:
             for option in updated_options:
                 f.write(f"{option[0]}={option[1]}\n")
+        Chatbot.reload_env(self)
