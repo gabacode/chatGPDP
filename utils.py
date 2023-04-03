@@ -9,14 +9,15 @@ def log(text):
     f.close()
 
 
-def save_history(history):
-    today = datetime.now().strftime("%Y-%m-%d")
-    with open(f"chatlogs/{today}.json", "w") as f:
+def save_chat(file, history):
+    if file.endswith(".json"):
+        file = file.replace(".json", "")
+    with open(f"{file}.json", "w") as f:
         json.dump(history, f)
     f.close()
 
 
-def load_history(file):
+def load_chat(file):
     try:
         with open(file, "r") as f:
             history = json.load(f)

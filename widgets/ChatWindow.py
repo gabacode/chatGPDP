@@ -17,7 +17,7 @@ from PyQt5.QtWidgets import (
     QScrollArea,
     QWidget,
 )
-from utils import load_history
+from utils import load_chat, save_chat
 
 from widgets.ConfigDialog import ConfigDialog
 
@@ -42,12 +42,17 @@ class ChatWindow(QMainWindow):
         options_menu = QMenu("Menu", self)
         menubar.addMenu(options_menu)
 
-        # [LOAD]
+        # [LOAD CHAT]
         load_action = QAction("Load Chat", self)
         load_action.triggered.connect(self.load_history)
         options_menu.addAction(load_action)
 
-        # [CONFIG]
+        # [SAVE CHAT]
+        save_action = QAction("Save Chat", self)
+        save_action.triggered.connect(self.save_history)
+        options_menu.addAction(save_action)
+
+        # [CONFIGURATION]
         set_config_action = QAction("Configuration", self)
         set_config_action.triggered.connect(self.show_config_dialog)
         options_menu.addAction(set_config_action)
@@ -157,12 +162,20 @@ class ChatWindow(QMainWindow):
     def restart_chat(self):
         os.execl(sys.executable, sys.executable, *sys.argv)
 
+    def save_history(self):
+        global chatbot
+        chatlogs_directory = "chatlogs"
+        file_name, _ = QFileDialog.getSaveFileName(self, "Save File", chatlogs_directory, "JSON Files (*.json)")
+        if file_name:
+            history = chatbot.get_history()
+            save_chat(file_name, history)
+
     def load_history(self):
         global chatbot
         chatlogs_directory = "chatlogs"
         file_name, _ = QFileDialog.getOpenFileName(self, "Open File", chatlogs_directory, "JSON Files (*.json)")
         if file_name:
-            history = load_history(file_name)
+            history = load_chat(file_name)
             self.chat_log.clear()
             for message in history:
                 if message["role"] == "user":

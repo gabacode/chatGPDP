@@ -1,7 +1,6 @@
 import os
 import openai
 from config import engines
-from utils import save_history
 from dotenv import load_dotenv
 
 
@@ -43,5 +42,7 @@ class Chatbot:
         response_chunks = [self.call_api(engine, chunk, max_tokens, temperature) for chunk in chunks]
         response_text = "".join(response_chunks)
         self.history.append({"role": "assistant", "content": response_text})
-        save_history(self.history)
         return response_text
+
+    def get_history(self):
+        return self.history
