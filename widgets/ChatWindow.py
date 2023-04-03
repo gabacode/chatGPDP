@@ -1,6 +1,6 @@
 import os, sys
-from chat import Chatbot
 from config import engines, options, colors, initial_prompt
+from modules.Chatbot import Chatbot
 
 from PyQt5.QtGui import QTextCharFormat, QBrush, QColor, QDesktopServices, QTextCursor
 
@@ -23,6 +23,7 @@ from PyQt5.QtWidgets import (
 from utils import get_engine_names, load_chat, save_chat
 
 from widgets.ConfigDialog import ConfigDialog
+
 
 chatbot = Chatbot([{"role": "system", "content": initial_prompt}])
 
@@ -48,6 +49,11 @@ class ChatWindow(QMainWindow):
 
         help_menu = QMenu("Help", self)
         menubar.addMenu(help_menu)
+
+        # [NEW CHAT]
+        new_action = QAction("New Chat", self)
+        new_action.triggered.connect(self.restart_chat)
+        options_menu.addAction(new_action)
 
         # [LOAD CHAT]
         load_action = QAction("Load Chat", self)
@@ -115,10 +121,6 @@ class ChatWindow(QMainWindow):
         self.send_button = QPushButton("Send", self)
         self.send_button.clicked.connect(self.send_message)
 
-        # [RESTART BUTTON]
-        restart_button = QPushButton("Restart", self)
-        restart_button.clicked.connect(self.restart_chat)
-
         # [EXIT BUTTON]
         exit_button = QPushButton("Exit", self)
         exit_button.clicked.connect(self.exit_chat)
@@ -132,7 +134,6 @@ class ChatWindow(QMainWindow):
         layout.addWidget(self.chat_log)
         layout.addWidget(self.prompt)
         layout.addWidget(self.send_button)
-        layout.addWidget(restart_button)
         layout.addWidget(exit_button)
 
         # [SCROLL AREA]

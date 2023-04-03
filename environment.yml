@@ -1,0 +1,11 @@
+name: chatGPDP
+channels:
+  - conda-forge
+  - anaconda
+  - defaults
+dependencies:
+  - python=3.10
+  - openai==0.27.2
+  - pyqt==5.15.7
+  - python-dotenv==1.0.0
+
