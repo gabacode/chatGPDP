@@ -2,9 +2,9 @@ import os, sys
 from chat import Chatbot
 from config import engines, options, colors, initial_prompt
 
-from PyQt5.QtGui import QTextCharFormat, QBrush, QColor
+from PyQt5.QtGui import QTextCharFormat, QBrush, QColor, QDesktopServices
 
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, QUrl
 from PyQt5.QtWidgets import (
     QAction,
     QComboBox,
@@ -46,6 +46,9 @@ class ChatWindow(QMainWindow):
         options_menu = QMenu("Menu", self)
         menubar.addMenu(options_menu)
 
+        help_menu = QMenu("Help", self)
+        menubar.addMenu(help_menu)
+
         # [LOAD CHAT]
         load_action = QAction("Load Chat", self)
         load_action.triggered.connect(self.load_history)
@@ -65,6 +68,16 @@ class ChatWindow(QMainWindow):
         exit_action = QAction("Exit", self)
         exit_action.triggered.connect(self.exit_chat)
         options_menu.addAction(exit_action)
+
+        # [GET API KEY]
+        get_api_key_action = QAction("Get API Key...", self)
+        get_api_key_action.triggered.connect(self.get_api_key)
+        help_menu.addAction(get_api_key_action)
+
+        # [Go to GitHub]
+        github_action = QAction("View Source...", self)
+        github_action.triggered.connect(self.go_to_github)
+        help_menu.addAction(github_action)
 
         # [SELECT ENGINE]
         model_label = QLabel("Select a model:", self)
@@ -220,6 +233,14 @@ class ChatWindow(QMainWindow):
 
     def exit_chat(self):
         self.close()
+
+    def get_api_key(self):
+        url = QUrl("https://platform.openai.com/account/api-keys")
+        QDesktopServices.openUrl(url)
+
+    def go_to_github(self):
+        url = QUrl("https://github.com/gabacode/chatGPDP")
+        QDesktopServices.openUrl(url)
 
 
 class ChatThread(QThread):
