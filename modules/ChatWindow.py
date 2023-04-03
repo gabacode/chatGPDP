@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import (
     QFileDialog,
     QLabel,
     QMainWindow,
+    QMessageBox,
     QPushButton,
     QScrollArea,
     QSlider,
@@ -256,7 +257,14 @@ class ChatWindow(QMainWindow):
             chatbot = Chatbot(history)
 
     def exit_chat(self):
-        self.close()
+        reply = QMessageBox.question(self, "Exit", "Do you want to save the chat history?", QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+        if reply == QMessageBox.Yes:
+            self.save_history()
+            self.close()
+        elif reply == QMessageBox.Cancel:
+            pass
+        else:
+            self.close()
 
     def get_api_key(self):
         url = QUrl("https://platform.openai.com/account/api-keys")
