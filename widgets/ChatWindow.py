@@ -114,10 +114,7 @@ class ChatWindow(QMainWindow):
         cursor = self.chat_log.textCursor()
         format = QTextCharFormat()
         format.setForeground(QBrush(QColor(colors[mode])))
-        if mode == "user":
-            cursor.insertText("User: " + message + "\n", format)
-        elif mode == "assistant":
-            cursor.insertText("Assistant: " + message + "\n", format)
+        cursor.insertText(f"[{mode.capitalize()}]: {message}\n", format)
         cursor.insertText("\n")
         self.chat_log.setTextCursor(cursor)
         self.chat_log.ensureCursorVisible()
