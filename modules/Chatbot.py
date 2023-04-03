@@ -6,13 +6,16 @@ from dotenv import load_dotenv
 
 class Chatbot:
     def __init__(self, history):
+        self.env_init()
+        self.history = history
+
+    def env_init(self):
         if not os.path.exists("chatlogs"):
             os.mkdir("chatlogs")
         if not os.path.exists(".env"):
             with open(".env", "w") as f:
                 f.write("OPENAI_API_KEY=")
         self.reload_env()
-        self.history = history
 
     def reload_env(self):
         load_dotenv(override=True)
