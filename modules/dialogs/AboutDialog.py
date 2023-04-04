@@ -1,4 +1,5 @@
 import os
+from config import version
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtGui import QPixmap, QDesktopServices, QCursor
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout
@@ -12,7 +13,7 @@ class AboutDialog(QDialog):
         self.icon = os.path.join(root_dir, "icon.ico")
         credits = [
             {"content": "<h3>chatGPDP</h3>"},
-            {"content": "<p>Version 0.1</p>"},
+            {"content": "<p>Version {}</p>".format(version)},
             {"content": "<p>Made with love by<br><a href='https://github.com/gabacode'>Gabriele Arcangelo Scalici</a></p>"},
             {"content": "<p>Many thanks to <a href='https://openai.com/'>OpenAI</a>!</p>"},
         ]

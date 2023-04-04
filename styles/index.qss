@@ -8,12 +8,13 @@ QPushButton {
 
 QTextEdit,
 QLineEdit {
-  background-color: #f5f5f5;
+  background-color: #fff;
   color: #333;
   border: 1px solid #ccc;
   border-radius: 6px;
   padding: 10px;
 }
+
 
 QTextEdit {
   font-size: 18px;
@@ -31,22 +32,7 @@ QSlider::groove:horizontal {
 }
 
 QSlider::sub-page:horizontal {
-  background: qlineargradient(
-    x1: 0,
-    y1: 0,
-    x2: 0,
-    y2: 1,
-    stop: 0 #3498cb,
-    stop: 1 teal
-  );
-  background: qlineargradient(
-    x1: 0,
-    y1: 0.2,
-    x2: 1,
-    y2: 1,
-    stop: 0 #3498cb,
-    stop: 1 teal
-  );
+  background-color: #3498cb;
   border: 1px solid #777;
   height: 10px;
   border-radius: 4px;
@@ -127,5 +113,19 @@ QPushButton:pressed {
 QPushButton:disabled {
   background-color: #ccc;
   color: #666;
+}
+
+QMenu { 
+  background-color: #f2f2f2;
+  border: 1px solid #c2c2c2; 
+}
+QMenu::item:selected { 
+  background-color: #2d83af;
+  color: #ffffff; 
+}
+
+QMenu::separator { 
+  height: 1px; 
+  background-color: #c2c2c2; 
 }
 

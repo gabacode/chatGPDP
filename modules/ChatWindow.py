@@ -4,7 +4,7 @@ from config import engines, options, colors, initial_prompt
 from modules.Chatbot import Chatbot
 
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QUrl, pyqtSlot
-from PyQt5.QtGui import QDesktopServices, QTextCharFormat, QBrush, QColor, QTextCursor
+from PyQt5.QtGui import QDesktopServices, QFont, QTextCharFormat, QBrush, QColor, QTextCursor, QCursor
 from PyQt5.QtWidgets import (
     QAction,
     QComboBox,
@@ -128,10 +128,12 @@ class ChatWindow(QMainWindow):
 
         # [SEND BUTTON]
         self.send_button = QPushButton("Send", self)
+        self.send_button.setCursor(QCursor(Qt.PointingHandCursor))
         self.send_button.clicked.connect(self.send_message)
 
         # [EXIT BUTTON]
         exit_button = QPushButton("Exit", self)
+        exit_button.setCursor(QCursor(Qt.PointingHandCursor))
         exit_button.clicked.connect(self.exit_chat)
 
         # [LAYOUT]
@@ -158,6 +160,8 @@ class ChatWindow(QMainWindow):
         self.setCentralWidget(widget)
         self.prompt.setFocus()
 
+        self.append_message('system', initial_prompt)
+
     def change_engine(self, text):
         self.engine = text
 
@@ -175,6 +179,7 @@ class ChatWindow(QMainWindow):
         cursor = self.chat_log.textCursor()
         format = QTextCharFormat()
         format.setForeground(QBrush(QColor(colors[mode])))
+        format.setFontWeight(QFont.DemiBold)
         cursor.movePosition(QTextCursor.End)
         cursor.insertText(f"[{mode.capitalize()}]: {message}\n", format)
         cursor.insertText("\n")
