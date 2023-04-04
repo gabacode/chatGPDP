@@ -1,4 +1,4 @@
-# chatGPDP
+# ChatGPDP
 
 Chat with your favourite fictional characters!
 
@@ -8,6 +8,29 @@ Change the text in the `initial_prompt.txt` file to change your fictional charac
 
 ## Instructions
 
+---
+### Windows 7 and greater
+
+- Download and install the [latest Windows Installer](https://github.com/gabacode/chatGPDP/releases/latest).
+
+- Get a GPT API key from [OpenAI](https://platform.openai.com/account/api-keys) if you don't have one already.
+
+- Set your API key from the top menu `Options -> Set API key`.
+
+- You can change your fictional character's desired behavior via the `Options -> Change Personality` menu.
+
+- If you're encountering any issues, try starting a new conversation via the `File -> New Chat` menu.
+
+- Ask any questions to your favourite fictional character!
+
+- Enjoy!
+
+---
+
+### Linux, macOS etc...
+
+While the .deb and .dmg packages are being released, you can launch ChatGPDP with Python >=3.9
+
 - Install the requirements
 
 ```bash
@@ -16,13 +39,9 @@ pip install -r requirements.txt
 
 - Get a GPT API key from [OpenAI](https://platform.openai.com/account/api-keys) if you don't have one already.
 
-- Paste your API key in a file called `.env` in the root directory of the project.
+- Paste your API key in a file called `.env` in the root directory of the project, or via the top menu Options -> Set API key.
 
-```bash
-OPENAI_API_KEY=<your key here>
-```
-
-- Run the script.
+- Run the app.
 
 ```bash
 python3 app.py
@@ -42,5 +61,8 @@ Also, being open source, means that you can understand and learn how to build a 
 
 Being an embedded and portable solution, means that you can share your conversations across different devices, and even with your friends.
 
+Feel free to post on this repository for [feedback and suggestions](https://github.com/gabacode/chatGPDP/issues).
+
 Use this technology responsibly, and don't forget to have fun!
 
+Peace.
