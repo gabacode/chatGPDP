@@ -117,8 +117,6 @@ class ChatWindow(QMainWindow):
 
         # [CHATLOG]
         self.chat_log = QTextEdit(self)
-        self.chat_log.setFont(options["default_font"])
-        self.chat_log.setStyleSheet(options["styles"]["box"])
         self.chat_log.verticalScrollBar().setStyleSheet(options["styles"]["scroll_bar_vertical"])
         self.chat_log.setReadOnly(True)
 
@@ -126,8 +124,6 @@ class ChatWindow(QMainWindow):
         self.prompt = QTextEdit(self)
         self.prompt.setAcceptRichText(False)
         self.prompt.setPlaceholderText("Type your message here...")
-        self.prompt.setFont(options["default_font"])
-        self.prompt.setStyleSheet(options["styles"]["box"])
         self.prompt.textChanged.connect(self.resizeTextEdit)
 
         # [SEND BUTTON]
@@ -167,7 +163,7 @@ class ChatWindow(QMainWindow):
 
     def change_temperature(self, value):
         self.temperature = value / 1000.0
-        self.temperature_label.setText(f"Select a temperature: {self.temperature}")
+        self.temperature_label.setText(f"Change temperature: {self.temperature}")
 
     @pyqtSlot(bool)
     def set_loading(self, is_loading):

@@ -16,6 +16,7 @@ except ImportError:
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon(os.path.join(basedir, "icon.ico")))
+    app.setStyleSheet(open(os.path.join(basedir, "styles/index.qss")).read())
     window = ChatWindow()
     window.setGeometry(100, 100, 800, 800)
     window.show()

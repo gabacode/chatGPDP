@@ -1,6 +1,6 @@
 import os
 from PyQt5.QtCore import Qt, QUrl
-from PyQt5.QtGui import QPixmap, QDesktopServices
+from PyQt5.QtGui import QPixmap, QDesktopServices, QCursor
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout
 
 class AboutDialog(QDialog):
@@ -23,7 +23,7 @@ class AboutDialog(QDialog):
         layout = QVBoxLayout()
 
         icon_image = QLabel()
-        icon_image.setPixmap(QPixmap(self.icon).scaled(128, 128))
+        icon_image.setPixmap(QPixmap(self.icon).scaled(96, 96))
         icon_image.setStyleSheet("border-radius: 50%;")
         icon_image.setAlignment(Qt.AlignCenter)
         layout.addWidget(icon_image)
@@ -39,6 +39,7 @@ class AboutDialog(QDialog):
 
         button_layout = QHBoxLayout()
         ok_button = QPushButton("Cheers!")
+        ok_button.setCursor(QCursor(Qt.PointingHandCursor))
         ok_button.clicked.connect(self.accept)
         button_layout.addWidget(ok_button)
         layout.addLayout(button_layout)

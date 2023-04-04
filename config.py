@@ -1,5 +1,4 @@
 import os
-from PyQt5.QtGui import QFont
 
 if "initial_prompt.txt" not in os.listdir():
     with open("initial_prompt.txt", "w") as f:
@@ -21,7 +20,6 @@ engines = {
 }
 
 styles = {
-    "box": "padding: 10px; background-color: #ffffff;",
     "scroll_bar_vertical": """
             QScrollBar:vertical {
                 border: none;
@@ -56,6 +54,5 @@ styles = {
 }
 
 options = {
-    "default_font": QFont("Arial", 12),
     "styles": styles,
 }
