@@ -6,6 +6,8 @@ This is a fake scenario and should not be taken seriously.
 
 Change the text in the `initial_prompt.txt` file to change your fictional character's desired behavior.
 
+If you're interested in chatting with your own PDF documents, check the [chatPDF](https://github.com/gabacode/chatPDF) project!
+
 ## Instructions
 
 ---
