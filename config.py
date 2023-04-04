@@ -1,16 +1,17 @@
 import os
-from PyQt5.QtGui import QFont
 
 if "initial_prompt.txt" not in os.listdir():
     with open("initial_prompt.txt", "w") as f:
         f.write("Hello, I am a chatbot. How can I help you?")
+
+version = 0.2
 
 initial_prompt = open("initial_prompt.txt", "r").read().strip()
 
 colors = {
     "user": "#4CD964",
     "assistant": "#007AFF",
-    "system": "#d0d0d0",
+    "system": "#bbb",
 }
 
 engines = {
@@ -21,7 +22,6 @@ engines = {
 }
 
 styles = {
-    "box": "padding: 10px; background-color: #ffffff;",
     "scroll_bar_vertical": """
             QScrollBar:vertical {
                 border: none;
@@ -56,6 +56,5 @@ styles = {
 }
 
 options = {
-    "default_font": QFont("Arial", 12),
     "styles": styles,
 }

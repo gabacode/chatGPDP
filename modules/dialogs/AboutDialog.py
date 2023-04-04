@@ -1,6 +1,7 @@
 import os
+from config import version
 from PyQt5.QtCore import Qt, QUrl
-from PyQt5.QtGui import QPixmap, QDesktopServices
+from PyQt5.QtGui import QPixmap, QDesktopServices, QCursor
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout
 
 class AboutDialog(QDialog):
@@ -12,7 +13,7 @@ class AboutDialog(QDialog):
         self.icon = os.path.join(root_dir, "icon.ico")
         credits = [
             {"content": "<h3>chatGPDP</h3>"},
-            {"content": "<p>Version 0.1</p>"},
+            {"content": "<p>Version {}</p>".format(version)},
             {"content": "<p>Made with love by<br><a href='https://github.com/gabacode'>Gabriele Arcangelo Scalici</a></p>"},
             {"content": "<p>Many thanks to <a href='https://openai.com/'>OpenAI</a>!</p>"},
         ]
@@ -23,7 +24,7 @@ class AboutDialog(QDialog):
         layout = QVBoxLayout()
 
         icon_image = QLabel()
-        icon_image.setPixmap(QPixmap(self.icon).scaled(128, 128))
+        icon_image.setPixmap(QPixmap(self.icon).scaled(96, 96))
         icon_image.setStyleSheet("border-radius: 50%;")
         icon_image.setAlignment(Qt.AlignCenter)
         layout.addWidget(icon_image)
@@ -39,6 +40,7 @@ class AboutDialog(QDialog):
 
         button_layout = QHBoxLayout()
         ok_button = QPushButton("Cheers!")
+        ok_button.setCursor(QCursor(Qt.PointingHandCursor))
         ok_button.clicked.connect(self.accept)
         button_layout.addWidget(ok_button)
         layout.addLayout(button_layout)
