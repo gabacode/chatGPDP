@@ -8,7 +8,7 @@ a = Analysis(
     ['app.py'],
     pathex=[],
     binaries=[],
-    datas=[('initial_prompt.txt', '.'),('icon.ico', '.')],
+    datas=[('initial_prompt.txt', '.'),('icon.ico', '.'),('styles', 'styles')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
