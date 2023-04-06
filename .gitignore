@@ -5,3 +5,4 @@ chatlogs/*.json
 chatlogs/*/*
 dist
 build
+venv
