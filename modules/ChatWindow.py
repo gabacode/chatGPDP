@@ -3,7 +3,7 @@ import sys
 from config import engines, colors, initial_prompt
 from modules.Chatbot import Chatbot
 
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, QUrl, pyqtSlot
+from PyQt5.QtCore import Qt, QEvent, QThread, pyqtSignal, QUrl, pyqtSlot
 from PyQt5.QtGui import QDesktopServices, QFont, QTextCharFormat, QBrush, QColor, QTextCursor, QCursor
 from PyQt5.QtWidgets import (
     QAction,
@@ -123,8 +123,9 @@ class ChatWindow(QMainWindow):
         # [PROMPT]
         self.prompt = QTextEdit(self)
         self.prompt.setAcceptRichText(False)
-        self.prompt.setPlaceholderText("Type your message here...")
+        self.prompt.setPlaceholderText("Type your message here... (Press Shift+ENTER to start a new line)")
         self.prompt.textChanged.connect(self.resizeTextEdit)
+        self.prompt.installEventFilter(self)
 
         # [SEND BUTTON]
         self.send_button = QPushButton("Send", self)
@@ -214,6 +215,16 @@ class ChatWindow(QMainWindow):
         contentHeight = documentHeight + scrollbarHeight
         self.prompt.setFixedHeight(int(contentHeight))
 
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.KeyPress and obj is self.prompt:
+            if event.key() == Qt.Key_Return and self.prompt.hasFocus():
+                if event.modifiers() == Qt.ShiftModifier:
+                    self.prompt.textCursor().insertText('\n')
+                else:
+                    self.send_message()
+                return True
+        return super().eventFilter(obj, event)
+
     def show_about_dialog(self):
         about_dialog = AboutDialog(self)
         about_dialog.exec_()
@@ -249,12 +260,7 @@ class ChatWindow(QMainWindow):
             history = Utilities.load_chat(file_name)
             self.chat_log.clear()
             for message in history:
-                if message["role"] == "user":
-                    self.append_message("user", message["content"])
-                elif message["role"] == "assistant":
-                    self.append_message("assistant", message["content"])
-                elif message["role"] == "system":
-                    self.append_message("system", message["content"])
+                self.append_message(message["role"], message["content"])
             self.setWindowTitle(f"ChatGPDP - {file_name.split('/')[-1]}")
             chatbot = Chatbot(history)
 
