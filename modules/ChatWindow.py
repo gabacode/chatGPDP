@@ -1,6 +1,6 @@
 import os
 import sys
-from config import engines, options, colors, initial_prompt
+from config import engines, colors, initial_prompt
 from modules.Chatbot import Chatbot
 
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QUrl, pyqtSlot
@@ -38,7 +38,8 @@ class ChatWindow(QMainWindow):
         self.options = Utilities.get_engine_names(engines)
         self.engine = self.engine, *_ = self.options
         self.temperature = 0.618
-        self.setWindowTitle("ChatGPDP")
+        self.window_title = "ChatGPDP"
+        self.setWindowTitle(self.window_title)
         self.is_loading = False
         self.loading_signal.connect(self.set_loading)
 
@@ -117,7 +118,6 @@ class ChatWindow(QMainWindow):
 
         # [CHATLOG]
         self.chat_log = QTextEdit(self)
-        self.chat_log.verticalScrollBar().setStyleSheet(options["styles"]["scroll_bar_vertical"])
         self.chat_log.setReadOnly(True)
 
         # [PROMPT]
@@ -255,6 +255,7 @@ class ChatWindow(QMainWindow):
                     self.append_message("assistant", message["content"])
                 elif message["role"] == "system":
                     self.append_message("system", message["content"])
+            self.setWindowTitle(f"ChatGPDP - {file_name.split('/')[-1]}")
             chatbot = Chatbot(history)
 
     def exit_chat(self):
