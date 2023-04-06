@@ -24,6 +24,36 @@ QLabel {
   font-size: 16px;
 }
 
+QScrollBar:vertical {
+  border: none;
+  background-color: #F5F5F5;
+  width: 14px;
+  margin: 0px 0px 0px 0px;
+}
+
+QScrollBar::handle:vertical {
+  background-color: #B5B5B5;
+  min-height: 50px;
+  border: none;
+  subcontrol-position: center;
+}
+
+QScrollBar::add-line:vertical {
+  border: none;
+  background-color: #F5F5F5;
+  height: 0px;
+  subcontrol-position: bottom;
+  subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:vertical {
+  border: none;
+  background-color: #F5F5F5;
+  height: 0px;
+  subcontrol-position: top;
+  subcontrol-origin: margin;
+}
+
 QSlider::groove:horizontal {
   border: 1px solid #bbb;
   background: white;

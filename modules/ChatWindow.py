@@ -1,10 +1,18 @@
 import os
 import sys
-from config import engines, options, colors, initial_prompt
+from config import engines, colors, initial_prompt
 from modules.Chatbot import Chatbot
 
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, QUrl, pyqtSlot
-from PyQt5.QtGui import QDesktopServices, QFont, QTextCharFormat, QBrush, QColor, QTextCursor, QCursor
+from PyQt5.QtCore import Qt, QEvent, QThread, pyqtSignal, QUrl, pyqtSlot
+from PyQt5.QtGui import (
+    QDesktopServices,
+    QFont,
+    QTextCharFormat,
+    QBrush,
+    QColor,
+    QTextCursor,
+    QCursor,
+)
 from PyQt5.QtWidgets import (
     QAction,
     QComboBox,
@@ -31,16 +39,21 @@ chatbot = Chatbot([{"role": "system", "content": initial_prompt}])
 
 
 class ChatWindow(QMainWindow):
+
     loading_signal = pyqtSignal(bool)
 
     def __init__(self):
         super().__init__()
+
+        self.window_title = "ChatGPDP"
+        self.setWindowTitle(self.window_title)
+
+        self.is_loading = False
+        self.loading_signal.connect(self.set_loading)
+
         self.options = Utilities.get_engine_names(engines)
         self.engine = self.engine, *_ = self.options
         self.temperature = 0.618
-        self.setWindowTitle("ChatGPDP")
-        self.is_loading = False
-        self.loading_signal.connect(self.set_loading)
 
         # [MENU]
         menubar = self.menuBar()
@@ -53,50 +66,27 @@ class ChatWindow(QMainWindow):
         menubar.addMenu(options_menu)
         menubar.addMenu(help_menu)
 
-        # [NEW CHAT]
-        new_action = QAction("New Chat", self)
-        new_action.triggered.connect(self.restart_chat)
-        file_menu.addAction(new_action)
+        menu_items = {
+            "file": [
+                {"label": "New Chat", "function": self.restart_chat},
+                {"label": "Load Chat", "function": self.load_history},
+                {"label": "Save Chat", "function": self.save_history},
+                {"label": "Exit", "function": self.exit_chat},
+            ],
+            "options": [
+                {"label": "Change Personality...", "function": self.change_personality},
+                {"label": "Set API Key...", "function": self.show_config_dialog},
+            ],
+            "help": [
+                {"label": "About...", "function": self.show_about_dialog},
+                {"label": "Get API Key...", "function": self.get_api_key},
+                {"label": "View Source...", "function": self.go_to_github},
+            ],
+        }
 
-        # [LOAD CHAT]
-        load_action = QAction("Load Chat", self)
-        load_action.triggered.connect(self.load_history)
-        file_menu.addAction(load_action)
-
-        # [SAVE CHAT]
-        save_action = QAction("Save Chat", self)
-        save_action.triggered.connect(self.save_history)
-        file_menu.addAction(save_action)
-
-        # [EXIT]
-        exit_action = QAction("Exit", self)
-        exit_action.triggered.connect(self.exit_chat)
-        file_menu.addAction(exit_action)
-
-        # [CHANGE PERSONALITY]
-        change_personality_action = QAction("Change Personality...", self)
-        change_personality_action.triggered.connect(self.change_personality)
-        options_menu.addAction(change_personality_action)
-
-        # [SETTINGS]
-        set_config_action = QAction("Set API Key...", self)
-        set_config_action.triggered.connect(self.show_config_dialog)
-        options_menu.addAction(set_config_action)
-
-        # [ABOUT]
-        about_action = QAction("About...", self)
-        about_action.triggered.connect(self.show_about_dialog)
-        help_menu.addAction(about_action)
-
-        # [GET API KEY]
-        get_api_key_action = QAction("Get API Key...", self)
-        get_api_key_action.triggered.connect(self.get_api_key)
-        help_menu.addAction(get_api_key_action)
-
-        # [Go to GitHub]
-        github_action = QAction("View Source...", self)
-        github_action.triggered.connect(self.go_to_github)
-        help_menu.addAction(github_action)
+        self.create_menu(file_menu, menu_items["file"])
+        self.create_menu(options_menu, menu_items["options"])
+        self.create_menu(help_menu, menu_items["help"])
 
         # [SELECT ENGINE]
         model_label = QLabel("Select a model:", self)
@@ -107,24 +97,21 @@ class ChatWindow(QMainWindow):
 
         # [SELECT TEMPERATURE]
         self.temperature_label = QLabel(f"Select a temperature: {self.temperature}", self)
-        temperature_slider = QSlider(Qt.Horizontal, self)
-        temperature_slider.setMinimum(0)
-        temperature_slider.setMaximum(1000)
-        temperature_slider.setValue(618)
-        temperature_slider.setTickInterval(10)
-        temperature_slider.setTickPosition(QSlider.TicksBelow)
+        temperature_slider = QSlider(
+            Qt.Horizontal, self, minimum=0, maximum=1000, value=618, tickInterval=10, tickPosition=QSlider.TicksBelow
+        )
         temperature_slider.valueChanged.connect(self.change_temperature)
 
         # [CHATLOG]
         self.chat_log = QTextEdit(self)
-        self.chat_log.verticalScrollBar().setStyleSheet(options["styles"]["scroll_bar_vertical"])
         self.chat_log.setReadOnly(True)
 
         # [PROMPT]
         self.prompt = QTextEdit(self)
         self.prompt.setAcceptRichText(False)
-        self.prompt.setPlaceholderText("Type your message here...")
+        self.prompt.setPlaceholderText("Type your message here... (Press Shift+ENTER to start a new line)")
         self.prompt.textChanged.connect(self.resizeTextEdit)
+        self.prompt.installEventFilter(self)
 
         # [SEND BUTTON]
         self.send_button = QPushButton("Send", self)
@@ -138,18 +125,21 @@ class ChatWindow(QMainWindow):
 
         # [LAYOUT]
         layout = QVBoxLayout()
-        layout.addWidget(model_label)
-        layout.addWidget(model_dropdown)
-        layout.addWidget(self.temperature_label)
-        layout.addWidget(temperature_slider)
-        layout.addWidget(self.chat_log)
-        layout.addWidget(self.prompt)
-        layout.addWidget(self.send_button)
-        layout.addWidget(exit_button)
+        widgets = [
+            model_label,
+            model_dropdown,
+            self.temperature_label,
+            temperature_slider,
+            self.chat_log,
+            self.prompt,
+            self.send_button,
+            exit_button,
+        ]
+        for widget in widgets:
+            layout.addWidget(widget)
 
         # [SCROLL AREA]
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
+        scroll_area = QScrollArea(widgetResizable=True)
         scroll_area.setWidget(QWidget())
         scroll_area.widget().setLayout(layout)
 
@@ -157,10 +147,16 @@ class ChatWindow(QMainWindow):
         widget = QWidget()
         widget.setLayout(QVBoxLayout())
         widget.layout().addWidget(scroll_area)
+
         self.setCentralWidget(widget)
         self.prompt.setFocus()
+        self.append_message("system", initial_prompt)
 
-        self.append_message('system', initial_prompt)
+    def create_menu(self, menu, menu_items):
+        for item in menu_items:
+            action = QAction(item["label"], self)
+            action.triggered.connect(item["function"])
+            menu.addAction(action)
 
     def change_engine(self, text):
         self.engine = text
@@ -214,6 +210,16 @@ class ChatWindow(QMainWindow):
         contentHeight = documentHeight + scrollbarHeight
         self.prompt.setFixedHeight(int(contentHeight))
 
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.KeyPress and obj is self.prompt:
+            if event.key() == Qt.Key_Return and self.prompt.hasFocus():
+                if event.modifiers() == Qt.ShiftModifier:
+                    self.prompt.textCursor().insertText("\n")
+                else:
+                    self.send_message()
+                return True
+        return super().eventFilter(obj, event)
+
     def show_about_dialog(self):
         about_dialog = AboutDialog(self)
         about_dialog.exec_()
@@ -249,16 +255,14 @@ class ChatWindow(QMainWindow):
             history = Utilities.load_chat(file_name)
             self.chat_log.clear()
             for message in history:
-                if message["role"] == "user":
-                    self.append_message("user", message["content"])
-                elif message["role"] == "assistant":
-                    self.append_message("assistant", message["content"])
-                elif message["role"] == "system":
-                    self.append_message("system", message["content"])
+                self.append_message(message["role"], message["content"])
+            self.setWindowTitle(f"ChatGPDP - {file_name.split('/')[-1]}")
             chatbot = Chatbot(history)
 
     def exit_chat(self):
-        reply = QMessageBox.question(self, "Exit", "Do you want to save the chat history?", QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+        reply = QMessageBox.question(
+            self, "Exit", "Do you want to save the chat history?", QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel
+        )
         if reply == QMessageBox.Yes:
             self.save_history()
             self.close()
