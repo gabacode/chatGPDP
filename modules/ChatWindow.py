@@ -10,6 +10,7 @@ from PyQt5.QtGui import (
     QTextCharFormat,
     QBrush,
     QColor,
+    QKeySequence,
     QTextCursor,
     QCursor,
 )
@@ -23,6 +24,7 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QPushButton,
     QScrollArea,
+    QShortcut,
     QSlider,
     QTextEdit,
     QVBoxLayout,
@@ -54,6 +56,8 @@ class ChatWindow(QMainWindow):
         self.options = Utilities.get_engine_names(engines)
         self.engine = self.engine, *_ = self.options
         self.temperature = 0.618
+
+        self.create_shortcuts()
 
         # [MENU]
         menubar = self.menuBar()
@@ -151,6 +155,13 @@ class ChatWindow(QMainWindow):
         self.setCentralWidget(widget)
         self.prompt.setFocus()
         self.append_message("system", initial_prompt)
+
+    def create_shortcuts(self):
+        if sys.platform == 'darwin':
+            shortcut = QShortcut(QKeySequence.Save, self)
+        else:
+            shortcut = QShortcut(QKeySequence('Ctrl+S'), self)
+        shortcut.activated.connect(self.save)
 
     def create_menu(self, menu, menu_items):
         for item in menu_items:
