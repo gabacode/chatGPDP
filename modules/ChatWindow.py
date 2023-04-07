@@ -188,6 +188,8 @@ class ChatWindow(QMainWindow):
     def send_message(self):
         message = self.prompt.toPlainText()
         self.append_message("user", message)
+        if self.opened_file is not None:
+            self.setWindowTitle(f"ChatGPDP - {self.opened_file.split('/')[-1]}*")
         self.prompt.clear()
 
         self.is_loading = True
@@ -250,6 +252,7 @@ class ChatWindow(QMainWindow):
         global chatbot
         if self.opened_file:
             Utilities.save_chat(self.opened_file, chatbot.history)
+            self.set_opened_file(self.opened_file)
         else:
             self.save_history_as()
 
