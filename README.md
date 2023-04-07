@@ -1,19 +1,14 @@
 # ChatGPDP
 
-Chat with your favourite fictional characters!
+Chat with your favourite fictional characters! 
 
 This is a fake scenario and should not be taken seriously.
 
-Change the text in the `initial_prompt.txt` file to change your fictional character's desired behavior.
+Change the initial prompt to change your fictional character's desired behavior.
 
 If you're interested in chatting with your own PDF documents, check the [chatPDF](https://github.com/gabacode/chatPDF) project!
 
-## Instructions
-
----
-### Windows 7 and greater
-
-- Download and install the [latest Windows Installer](https://github.com/gabacode/chatGPDP/releases/latest).
+## General Notes
 
 - Get a GPT API key from [OpenAI](https://platform.openai.com/account/api-keys) if you don't have one already.
 
@@ -21,39 +16,63 @@ If you're interested in chatting with your own PDF documents, check the [chatPDF
 
 - You can change your fictional character's desired behavior via the `Options -> Change Personality` menu.
 
+- Save and load conversations from the `File` menu.
+
 - If you're encountering any issues, try starting a new conversation via the `File -> New Chat` menu.
 
 - Ask any questions to your favourite fictional character!
 
 - Enjoy!
 
----
+## Installation
 
-### Linux, macOS etc...
+### Windows 7 and greater
 
-While the .deb and .dmg packages are being released, you can launch ChatGPDP with Python >=3.9
+- Download and install the [latest Windows Installer](https://github.com/gabacode/chatGPDP/releases/latest).
 
-- Install the requirements
+### macOS Catalina and greater
+
+- Coming soon...
+
+### All the Operating Systems...
+
+- [Install Python](https://www.python.org/downloads/) >=3.9.
+
+- Install the dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-- Get a GPT API key from [OpenAI](https://platform.openai.com/account/api-keys) if you don't have one already.
-
-- Paste your API key in a file called `.env` in the root directory of the project, or via the top menu Options -> Set API key.
-
-- Run the app.
+- Run the app:
 
 ```bash
 python3 app.py
 ```
 
-- Ask any questions to your favourite fictional character!
+---
 
-- Enjoy!
+## Building
 
-## Why?
+You can build your own executable by running the `build` scripts.
+
+Go to the main folder of the project and run:
+
+## On Linux and macOS
+
+```bash
+./build.sh
+```
+
+## On Windows
+
+```bash
+build.bat
+```
+
+Your compiled file will be inside the `/dist` folder.
+
+## Why this project?
 
 We shouldn't really need a reason to publish a project like this, but particular times call for particular measures.
 
@@ -68,3 +87,4 @@ Feel free to post on this repository for [feedback and suggestions](https://gith
 Use this technology responsibly, and don't forget to have fun!
 
 Peace.
+
