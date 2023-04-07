@@ -20,6 +20,9 @@ fi
 # Activate env
 source $DIR/venv/bin/activate
 
+# Upgrade pip
+pip install --upgrade pip
+
 # Install dependencies
 pip install -r $DIR/requirements.txt
 
