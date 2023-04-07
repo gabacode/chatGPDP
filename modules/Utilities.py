@@ -1,5 +1,6 @@
 from datetime import datetime
 import json
+import sys
 
 
 class Utilities:
@@ -33,3 +34,9 @@ class Utilities:
         for engine in engines_dict.values():
             engine_names.append(engine["name"])
         return engine_names
+
+    def generate_shortcut(name):
+        if sys.platform == "darwin":
+            return f"⌘{name}"
+        else:
+            return f"Ctrl+{name}"

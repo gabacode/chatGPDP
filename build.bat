@@ -22,6 +22,9 @@ if not exist "%DIR%\venv" (
 :: Activate env
 call "%DIR%\venv\Scripts\activate.bat"
 
+:: Update pip
+pip install --upgrade pip
+
 :: Install dependencies
 pip install -r "%DIR%\requirements.txt"
 
