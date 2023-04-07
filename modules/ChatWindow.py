@@ -1,6 +1,6 @@
 import os
 import sys
-from config import engines, colors, initial_prompt
+from config import chatlogs_directory, colors, engines, initial_prompt, shortcuts, version
 from modules.Chatbot import Chatbot
 
 from PyQt5.QtCore import Qt, QEvent, QThread, pyqtSignal, QUrl, pyqtSlot
@@ -39,15 +39,15 @@ chatbot = Chatbot([{"role": "system", "content": initial_prompt}])
 
 
 class ChatWindow(QMainWindow):
-
     loading_signal = pyqtSignal(bool)
 
     def __init__(self):
         super().__init__()
 
-        self.window_title = "ChatGPDP"
+        self.window_title = "ChatGPDP" + " v" + version
         self.setWindowTitle(self.window_title)
 
+        self.opened_file = None
         self.is_loading = False
         self.loading_signal.connect(self.set_loading)
 
@@ -68,10 +68,11 @@ class ChatWindow(QMainWindow):
 
         menu_items = {
             "file": [
-                {"label": "New Chat", "function": self.restart_chat},
-                {"label": "Load Chat", "function": self.load_history},
-                {"label": "Save Chat", "function": self.save_history},
-                {"label": "Exit", "function": self.exit_chat},
+                {"label": "New Chat", "function": self.restart_chat, "shortcut": shortcuts["New"]},
+                {"label": "Load Chat", "function": self.load_history, "shortcut": shortcuts["Open"]},
+                {"label": "Save Chat", "function": self.save_history, "shortcut": shortcuts["Save"]},
+                {"label": "Save Chat As...", "function": self.save_history_as, "shortcut": shortcuts["SaveAs"]},
+                {"label": "Exit", "function": self.exit_chat, "shortcut": shortcuts["Exit"]},
             ],
             "options": [
                 {"label": "Change Personality...", "function": self.change_personality},
@@ -149,12 +150,14 @@ class ChatWindow(QMainWindow):
         widget.layout().addWidget(scroll_area)
 
         self.setCentralWidget(widget)
-        self.prompt.setFocus()
         self.append_message("system", initial_prompt)
+        self.prompt.setFocus()
 
     def create_menu(self, menu, menu_items):
         for item in menu_items:
             action = QAction(item["label"], self)
+            if "shortcut" in item:
+                action.setShortcut(item["shortcut"])
             action.triggered.connect(item["function"])
             menu.addAction(action)
 
@@ -185,6 +188,8 @@ class ChatWindow(QMainWindow):
     def send_message(self):
         message = self.prompt.toPlainText()
         self.append_message("user", message)
+        if self.opened_file is not None:
+            self.setWindowTitle(f"ChatGPDP - {self.opened_file.split('/')[-1]}*")
         self.prompt.clear()
 
         self.is_loading = True
@@ -239,24 +244,34 @@ class ChatWindow(QMainWindow):
     def restart_chat(self):
         os.execl(sys.executable, sys.executable, *sys.argv)
 
+    def set_opened_file(self, file_name):
+        self.opened_file = file_name
+        self.setWindowTitle(f"ChatGPDP - {file_name.split('/')[-1]}")
+
     def save_history(self):
         global chatbot
-        chatlogs_directory = "chatlogs"
+        if self.opened_file:
+            Utilities.save_chat(self.opened_file, chatbot.history)
+            self.set_opened_file(self.opened_file)
+        else:
+            self.save_history_as()
+
+    def save_history_as(self):
+        global chatbot
         file_name, _ = QFileDialog.getSaveFileName(self, "Save File", chatlogs_directory, "JSON Files (*.json)")
         if file_name:
-            history = chatbot.get_history()
-            Utilities.save_chat(file_name, history)
+            Utilities.save_chat(file_name, chatbot.history)
+            self.set_opened_file(file_name)
 
     def load_history(self):
         global chatbot
-        chatlogs_directory = "chatlogs"
         file_name, _ = QFileDialog.getOpenFileName(self, "Open File", chatlogs_directory, "JSON Files (*.json)")
         if file_name:
             history = Utilities.load_chat(file_name)
             self.chat_log.clear()
             for message in history:
                 self.append_message(message["role"], message["content"])
-            self.setWindowTitle(f"ChatGPDP - {file_name.split('/')[-1]}")
+            self.set_opened_file(file_name)
             chatbot = Chatbot(history)
 
     def exit_chat(self):
