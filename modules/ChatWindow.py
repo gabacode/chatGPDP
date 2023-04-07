@@ -1,6 +1,6 @@
 import os
 import sys
-from config import engines, colors, initial_prompt
+from config import engines, colors, initial_prompt, shortcuts
 from modules.Chatbot import Chatbot
 
 from PyQt5.QtCore import Qt, QEvent, QThread, pyqtSignal, QUrl, pyqtSlot
@@ -10,7 +10,6 @@ from PyQt5.QtGui import (
     QTextCharFormat,
     QBrush,
     QColor,
-    QKeySequence,
     QTextCursor,
     QCursor,
 )
@@ -41,7 +40,6 @@ chatbot = Chatbot([{"role": "system", "content": initial_prompt}])
 
 
 class ChatWindow(QMainWindow):
-
     loading_signal = pyqtSignal(bool)
 
     def __init__(self):
@@ -57,8 +55,6 @@ class ChatWindow(QMainWindow):
         self.engine = self.engine, *_ = self.options
         self.temperature = 0.618
 
-        self.create_shortcuts()
-
         # [MENU]
         menubar = self.menuBar()
 
@@ -72,10 +68,10 @@ class ChatWindow(QMainWindow):
 
         menu_items = {
             "file": [
-                {"label": "New Chat", "function": self.restart_chat},
-                {"label": "Load Chat", "function": self.load_history},
-                {"label": "Save Chat", "function": self.save_history},
-                {"label": "Exit", "function": self.exit_chat},
+                {"label": "New Chat", "function": self.restart_chat, "shortcut": shortcuts["New"]},
+                {"label": "Load Chat", "function": self.load_history, "shortcut": shortcuts["Open"]},
+                {"label": "Save Chat", "function": self.save_history, "shortcut": shortcuts["Save"]},
+                {"label": "Exit", "function": self.exit_chat, "shortcut": shortcuts["Exit"]},
             ],
             "options": [
                 {"label": "Change Personality...", "function": self.change_personality},
@@ -156,24 +152,11 @@ class ChatWindow(QMainWindow):
         self.prompt.setFocus()
         self.append_message("system", initial_prompt)
 
-    def create_shortcuts(self):
-        shortcuts = {
-            "New": ("Ctrl+N", self.restart_chat),
-            "Open": ("Ctrl+O", self.load_history),
-            "Save": ("Ctrl+S", self.save_history),
-            "SaveAs": ("Ctrl+Shift+S", self.save_history),  # TODO: Implement
-            "Quit": ("Ctrl+Q", self.exit_chat),
-        }
-        for name, (key_sequence, function) in shortcuts.items():
-            if sys.platform == "darwin":
-                shortcut = QShortcut(getattr(QKeySequence, name), self)
-            else:
-                shortcut = QShortcut(QKeySequence(key_sequence), self)
-            shortcut.activated.connect(function)
-
     def create_menu(self, menu, menu_items):
         for item in menu_items:
             action = QAction(item["label"], self)
+            if "shortcut" in item:
+                action.setShortcut(item["shortcut"])
             action.triggered.connect(item["function"])
             menu.addAction(action)
 
