@@ -157,11 +157,19 @@ class ChatWindow(QMainWindow):
         self.append_message("system", initial_prompt)
 
     def create_shortcuts(self):
-        if sys.platform == 'darwin':
-            shortcut = QShortcut(QKeySequence.Save, self)
-        else:
-            shortcut = QShortcut(QKeySequence('Ctrl+S'), self)
-        shortcut.activated.connect(self.save_history)
+        shortcuts = {
+            "New": ("Ctrl+N", self.restart_chat),
+            "Open": ("Ctrl+O", self.load_history),
+            "Save": ("Ctrl+S", self.save_history),
+            "SaveAs": ("Ctrl+Shift+S", self.save_history),  # TODO: Implement
+            "Quit": ("Ctrl+Q", self.exit_chat),
+        }
+        for name, (key_sequence, function) in shortcuts.items():
+            if sys.platform == "darwin":
+                shortcut = QShortcut(getattr(QKeySequence, name), self)
+            else:
+                shortcut = QShortcut(QKeySequence(key_sequence), self)
+            shortcut.activated.connect(function)
 
     def create_menu(self, menu, menu_items):
         for item in menu_items:
