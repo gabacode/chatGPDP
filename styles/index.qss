@@ -1,4 +1,10 @@
 QTextEdit,
+QLabel,
+QPushButton {
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+QTextEdit,
 QLineEdit {
   background-color: #fff;
   color: #333;
