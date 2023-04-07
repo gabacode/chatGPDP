@@ -72,7 +72,7 @@ class ChatWindow(QMainWindow):
                 {"label": "Load Chat", "function": self.load_history, "shortcut": shortcuts["Open"]},
                 {"label": "Save Chat", "function": self.save_history, "shortcut": shortcuts["Save"]},
                 {"label": "Save Chat As...", "function": self.save_history_as, "shortcut": shortcuts["SaveAs"]},
-                {"label": "Exit", "function": self.exit_chat, "shortcut": shortcuts["Exit"]},
+                {"label": "Exit", "function": self.close, "shortcut": shortcuts["Exit"]},
             ],
             "options": [
                 {"label": "Change Personality...", "function": self.change_personality},
@@ -122,7 +122,7 @@ class ChatWindow(QMainWindow):
         # [EXIT BUTTON]
         exit_button = QPushButton("Exit", self)
         exit_button.setCursor(QCursor(Qt.PointingHandCursor))
-        exit_button.clicked.connect(self.exit_chat)
+        exit_button.clicked.connect(self.close)
 
         # [LAYOUT]
         layout = QVBoxLayout()
@@ -274,17 +274,16 @@ class ChatWindow(QMainWindow):
             self.set_opened_file(file_name)
             chatbot = Chatbot(history)
 
-    def exit_chat(self):
+    def closeEvent(self, event):
         reply = QMessageBox.question(
             self, "Exit", "Do you want to save the chat history?", QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel
         )
         if reply == QMessageBox.Yes:
             self.save_history()
-            self.close()
         elif reply == QMessageBox.Cancel:
-            pass
-        else:
-            self.close()
+            event.ignore()
+            return
+        event.accept()
 
     def get_api_key(self):
         url = QUrl("https://platform.openai.com/account/api-keys")
