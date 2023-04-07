@@ -161,7 +161,7 @@ class ChatWindow(QMainWindow):
             shortcut = QShortcut(QKeySequence.Save, self)
         else:
             shortcut = QShortcut(QKeySequence('Ctrl+S'), self)
-        shortcut.activated.connect(self.save)
+        shortcut.activated.connect(self.save_history)
 
     def create_menu(self, menu, menu_items):
         for item in menu_items:
