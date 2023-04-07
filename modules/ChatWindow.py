@@ -251,7 +251,7 @@ class ChatWindow(QMainWindow):
         if self.opened_file:
             Utilities.save_chat(self.opened_file, chatbot.history)
         else:
-            self.save_history_as(chatbot.history)
+            self.save_history_as()
 
     def save_history_as(self):
         global chatbot
