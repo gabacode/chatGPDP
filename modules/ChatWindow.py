@@ -3,7 +3,7 @@ import sys
 from config import chatlogs_directory, colors, engines, initial_prompt, shortcuts, version
 from modules.Chatbot import Chatbot
 
-from PyQt5.QtCore import Qt, QEvent, QThread, pyqtSignal, QUrl, pyqtSlot
+from PyQt5.QtCore import Qt, QEvent, QThread, QTimer, pyqtSignal, QUrl, pyqtSlot
 from PyQt5.QtGui import (
     QDesktopServices,
     QFont,
@@ -23,6 +23,7 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QPushButton,
     QScrollArea,
+    QSizePolicy,
     QSlider,
     QTextEdit,
     QVBoxLayout,
@@ -119,11 +120,6 @@ class ChatWindow(QMainWindow):
         self.send_button.setCursor(QCursor(Qt.PointingHandCursor))
         self.send_button.clicked.connect(self.send_message)
 
-        # [EXIT BUTTON]
-        exit_button = QPushButton("Exit", self)
-        exit_button.setCursor(QCursor(Qt.PointingHandCursor))
-        exit_button.clicked.connect(self.close)
-
         # [LAYOUT]
         layout = QVBoxLayout()
         widgets = [
@@ -134,7 +130,6 @@ class ChatWindow(QMainWindow):
             self.chat_log,
             self.prompt,
             self.send_button,
-            exit_button,
         ]
         for widget in widgets:
             layout.addWidget(widget)
@@ -172,7 +167,18 @@ class ChatWindow(QMainWindow):
     def set_loading(self, is_loading):
         self.is_loading = is_loading
         self.send_button.setEnabled(not is_loading)
-        self.send_button.setText("Evaluating..." if is_loading else "Send")
+        if is_loading:
+            self.loading_text, self.loading_index, self.loading_timer = "  Thinking", 0, QTimer()
+            self.loading_timer.timeout.connect(self.update_loading_text)
+            self.loading_timer.start(136)
+        else:
+            self.send_button.setText("Send")
+            self.send_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+            self.loading_timer.stop()
+
+    def update_loading_text(self):
+        self.loading_index = (self.loading_index + 1) % 4
+        self.send_button.setText(f"{self.loading_text}{'.' * self.loading_index}{' ' * (3 - self.loading_index)}")
 
     def append_message(self, mode, message):
         cursor = self.chat_log.textCursor()

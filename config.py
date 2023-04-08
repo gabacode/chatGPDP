@@ -13,7 +13,7 @@ version = "0.2.2"
 initial_prompt = open("initial_prompt.txt", "r").read().strip()
 
 colors = {
-    "user": "#4CD964",
+    "user": "#2ECC71",
     "assistant": "#007AFF",
     "system": "#bbb",
 }
