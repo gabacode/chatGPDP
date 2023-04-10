@@ -5,13 +5,15 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
 )
 
+from config import load_initial_prompt
+
 
 class PersonalityDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Change Personality")
         self.setFixedWidth(600)
-        self.personality = open("initial_prompt.txt", "r").read()
+        self.personality = load_initial_prompt()
 
         self.text_area = QTextEdit()
 
