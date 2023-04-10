@@ -1,9 +1,9 @@
 import os
 import sys
-from config import chatlogs_directory, colors, engines, initial_prompt, shortcuts, version
+from config import chatlogs_directory, colors, engines, load_initial_prompt, shortcuts, version
 from modules.Chatbot import Chatbot
 
-from PyQt5.QtCore import Qt, QEvent, QThread, QTimer, pyqtSignal, QUrl, pyqtSlot
+from PyQt5.QtCore import Qt, QEvent, QTimer, pyqtSignal, QUrl, pyqtSlot
 from PyQt5.QtGui import (
     QDesktopServices,
     QFont,
@@ -34,19 +34,20 @@ from modules.Utilities import Utilities
 from modules.dialogs.AboutDialog import AboutDialog
 from modules.dialogs.ConfigDialog import ConfigDialog
 from modules.dialogs.PersonalityDialog import PersonalityDialog
-
-
-chatbot = Chatbot([{"role": "system", "content": initial_prompt}])
+from threads.ChatThread import ChatThread
 
 
 class ChatWindow(QMainWindow):
+    window_title = "ChatGPDP" + " v" + version
     loading_signal = pyqtSignal(bool)
 
     def __init__(self):
         super().__init__()
 
-        self.window_title = "ChatGPDP" + " v" + version
         self.setWindowTitle(self.window_title)
+
+        self.initial_prompt = load_initial_prompt()
+        self.chatbot = Chatbot([{"role": "system", "content": self.initial_prompt}])
 
         self.opened_file = None
         self.is_loading = False
@@ -69,7 +70,7 @@ class ChatWindow(QMainWindow):
 
         menu_items = {
             "file": [
-                {"label": "New Chat", "function": self.restart_chat, "shortcut": shortcuts["New"]},
+                {"label": "New Chat", "function": self.new_chat, "shortcut": shortcuts["New"]},
                 {"label": "Load Chat", "function": self.load_history, "shortcut": shortcuts["Open"]},
                 {"label": "Save Chat", "function": self.save_history, "shortcut": shortcuts["Save"]},
                 {"label": "Save Chat As...", "function": self.save_history_as, "shortcut": shortcuts["SaveAs"]},
@@ -145,7 +146,7 @@ class ChatWindow(QMainWindow):
         widget.layout().addWidget(scroll_area)
 
         self.setCentralWidget(widget)
-        self.append_message("system", initial_prompt)
+        self.append_message("system", self.initial_prompt)
         self.prompt.setFocus()
 
     def create_menu(self, menu, menu_items):
@@ -193,9 +194,16 @@ class ChatWindow(QMainWindow):
 
     def send_message(self):
         message = self.prompt.toPlainText()
+        if message.strip() == "":
+            self.prompt.setText("")
+            self.prompt.setFocus()
+            return
         self.append_message("user", message)
-        if self.opened_file is not None:
-            self.setWindowTitle(f"{self.window_title} - {self.opened_file.split('/')[-1]}*")
+        self.setWindowTitle(
+            f"{self.window_title} - {self.opened_file.split('/')[-1]}*"
+            if self.opened_file
+            else f"{self.window_title} - New Chat*"
+        )
         self.prompt.clear()
 
         self.is_loading = True
@@ -205,7 +213,7 @@ class ChatWindow(QMainWindow):
             self.chat_thread.terminate()
             self.chat_thread.wait()
 
-        self.chat_thread = ChatThread(message, self.engine, self.temperature)
+        self.chat_thread = ChatThread(self.chatbot, message, self.engine, self.temperature)
         self.chat_thread.response_signal.connect(self.handle_response)
         self.chat_thread.start()
 
@@ -245,7 +253,13 @@ class ChatWindow(QMainWindow):
     def change_personality(self):
         personality_dialog = PersonalityDialog(self)
         if personality_dialog.exec_() == QDialog.Accepted:
-            self.restart_chat()
+            self.close()
+            self.new_chat()
+
+    def new_chat(self):
+        self.new_chat = ChatWindow()
+        self.new_chat.setGeometry(100, 100, 800, 800)
+        self.new_chat.show()
 
     def restart_chat(self):
         os.execl(sys.executable, sys.executable, *sys.argv)
@@ -255,22 +269,19 @@ class ChatWindow(QMainWindow):
         self.setWindowTitle(f"{self.window_title} - {file_name.split('/')[-1]}")
 
     def save_history(self):
-        global chatbot
         if self.opened_file:
-            Utilities.save_chat(self.opened_file, chatbot.history)
+            Utilities.save_chat(self.opened_file, self.chatbot.history)
             self.set_opened_file(self.opened_file)
         else:
             self.save_history_as()
 
     def save_history_as(self):
-        global chatbot
         file_name, _ = QFileDialog.getSaveFileName(self, "Save File", chatlogs_directory, "JSON Files (*.json)")
         if file_name:
-            Utilities.save_chat(file_name, chatbot.history)
+            Utilities.save_chat(file_name, self.chatbot.history)
             self.set_opened_file(file_name)
 
     def load_history(self):
-        global chatbot
         file_name, _ = QFileDialog.getOpenFileName(self, "Open File", chatlogs_directory, "JSON Files (*.json)")
         if file_name:
             history = Utilities.load_chat(file_name)
@@ -278,7 +289,7 @@ class ChatWindow(QMainWindow):
             for message in history:
                 self.append_message(message["role"], message["content"])
             self.set_opened_file(file_name)
-            chatbot = Chatbot(history)
+            self.chatbot = Chatbot(history)
 
     def closeEvent(self, event):
         reply = QMessageBox.question(
@@ -298,17 +309,3 @@ class ChatWindow(QMainWindow):
     def go_to_github(self):
         url = QUrl("https://github.com/gabacode/chatGPDP")
         QDesktopServices.openUrl(url)
-
-
-class ChatThread(QThread):
-    response_signal = pyqtSignal(str)
-
-    def __init__(self, message, engine, temperature):
-        super().__init__()
-        self.message = message
-        self.engine = engine
-        self.temperature = temperature
-
-    def run(self):
-        response = chatbot.chat(self.message, self.engine, self.temperature)
-        self.response_signal.emit(response)

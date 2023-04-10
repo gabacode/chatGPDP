@@ -1,20 +1,30 @@
-import os
-
 from modules.Utilities import Utilities
-
-generate_shortcut = Utilities.generate_shortcut
-
-if "initial_prompt.txt" not in os.listdir():
-    with open("initial_prompt.txt", "w") as f:
-        f.write("Hello, I am a chatbot. How can I help you?")
 
 version = "0.2.2"
 
-initial_prompt = open("initial_prompt.txt", "r").read().strip()
+generate_shortcut = Utilities.generate_shortcut
+
+default_prompt = "You are a useful and intelligent assistant. Be creative and have fun!"
+
+
+def load_initial_prompt(retries=3):
+    try:
+        with open("initial_prompt.txt", "r") as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        if retries > 0:
+            with open("initial_prompt.txt", "w") as f:
+                f.write(default_prompt)
+            return load_initial_prompt(retries - 1)
+        return default_prompt
+    except Exception as e:
+        print(e)
+        return default_prompt
+
 
 colors = {
     "user": "#2ECC71",
-    "assistant": "#007AFF",
+    "assistant": "#2d83af",
     "system": "#bbb",
 }
 
