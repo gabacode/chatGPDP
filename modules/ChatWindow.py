@@ -39,7 +39,6 @@ from threads.ChatThread import ChatThread
 
 class ChatWindow(QMainWindow):
     loading_signal = pyqtSignal(bool)
-    initial_prompt = load_initial_prompt()
 
     def __init__(self):
         super().__init__()
@@ -47,6 +46,7 @@ class ChatWindow(QMainWindow):
         self.window_title = "ChatGPDP" + " v" + version
         self.setWindowTitle(self.window_title)
 
+        self.initial_prompt = load_initial_prompt()
         self.chatbot = Chatbot([{"role": "system", "content": self.initial_prompt}])
 
         self.opened_file = None
