@@ -70,7 +70,7 @@ class ChatWindow(QMainWindow):
 
         menu_items = {
             "file": [
-                {"label": "New Chat", "function": self.restart_chat, "shortcut": shortcuts["New"]},
+                {"label": "New Chat", "function": self.new_chat, "shortcut": shortcuts["New"]},
                 {"label": "Load Chat", "function": self.load_history, "shortcut": shortcuts["Open"]},
                 {"label": "Save Chat", "function": self.save_history, "shortcut": shortcuts["Save"]},
                 {"label": "Save Chat As...", "function": self.save_history_as, "shortcut": shortcuts["SaveAs"]},
@@ -251,6 +251,11 @@ class ChatWindow(QMainWindow):
         personality_dialog = PersonalityDialog(self)
         if personality_dialog.exec_() == QDialog.Accepted:
             self.restart_chat()
+
+    def new_chat(self):
+        self.new_chat = ChatWindow()
+        self.new_chat.setGeometry(100, 100, 800, 800)
+        self.new_chat.show()
 
     def restart_chat(self):
         os.execl(sys.executable, sys.executable, *sys.argv)
