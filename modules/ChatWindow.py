@@ -194,6 +194,10 @@ class ChatWindow(QMainWindow):
 
     def send_message(self):
         message = self.prompt.toPlainText()
+        if message.strip() == "":
+            self.prompt.setText("")
+            self.prompt.setFocus()
+            return
         self.append_message("user", message)
         if self.opened_file is not None:
             self.setWindowTitle(f"{self.window_title} - {self.opened_file.split('/')[-1]}*")
