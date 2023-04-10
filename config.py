@@ -1,5 +1,3 @@
-import os
-
 from modules.Utilities import Utilities
 
 version = "0.2.2"
