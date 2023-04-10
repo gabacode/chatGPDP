@@ -195,7 +195,7 @@ class ChatWindow(QMainWindow):
         message = self.prompt.toPlainText()
         self.append_message("user", message)
         if self.opened_file is not None:
-            self.setWindowTitle(f"ChatGPDP - {self.opened_file.split('/')[-1]}*")
+            self.setWindowTitle(f"{self.window_title} - {self.opened_file.split('/')[-1]}*")
         self.prompt.clear()
 
         self.is_loading = True
@@ -252,7 +252,7 @@ class ChatWindow(QMainWindow):
 
     def set_opened_file(self, file_name):
         self.opened_file = file_name
-        self.setWindowTitle(f"ChatGPDP - {file_name.split('/')[-1]}")
+        self.setWindowTitle(f"{self.window_title} - {file_name.split('/')[-1]}")
 
     def save_history(self):
         global chatbot
