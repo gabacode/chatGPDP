@@ -253,6 +253,7 @@ class ChatWindow(QMainWindow):
     def change_personality(self):
         personality_dialog = PersonalityDialog(self)
         if personality_dialog.exec_() == QDialog.Accepted:
+            self.close()
             self.new_chat()
 
     def new_chat(self):
