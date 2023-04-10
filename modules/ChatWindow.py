@@ -257,9 +257,9 @@ class ChatWindow(QMainWindow):
             self.new_chat()
 
     def new_chat(self):
-        self.new_chat = ChatWindow()
-        self.new_chat.setGeometry(100, 100, 800, 800)
-        self.new_chat.show()
+        self.new_window = ChatWindow()
+        self.new_window.setGeometry(100, 100, 800, 800)
+        self.new_window.show()
 
     def restart_chat(self):
         os.execl(sys.executable, sys.executable, *sys.argv)
