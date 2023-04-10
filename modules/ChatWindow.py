@@ -38,12 +38,12 @@ from threads.ChatThread import ChatThread
 
 
 class ChatWindow(QMainWindow):
+    window_title = "ChatGPDP" + " v" + version
     loading_signal = pyqtSignal(bool)
 
     def __init__(self):
         super().__init__()
 
-        self.window_title = "ChatGPDP" + " v" + version
         self.setWindowTitle(self.window_title)
 
         self.initial_prompt = load_initial_prompt()
@@ -253,7 +253,7 @@ class ChatWindow(QMainWindow):
     def change_personality(self):
         personality_dialog = PersonalityDialog(self)
         if personality_dialog.exec_() == QDialog.Accepted:
-            self.restart_chat()
+            self.new_chat()
 
     def new_chat(self):
         self.new_chat = ChatWindow()
