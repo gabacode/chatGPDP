@@ -199,8 +199,11 @@ class ChatWindow(QMainWindow):
             self.prompt.setFocus()
             return
         self.append_message("user", message)
-        if self.opened_file is not None:
-            self.setWindowTitle(f"{self.window_title} - {self.opened_file.split('/')[-1]}*")
+        self.setWindowTitle(
+            f"{self.window_title} - {self.opened_file.split('/')[-1]}*"
+            if self.opened_file
+            else f"{self.window_title} - New Chat*"
+        )
         self.prompt.clear()
 
         self.is_loading = True
