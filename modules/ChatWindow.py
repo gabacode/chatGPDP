@@ -249,6 +249,8 @@ class ChatWindow(QMainWindow):
             self.restart_chat()
 
     def new_chat(self):
+        global chatbot
+        chatbot = Chatbot([{"role": "system", "content": initial_prompt}])
         self.new_chat = ChatWindow()
         self.new_chat.setGeometry(100, 100, 800, 800)
         self.new_chat.show()
