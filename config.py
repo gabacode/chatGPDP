@@ -43,4 +43,5 @@ shortcuts = {
     "Save": generate_shortcut("S"),
     "SaveAs": generate_shortcut("Shift+S"),
     "Exit": generate_shortcut("Q"),
+    "ChangePersonality": generate_shortcut("Shift+P"),
 }

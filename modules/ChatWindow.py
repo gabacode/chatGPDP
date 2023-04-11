@@ -77,7 +77,11 @@ class ChatWindow(QMainWindow):
                 {"label": "Exit", "function": self.close, "shortcut": shortcuts["Exit"]},
             ],
             "options": [
-                {"label": "Change Personality...", "function": self.change_personality},
+                {
+                    "label": "Change Personality...",
+                    "function": self.change_personality,
+                    "shortcut": shortcuts["ChangePersonality"],
+                },
                 {"label": "Set API Key...", "function": self.show_config_dialog},
             ],
             "help": [
