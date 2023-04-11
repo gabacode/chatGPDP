@@ -34,8 +34,7 @@ class Chatbot:
         openai.api_key = os.environ["OPENAI_API_KEY"]
 
     def create_messages(self, prompt):
-        message = {"role": "user", "content": prompt}
-        self.history.append(message)
+        self.add_to_history({"role": "user", "content": prompt})
         return self.history
 
     def get_initial_prompt(self):
@@ -43,19 +42,20 @@ class Chatbot:
             if message["role"] == "system":
                 return message["content"]
 
-    def load_memory(self, messages):
-        converted = []
-        for message in messages:
+    def load_memory(self, history):
+        messages = []
+        for message in history:
             if message["role"] == "user":
-                converted.append(HumanMessage(content=message["content"], additional_kwargs={}))
+                messages.append(HumanMessage(content=message["content"], additional_kwargs={}))
             elif message["role"] == "assistant":
-                converted.append(AIMessage(content=message["content"], additional_kwargs={}))
-        self.memory = ConversationBufferMemory(chat_memory=ChatMessageHistory(messages=converted), return_messages=True)
+                messages.append(AIMessage(content=message["content"], additional_kwargs={}))
+        chat_memory = ChatMessageHistory(messages=messages)
+        self.memory = ConversationBufferMemory(chat_memory=chat_memory, return_messages=True)
 
     def chat(self, message, engine, temperature):
         try:
-            messages = self.create_messages(message)
-            self.load_memory(messages)
+            history = self.create_messages(message)
+            self.load_memory(history)
             llm = ChatOpenAI(model_name=engines[engine]["name"], temperature=temperature)
             prompt = ChatPromptTemplate.from_messages(
                 [
@@ -66,10 +66,13 @@ class Chatbot:
             )
             conversation = ConversationChain(memory=self.memory, prompt=prompt, llm=llm)
             response_text = conversation.predict(input=message)
-            self.history.append({"role": "assistant", "content": response_text})
+            self.add_to_history({"role": "assistant", "content": response_text})
             return response_text
         except Exception as e:
             return "I'm sorry, we got an error:" + "\n" + str(e)
 
     def get_history(self):
         return self.history
+
+    def add_to_history(self, message):
+        self.history.append(message)
