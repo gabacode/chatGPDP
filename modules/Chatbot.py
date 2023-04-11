@@ -3,11 +3,23 @@ import openai
 from config import engines
 from dotenv import load_dotenv
 
+from langchain.prompts import (
+    ChatPromptTemplate,
+    MessagesPlaceholder,
+    SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate,
+)
+from langchain.schema import AIMessage, HumanMessage
+from langchain.chains import ConversationChain
+from langchain.chat_models import ChatOpenAI
+from langchain.memory import ConversationBufferMemory, ChatMessageHistory
+
 
 class Chatbot:
     def __init__(self, history):
         self.env_init()
         self.history = history
+        self.memory = ConversationBufferMemory(return_messages=True)
 
     def env_init(self):
         if not os.path.exists("chatlogs"):
@@ -22,37 +34,45 @@ class Chatbot:
         openai.api_key = os.environ["OPENAI_API_KEY"]
 
     def create_messages(self, prompt):
-        message = {"role": "user", "content": prompt}
-        self.history.append(message)
+        self.add_to_history({"role": "user", "content": prompt})
         return self.history
 
-    def call_api(self, engine, messages, max_tokens, temperature):
-        try:
-            response = openai.ChatCompletion.create(
-                model=engines[engine]["name"],
-                messages=messages,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                top_p=1,
-                frequency_penalty=0,
-                presence_penalty=0,
-            )
-            response_text = response["choices"][0]["message"]["content"].strip()
-            return response_text
-        except Exception as e:
-            return "I'm sorry, we got an error:" + "\n" + str(e)
+    def get_initial_prompt(self):
+        for message in self.history:
+            if message["role"] == "system":
+                return message["content"]
 
-    def chat(self, prompt, engine, temperature):
+    def load_memory(self, history):
+        messages = []
+        for message in history:
+            if message["role"] == "user":
+                messages.append(HumanMessage(content=message["content"], additional_kwargs={}))
+            elif message["role"] == "assistant":
+                messages.append(AIMessage(content=message["content"], additional_kwargs={}))
+        chat_memory = ChatMessageHistory(messages=messages)
+        self.memory = ConversationBufferMemory(chat_memory=chat_memory, return_messages=True)
+
+    def chat(self, message, engine, temperature):
         try:
-            messages = self.create_messages(prompt)
-            max_tokens = engines[engine]["max_tokens"]
-            chunks = [messages[i : i + max_tokens] for i in range(0, len(messages), max_tokens)]
-            response_chunks = [self.call_api(engine, chunk, max_tokens, temperature) for chunk in chunks]
-            response_text = "".join(response_chunks)
-            self.history.append({"role": "assistant", "content": response_text})
+            history = self.create_messages(message)
+            self.load_memory(history)
+            llm = ChatOpenAI(model_name=engines[engine]["name"], temperature=temperature)
+            prompt = ChatPromptTemplate.from_messages(
+                [
+                    SystemMessagePromptTemplate.from_template(self.get_initial_prompt()),
+                    MessagesPlaceholder(variable_name="history"),
+                    HumanMessagePromptTemplate.from_template("{input}"),
+                ]
+            )
+            conversation = ConversationChain(memory=self.memory, prompt=prompt, llm=llm)
+            response_text = conversation.predict(input=message)
+            self.add_to_history({"role": "assistant", "content": response_text})
             return response_text
         except Exception as e:
             return "I'm sorry, we got an error:" + "\n" + str(e)
 
     def get_history(self):
         return self.history
+
+    def add_to_history(self, message):
+        self.history.append(message)
