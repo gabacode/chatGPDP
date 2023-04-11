@@ -9,5 +9,6 @@ dependencies:
   - python-dotenv==1.0.0
   - pip
   - pip:
+      - langchain==0.0.136
       - pyqt5==5.15.9
 
