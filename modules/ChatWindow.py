@@ -185,10 +185,11 @@ class ChatWindow(QMainWindow):
         self.send_button.setText(f"{self.loading_text}{'.' * self.loading_index}{' ' * (3 - self.loading_index)}")
 
     def append_message(self, mode, message):
+        author_height, label_height = 20, 20
         message = message.strip()
 
         author_widget = QLabel()
-        author_widget.setMaximumHeight(20)
+        author_widget.setMaximumHeight(author_height)
 
         author_widget.setText(mode.capitalize())
         author_widget.setAlignment(Qt.AlignRight if mode == "user" else Qt.AlignLeft)
@@ -199,8 +200,14 @@ class ChatWindow(QMainWindow):
         self.chat_log_layout.addWidget(message_widget)
 
         space_label = QLabel()
-        space_label.setMaximumHeight(2)
+        space_label.setMaximumHeight(label_height)
         self.chat_log_layout.addWidget(space_label)
+
+        self.scroll_to_bottom(author_height + message_widget.height() + label_height)
+
+    def scroll_to_bottom(self, message_height):
+        self.chat_log.verticalScrollBar().setMaximum(self.chat_log.verticalScrollBar().maximum() + message_height)
+        self.chat_log.verticalScrollBar().setValue(self.chat_log.verticalScrollBar().maximum())
 
     def send_message(self):
         message = self.prompt.toPlainText()
