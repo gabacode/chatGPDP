@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import (
     QComboBox,
     QDialog,
     QFileDialog,
+    QSplitter,
     QLabel,
     QMainWindow,
     QMessageBox,
@@ -107,15 +108,23 @@ class ChatWindow(QMainWindow):
         self.chat_log_widget.setStyleSheet("background-color: #ffffff; border-radius: 5px;")
         self.chat_log_layout = QVBoxLayout(self.chat_log_widget)
         self.chat_log_layout.setAlignment(Qt.AlignTop)
-        self.scroll_area = QScrollArea(widgetResizable=True)
-        self.scroll_area.setWidget(self.chat_log_widget)
+        self.chat_log = QScrollArea(widgetResizable=True)
+        self.chat_log.setWidget(self.chat_log_widget)
 
         # [PROMPT]
         self.prompt = QTextEdit(self)
         self.prompt.setAcceptRichText(False)
         self.prompt.setPlaceholderText("Type your message here... (Press Shift+ENTER to start a new line)")
-        self.prompt.textChanged.connect(self.resizeTextEdit)
         self.prompt.installEventFilter(self)
+        self.prompt.textChanged.connect(self.resize_prompt)
+
+        # [DIVIDER]
+        self.divider = QSplitter(Qt.Vertical)
+        self.divider.addWidget(self.chat_log)
+        self.divider.addWidget(self.prompt)
+        self.divider.setSizes([300, 100])
+        self.divider.setCollapsible(0, False)
+        self.divider.setCollapsible(1, False)
 
         # [SEND BUTTON]
         self.send_button = QPushButton("Send", self)
@@ -129,8 +138,7 @@ class ChatWindow(QMainWindow):
             model_dropdown,
             self.temperature_label,
             temperature_slider,
-            self.scroll_area,
-            self.prompt,
+            self.divider,
             self.send_button,
         ]
         for widget in widgets:
@@ -225,11 +233,11 @@ class ChatWindow(QMainWindow):
         self.loading_signal.emit(False)
         self.prompt.setFocus()
 
-    def resizeTextEdit(self):
+    def resize_prompt(self):
         documentHeight = self.prompt.document().size().height()
         scrollbarHeight = self.prompt.verticalScrollBar().sizeHint().height()
         contentHeight = documentHeight + scrollbarHeight
-        self.prompt.setFixedHeight(int(contentHeight))
+        self.divider.setSizes([int(self.divider.height() - contentHeight), int(contentHeight)])
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.KeyPress and obj is self.prompt:
