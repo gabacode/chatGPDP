@@ -104,9 +104,11 @@ class ChatWindow(QMainWindow):
 
         # [CHATLOG]
         self.chat_log_widget = QWidget()
+        self.chat_log_widget.setStyleSheet("background-color: #ffffff; border-radius: 5px;")
         self.chat_log_layout = QVBoxLayout(self.chat_log_widget)
         self.chat_log_layout.setAlignment(Qt.AlignTop)
-        self.chat_log_widget.setStyleSheet("background-color: #f0f2f5;")
+        self.scroll_area = QScrollArea(widgetResizable=True)
+        self.scroll_area.setWidget(self.chat_log_widget)
 
         # [PROMPT]
         self.prompt = QTextEdit(self)
@@ -120,10 +122,6 @@ class ChatWindow(QMainWindow):
         self.send_button.setCursor(QCursor(Qt.PointingHandCursor))
         self.send_button.clicked.connect(self.send_message)
 
-        # [SCROLL AREA]
-        scroll_area = QScrollArea(widgetResizable=True)
-        scroll_area.setWidget(self.chat_log_widget)
-
         # [LAYOUT]
         layout = QVBoxLayout()
         widgets = [
@@ -131,7 +129,7 @@ class ChatWindow(QMainWindow):
             model_dropdown,
             self.temperature_label,
             temperature_slider,
-            scroll_area,
+            self.scroll_area,
             self.prompt,
             self.send_button,
         ]
@@ -184,13 +182,12 @@ class ChatWindow(QMainWindow):
         author_widget = QLabel()
         author_widget.setMaximumHeight(20)
 
-        author_widget.setText(f"{mode.capitalize()}:")
+        author_widget.setText(mode.capitalize())
+        author_widget.setAlignment(Qt.AlignRight if mode == "user" else Qt.AlignLeft)
         author_widget.setStyleSheet(f"color: {colors[mode]}; font-weight: bold; margin-left: 5px;")
         self.chat_log_layout.addWidget(author_widget)
 
-        message_widget = MessageBox()
-        message_widget.setStyleSheet(f"background-color: {colors[mode]}; color: #F0F0F0;")
-        message_widget.setMarkdown(message)
+        message_widget = MessageBox(message, mode)
         self.chat_log_layout.addWidget(message_widget)
 
         space_label = QLabel()
