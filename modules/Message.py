@@ -9,13 +9,15 @@ class MessageBox(QTextEdit):
         self.message = message
         self.mode = mode
 
+        styles = f"background-color: {colors[mode]}; color: #F0F0F0; border-radius: 25px; border: none;"
+
         self.setReadOnly(True)
         self.setAcceptRichText(True)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        self.setStyleSheet(f"background-color: {colors[mode]}; color: #F0F0F0;")
+        self.setStyleSheet(styles)
         self.setText(message) if mode == "user" else self.setMarkdown(message)
         self.setAlignment(Qt.AlignRight if mode == "user" else Qt.AlignLeft)
 
