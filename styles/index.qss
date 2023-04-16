@@ -13,6 +13,10 @@ QLineEdit {
   padding: 10px;
 }
 
+QScrollArea {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
 
 QTextEdit {
   font-size: 18px;

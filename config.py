@@ -25,7 +25,7 @@ def load_initial_prompt(retries=3):
 colors = {
     "user": "#2ECC71",
     "assistant": "#2d83af",
-    "system": "#bbb",
+    "system": "#574f4a",
 }
 
 engines = {
