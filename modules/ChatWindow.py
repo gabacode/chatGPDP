@@ -192,7 +192,6 @@ class ChatWindow(QMainWindow):
         author_widget.setMaximumHeight(author_height)
 
         author_widget.setText(mode.capitalize())
-        author_widget.setAlignment(Qt.AlignRight if mode == "user" else Qt.AlignLeft)
         author_widget.setStyleSheet(f"color: {colors[mode]}; font-weight: bold; margin-left: 5px;")
         self.chat_log_layout.addWidget(author_widget)
 

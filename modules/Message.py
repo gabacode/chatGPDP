@@ -19,7 +19,6 @@ class MessageBox(QTextEdit):
 
         self.setStyleSheet(styles)
         self.setText(message) if mode == "user" else self.setMarkdown(message)
-        self.setAlignment(Qt.AlignRight if mode == "user" else Qt.AlignLeft)
 
         self.textChanged.connect(self.autoResize)
 
