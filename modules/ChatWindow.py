@@ -55,10 +55,12 @@ class ChatWindow(QMainWindow):
         menubar = self.menuBar()
 
         file_menu = QMenu("File", self)
+        edit_menu = QMenu("Edit", self)
         options_menu = QMenu("Options", self)
         help_menu = QMenu("Help", self)
 
         menubar.addMenu(file_menu)
+        menubar.addMenu(edit_menu)
         menubar.addMenu(options_menu)
         menubar.addMenu(help_menu)
 
@@ -69,6 +71,13 @@ class ChatWindow(QMainWindow):
                 {"label": "Save Chat", "function": self.save_history, "shortcut": shortcuts["Save"]},
                 {"label": "Save Chat As...", "function": self.save_history_as, "shortcut": shortcuts["SaveAs"]},
                 {"label": "Exit", "function": self.close, "shortcut": shortcuts["Exit"]},
+            ],
+            "edit": [
+                {
+                    "label": "Reload...",
+                    "function": self.reload_history,
+                    "shortcut": shortcuts["Reload"],
+                },
             ],
             "options": [
                 {
@@ -86,6 +95,7 @@ class ChatWindow(QMainWindow):
         }
 
         self.create_menu(file_menu, menu_items["file"])
+        self.create_menu(edit_menu, menu_items["edit"])
         self.create_menu(options_menu, menu_items["options"])
         self.create_menu(help_menu, menu_items["help"])
 
@@ -306,6 +316,15 @@ class ChatWindow(QMainWindow):
             for message in history:
                 self.append_message(message["role"], message["content"])
             self.set_opened_file(file_name)
+            self.chatbot = Chatbot(history)
+
+    def reload_history(self):
+        if self.opened_file:
+            history = Utilities.load_chat(self.opened_file)
+            for i in reversed(range(self.chat_log_layout.count())):
+                self.chat_log_layout.itemAt(i).widget().setParent(None)
+            for message in history:
+                self.append_message(message["role"], message["content"])
             self.chatbot = Chatbot(history)
 
     def closeEvent(self, event):

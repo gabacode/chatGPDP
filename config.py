@@ -40,6 +40,7 @@ chatlogs_directory = "chatlogs"
 shortcuts = {
     "New": generate_shortcut("N"),
     "Open": generate_shortcut("O"),
+    "Reload": generate_shortcut("R"),
     "Save": generate_shortcut("S"),
     "SaveAs": generate_shortcut("Shift+S"),
     "Exit": generate_shortcut("Q"),
