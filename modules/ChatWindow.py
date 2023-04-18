@@ -226,7 +226,7 @@ class ChatWindow(QMainWindow):
             return
         self.append_message("user", message)
         self.setWindowTitle(
-            f"{self.window_title} - {self.opened_file.split('/')[-1]}*"
+            f"{self.window_title} - {Utilities.path_strip(self.opened_file)}*"
             if self.opened_file
             else f"{self.window_title} - New Chat*"
         )
@@ -292,30 +292,34 @@ class ChatWindow(QMainWindow):
 
     def set_opened_file(self, file_name):
         self.opened_file = file_name
-        self.setWindowTitle(f"{self.window_title} - {file_name.split('/')[-1]}")
+        self.setWindowTitle(f"{self.window_title} - {Utilities.path_strip(file_name)}")
 
     def save_history(self):
         if self.opened_file:
-            Utilities.save_chat(self.opened_file, self.chatbot.history)
-            self.set_opened_file(self.opened_file)
+            file_name = Utilities.save_chat(self.opened_file, self.chatbot.history)
+            self.set_opened_file(file_name if file_name else self.opened_file)
         else:
             self.save_history_as()
 
     def save_history_as(self):
-        file_name, _ = QFileDialog.getSaveFileName(self, "Save File", chatlogs_directory, "JSON Files (*.json)")
+        file_filter = "JSON Files (*.json)"
+        new_file, _ = QFileDialog.getSaveFileName(self, "Save File", chatlogs_directory, file_filter)
+        if not new_file:
+            return
+        file_name = Utilities.save_chat(new_file, self.chatbot.history)
         if file_name:
-            Utilities.save_chat(file_name, self.chatbot.history)
             self.set_opened_file(file_name)
 
     def load_history(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Open File", chatlogs_directory, "JSON Files (*.json)")
-        if file_name:
-            history = Utilities.load_chat(file_name)
+        file_filter = "JSON Files (*.json)"
+        loaded_file, _ = QFileDialog.getOpenFileName(self, "Open File", chatlogs_directory, file_filter)
+        if loaded_file:
+            history = Utilities.load_chat(loaded_file)
             for i in reversed(range(self.chat_log_layout.count())):
                 self.chat_log_layout.itemAt(i).widget().setParent(None)
             for message in history:
                 self.append_message(message["role"], message["content"])
-            self.set_opened_file(file_name)
+            self.set_opened_file(loaded_file)
             self.chatbot = Chatbot(history)
 
     def reload_history(self):
