@@ -2,6 +2,9 @@ from datetime import datetime
 import json
 import sys
 
+from PyQt5.QtCore import QUrl
+from PyQt5.QtGui import QDesktopServices
+
 
 class Utilities:
     def __init__(self):
@@ -43,3 +46,7 @@ class Utilities:
 
     def get_name_from_mode(mode):
         return {"user": "You", "assistant": "Assistant"}.get(mode, "Personality")
+
+    @staticmethod
+    def open_link(url):
+        QDesktopServices.openUrl(QUrl(url))

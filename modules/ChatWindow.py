@@ -3,8 +3,8 @@ import sys
 from config import chatlogs_directory, colors, engines, load_initial_prompt, shortcuts, version
 from modules.Chatbot import Chatbot
 
-from PyQt5.QtCore import Qt, QEvent, QTimer, pyqtSignal, QUrl, pyqtSlot
-from PyQt5.QtGui import QDesktopServices, QCursor
+from PyQt5.QtCore import Qt, QEvent, QTimer, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import QCursor
 from PyQt5.QtWidgets import (
     QAction,
     QComboBox,
@@ -339,9 +339,9 @@ class ChatWindow(QMainWindow):
         event.accept()
 
     def get_api_key(self):
-        url = QUrl("https://platform.openai.com/account/api-keys")
-        QDesktopServices.openUrl(url)
+        url = "https://platform.openai.com/account/api-keys"
+        Utilities.open_link(url)
 
     def go_to_github(self):
-        url = QUrl("https://github.com/gabacode/chatGPDP")
-        QDesktopServices.openUrl(url)
+        url = "https://github.com/gabacode/chatGPDP"
+        Utilities.open_link(url)

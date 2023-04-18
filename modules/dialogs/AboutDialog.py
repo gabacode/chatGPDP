@@ -1,8 +1,11 @@
 import os
 from config import version
-from PyQt5.QtCore import Qt, QUrl
-from PyQt5.QtGui import QPixmap, QDesktopServices, QCursor
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap, QCursor
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout
+
+from modules.Utilities import Utilities
+
 
 class AboutDialog(QDialog):
     def __init__(self, parent):
@@ -18,9 +21,6 @@ class AboutDialog(QDialog):
             {"content": "<p>Many thanks to <a href='https://openai.com/'>OpenAI</a>!</p>"},
         ]
 
-        def open_link(self, url):
-            QDesktopServices.openUrl(QUrl(url))
-
         layout = QVBoxLayout()
 
         icon_image = QLabel()
@@ -33,7 +33,7 @@ class AboutDialog(QDialog):
             label = QLabel(credit["content"])
             label.setAlignment(Qt.AlignCenter)
             label.setOpenExternalLinks(True)
-            label.linkActivated.connect(lambda url: open_link(self, url))
+            label.linkActivated.connect(lambda url: Utilities.open_link(url))
             layout.addWidget(label)
 
         layout.addWidget(QLabel(""))
@@ -46,4 +46,3 @@ class AboutDialog(QDialog):
         layout.addLayout(button_layout)
 
         self.setLayout(layout)
-
