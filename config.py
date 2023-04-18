@@ -23,9 +23,18 @@ def load_initial_prompt(retries=3):
 
 
 colors = {
-    "user": "#2ECC71",
-    "assistant": "#2d83af",
-    "system": "#bbb",
+    "user": {
+        "background": "#F0F0F0",
+        "foreground": "#000000",
+    },
+    "assistant": {
+        "background": "#F0F0F0",
+        "foreground": "#000000",
+    },
+    "system": {
+        "background": "#F0F0F0",
+        "foreground": "#000000",
+    },
 }
 
 engines = {
@@ -40,7 +49,9 @@ chatlogs_directory = "chatlogs"
 shortcuts = {
     "New": generate_shortcut("N"),
     "Open": generate_shortcut("O"),
+    "Reload": generate_shortcut("R"),
     "Save": generate_shortcut("S"),
     "SaveAs": generate_shortcut("Shift+S"),
     "Exit": generate_shortcut("Q"),
+    "ChangePersonality": generate_shortcut("Shift+P"),
 }

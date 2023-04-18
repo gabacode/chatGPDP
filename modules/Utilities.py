@@ -40,3 +40,6 @@ class Utilities:
             return f"⌘{name}"
         else:
             return f"Ctrl+{name}"
+
+    def get_name_from_mode(mode):
+        return {"user": "You", "assistant": "Assistant"}.get(mode, "Personality")

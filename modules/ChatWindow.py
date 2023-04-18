@@ -4,20 +4,13 @@ from config import chatlogs_directory, colors, engines, load_initial_prompt, sho
 from modules.Chatbot import Chatbot
 
 from PyQt5.QtCore import Qt, QEvent, QTimer, pyqtSignal, QUrl, pyqtSlot
-from PyQt5.QtGui import (
-    QDesktopServices,
-    QFont,
-    QTextCharFormat,
-    QBrush,
-    QColor,
-    QTextCursor,
-    QCursor,
-)
+from PyQt5.QtGui import QDesktopServices, QCursor
 from PyQt5.QtWidgets import (
     QAction,
     QComboBox,
     QDialog,
     QFileDialog,
+    QSplitter,
     QLabel,
     QMainWindow,
     QMessageBox,
@@ -30,6 +23,7 @@ from PyQt5.QtWidgets import (
     QWidget,
     QMenu,
 )
+from modules.Message import MessageBox
 from modules.Utilities import Utilities
 from modules.dialogs.AboutDialog import AboutDialog
 from modules.dialogs.ConfigDialog import ConfigDialog
@@ -61,10 +55,12 @@ class ChatWindow(QMainWindow):
         menubar = self.menuBar()
 
         file_menu = QMenu("File", self)
+        edit_menu = QMenu("Edit", self)
         options_menu = QMenu("Options", self)
         help_menu = QMenu("Help", self)
 
         menubar.addMenu(file_menu)
+        menubar.addMenu(edit_menu)
         menubar.addMenu(options_menu)
         menubar.addMenu(help_menu)
 
@@ -76,8 +72,19 @@ class ChatWindow(QMainWindow):
                 {"label": "Save Chat As...", "function": self.save_history_as, "shortcut": shortcuts["SaveAs"]},
                 {"label": "Exit", "function": self.close, "shortcut": shortcuts["Exit"]},
             ],
+            "edit": [
+                {
+                    "label": "Reload...",
+                    "function": self.reload_history,
+                    "shortcut": shortcuts["Reload"],
+                },
+            ],
             "options": [
-                {"label": "Change Personality...", "function": self.change_personality},
+                {
+                    "label": "Change Personality...",
+                    "function": self.change_personality,
+                    "shortcut": shortcuts["ChangePersonality"],
+                },
                 {"label": "Set API Key...", "function": self.show_config_dialog},
             ],
             "help": [
@@ -88,6 +95,7 @@ class ChatWindow(QMainWindow):
         }
 
         self.create_menu(file_menu, menu_items["file"])
+        self.create_menu(edit_menu, menu_items["edit"])
         self.create_menu(options_menu, menu_items["options"])
         self.create_menu(help_menu, menu_items["help"])
 
@@ -106,15 +114,27 @@ class ChatWindow(QMainWindow):
         temperature_slider.valueChanged.connect(self.change_temperature)
 
         # [CHATLOG]
-        self.chat_log = QTextEdit(self)
-        self.chat_log.setReadOnly(True)
+        self.chat_log_widget = QWidget()
+        self.chat_log_widget.setStyleSheet("background-color: #ffffff; border-radius: 5px;")
+        self.chat_log_layout = QVBoxLayout(self.chat_log_widget)
+        self.chat_log_layout.setAlignment(Qt.AlignTop)
+        self.chat_log = QScrollArea(widgetResizable=True)
+        self.chat_log.setWidget(self.chat_log_widget)
 
         # [PROMPT]
         self.prompt = QTextEdit(self)
         self.prompt.setAcceptRichText(False)
         self.prompt.setPlaceholderText("Type your message here... (Press Shift+ENTER to start a new line)")
-        self.prompt.textChanged.connect(self.resizeTextEdit)
         self.prompt.installEventFilter(self)
+        self.prompt.textChanged.connect(self.resize_prompt)
+
+        # [DIVIDER]
+        self.divider = QSplitter(Qt.Vertical)
+        self.divider.addWidget(self.chat_log)
+        self.divider.addWidget(self.prompt)
+        self.divider.setSizes([300, 100])
+        self.divider.setCollapsible(0, False)
+        self.divider.setCollapsible(1, False)
 
         # [SEND BUTTON]
         self.send_button = QPushButton("Send", self)
@@ -128,22 +148,15 @@ class ChatWindow(QMainWindow):
             model_dropdown,
             self.temperature_label,
             temperature_slider,
-            self.chat_log,
-            self.prompt,
+            self.divider,
             self.send_button,
         ]
         for widget in widgets:
             layout.addWidget(widget)
 
-        # [SCROLL AREA]
-        scroll_area = QScrollArea(widgetResizable=True)
-        scroll_area.setWidget(QWidget())
-        scroll_area.widget().setLayout(layout)
-
         # Create widget and init the layout
         widget = QWidget()
-        widget.setLayout(QVBoxLayout())
-        widget.layout().addWidget(scroll_area)
+        widget.setLayout(layout)
 
         self.setCentralWidget(widget)
         self.append_message("system", self.initial_prompt)
@@ -182,15 +195,28 @@ class ChatWindow(QMainWindow):
         self.send_button.setText(f"{self.loading_text}{'.' * self.loading_index}{' ' * (3 - self.loading_index)}")
 
     def append_message(self, mode, message):
-        cursor = self.chat_log.textCursor()
-        format = QTextCharFormat()
-        format.setForeground(QBrush(QColor(colors[mode])))
-        format.setFontWeight(QFont.DemiBold)
-        cursor.movePosition(QTextCursor.End)
-        cursor.insertText(f"[{mode.capitalize()}]: {message}\n", format)
-        cursor.insertText("\n")
-        self.chat_log.moveCursor(QTextCursor.End)
-        self.chat_log.ensureCursorVisible()
+        author_height, label_height = 20, 20
+        message = message.strip()
+
+        author_widget = QLabel()
+        author_widget.setMaximumHeight(author_height)
+
+        author_widget.setText(Utilities.get_name_from_mode(mode) + ":")
+        author_widget.setStyleSheet(f"color: {colors[mode]['foreground']}; font-weight: bold; margin-left: 5px;")
+        self.chat_log_layout.addWidget(author_widget)
+
+        message_widget = MessageBox(message, mode)
+        self.chat_log_layout.addWidget(message_widget)
+
+        space_label = QLabel()
+        space_label.setMaximumHeight(label_height)
+        self.chat_log_layout.addWidget(space_label)
+
+        self.scroll_to_bottom(author_height + message_widget.height() + label_height)
+
+    def scroll_to_bottom(self, message_height):
+        self.chat_log.verticalScrollBar().setMaximum(self.chat_log.verticalScrollBar().maximum() + message_height)
+        self.chat_log.verticalScrollBar().setValue(self.chat_log.verticalScrollBar().maximum())
 
     def send_message(self):
         message = self.prompt.toPlainText()
@@ -223,11 +249,11 @@ class ChatWindow(QMainWindow):
         self.loading_signal.emit(False)
         self.prompt.setFocus()
 
-    def resizeTextEdit(self):
+    def resize_prompt(self):
         documentHeight = self.prompt.document().size().height()
         scrollbarHeight = self.prompt.verticalScrollBar().sizeHint().height()
         contentHeight = documentHeight + scrollbarHeight
-        self.prompt.setFixedHeight(int(contentHeight))
+        self.divider.setSizes([int(self.divider.height() - contentHeight), int(contentHeight)])
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.KeyPress and obj is self.prompt:
@@ -285,10 +311,20 @@ class ChatWindow(QMainWindow):
         file_name, _ = QFileDialog.getOpenFileName(self, "Open File", chatlogs_directory, "JSON Files (*.json)")
         if file_name:
             history = Utilities.load_chat(file_name)
-            self.chat_log.clear()
+            for i in reversed(range(self.chat_log_layout.count())):
+                self.chat_log_layout.itemAt(i).widget().setParent(None)
             for message in history:
                 self.append_message(message["role"], message["content"])
             self.set_opened_file(file_name)
+            self.chatbot = Chatbot(history)
+
+    def reload_history(self):
+        if self.opened_file:
+            history = Utilities.load_chat(self.opened_file)
+            for i in reversed(range(self.chat_log_layout.count())):
+                self.chat_log_layout.itemAt(i).widget().setParent(None)
+            for message in history:
+                self.append_message(message["role"], message["content"])
             self.chatbot = Chatbot(history)
 
     def closeEvent(self, event):
