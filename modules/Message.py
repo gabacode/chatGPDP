@@ -8,8 +8,9 @@ class MessageBox(QTextEdit):
         super().__init__()
         self.message = message
         self.mode = mode
+        self.doc = self.document()
 
-        styles = f"background-color: {colors[mode]}; color: #F0F0F0; border-radius: 25px; border: none;"
+        styles = f"background-color: {colors[mode]['background']}; color: {colors[mode]['foreground']}; border-radius: 25px; border: none;"
 
         self.setReadOnly(True)
         self.setAcceptRichText(True)
@@ -26,9 +27,9 @@ class MessageBox(QTextEdit):
         event.ignore()
 
     def autoResize(self):
-        self.document().setTextWidth(self.viewport().width())
+        self.doc.setTextWidth(self.viewport().width())
         margins = self.contentsMargins()
-        height = int(self.document().size().height() + margins.top() + margins.bottom()) + 8
+        height = int(self.doc.size().height() + margins.top() + margins.bottom()) + 8
         self.setFixedHeight(height)
         self.update()
 

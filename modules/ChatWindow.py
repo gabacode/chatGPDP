@@ -201,8 +201,8 @@ class ChatWindow(QMainWindow):
         author_widget = QLabel()
         author_widget.setMaximumHeight(author_height)
 
-        author_widget.setText(mode.capitalize())
-        author_widget.setStyleSheet(f"color: {colors[mode]}; font-weight: bold; margin-left: 5px;")
+        author_widget.setText(Utilities.get_name_from_mode(mode) + ":")
+        author_widget.setStyleSheet(f"color: {colors[mode]['foreground']}; font-weight: bold; margin-left: 5px;")
         self.chat_log_layout.addWidget(author_widget)
 
         message_widget = MessageBox(message, mode)
