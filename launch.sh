@@ -26,6 +26,12 @@ pip install --upgrade pip
 # Install dependencies
 pip install -r $DIR/requirements.txt
 
+# Clear the terminal
+clear
+
+# Start the program
+echo "Starting your conversation..."
+
 # Run program
 python $DIR/app.py
 
