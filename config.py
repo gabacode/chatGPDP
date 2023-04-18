@@ -1,6 +1,6 @@
 from modules.Utilities import Utilities
 
-version = "0.2.2"
+version = "0.3.0"
 
 generate_shortcut = Utilities.generate_shortcut
 
