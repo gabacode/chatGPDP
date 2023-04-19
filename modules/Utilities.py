@@ -11,7 +11,7 @@ class Utilities:
             file = file.replace(".json", "")
         try:
             with open(f"{file}.json", "w") as f:
-                json.dump(history, f)
+                json.dump(history, f, indent=2)
                 return f.name
         except Exception as e:
             print(e)

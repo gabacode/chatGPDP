@@ -1,6 +1,6 @@
 import os
 import sys
-from config import chatlogs_directory, colors, engines, load_initial_prompt, shortcuts, version
+from config import chatlogs_directory, engines, load_initial_prompt, shortcuts, version
 from modules.Chatbot import Chatbot
 
 from PyQt5.QtCore import Qt, QEvent, QTimer, pyqtSignal, pyqtSlot
@@ -114,12 +114,15 @@ class ChatWindow(QMainWindow):
         temperature_slider.valueChanged.connect(self.change_temperature)
 
         # [CHATLOG]
-        self.chat_log_widget = QWidget()
-        self.chat_log_widget.setStyleSheet("background-color: #ffffff; border-radius: 5px;")
-        self.chat_log_layout = QVBoxLayout(self.chat_log_widget)
+        self.conversation_container = QWidget()
+        self.conversation_container.setStyleSheet("background-color: #ffffff; border-radius: 5px;")
+
+        self.chat_log_layout = QVBoxLayout(self.conversation_container)
         self.chat_log_layout.setAlignment(Qt.AlignTop)
+        self.chat_log_layout.setContentsMargins(0, 10, 0, 10)
+
         self.chat_log = QScrollArea(widgetResizable=True)
-        self.chat_log.setWidget(self.chat_log_widget)
+        self.chat_log.setWidget(self.conversation_container)
 
         # [PROMPT]
         self.prompt = QTextEdit(self)
@@ -195,24 +198,11 @@ class ChatWindow(QMainWindow):
         self.send_button.setText(f"{self.loading_text}{'.' * self.loading_index}{' ' * (3 - self.loading_index)}")
 
     def append_message(self, mode, message):
-        author_height, label_height = 20, 20
         message = message.strip()
-
-        author_widget = QLabel()
-        author_widget.setMaximumHeight(author_height)
-
-        author_widget.setText(Utilities.get_name_from_mode(mode) + ":")
-        author_widget.setStyleSheet(f"color: {colors[mode]['foreground']}; font-weight: bold; margin-left: 5px;")
-        self.chat_log_layout.addWidget(author_widget)
-
         message_widget = MessageBox(message, mode)
         self.chat_log_layout.addWidget(message_widget)
-
-        space_label = QLabel()
-        space_label.setMaximumHeight(label_height)
-        self.chat_log_layout.addWidget(space_label)
-
-        self.scroll_to_bottom(author_height + message_widget.height() + label_height)
+        self.chat_log_layout.update()
+        self.scroll_to_bottom(message_widget.height())
 
     def scroll_to_bottom(self, message_height):
         self.chat_log.verticalScrollBar().setMaximum(self.chat_log.verticalScrollBar().maximum() + message_height)

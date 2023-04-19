@@ -1,50 +1,83 @@
 from config import colors
-from PyQt5.QtWidgets import QSizePolicy, QTextEdit
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QSizePolicy, QTextEdit, QLabel, QWidget, QVBoxLayout
+from PyQt5.QtCore import Qt, pyqtSignal
 
 from modules.Utilities import Utilities
 
 
-class MessageBox(QTextEdit):
+class MessageBox(QWidget):
     def __init__(self, message, mode):
         super().__init__()
-        self.message = message
-        self.mode = mode
-        self.view = self.viewport()
+        self.layout = QVBoxLayout(self)
+        self.layout.setAlignment(Qt.AlignTop)
+        self.setLayout(self.layout)
+
+        styles = {
+            "author": f"color: {colors[mode]['foreground']}; font-weight: bold; margin-left: 5px;",
+            "message": f"background-color: {colors[mode]['background']}; color: {colors[mode]['foreground']}; border-radius: 25px; border: none;",
+        }
+
+        self.author_label = AuthorLabel(mode)
+        self.author_label.setStyleSheet(styles["author"])
+
+        self.text_message = Message(message, mode)
+        self.text_message.setStyleSheet(styles["message"])
+
+        self.layout.addWidget(self.author_label)
+        self.layout.addWidget(self.text_message)
+
+        self.text_message.heightChanged.connect(self.update_height)
+
+    def update_height(self):
+        new_height = self.text_message.height() + self.author_label.height() * 2
+        self.setFixedHeight(new_height)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.update_height()
+
+
+class AuthorLabel(QLabel):
+    def __init__(self, mode):
+        super().__init__()
+        self.setMaximumHeight(20)
+        self.setText(Utilities.get_name_from_mode(mode) + ":")
+
+
+class Message(QTextEdit):
+    heightChanged = pyqtSignal()
+
+    def __init__(self, message, mode):
+        super().__init__()
         self.doc = self.document()
-
-        styles = f"background-color: {colors[mode]['background']}; color: {colors[mode]['foreground']}; border-radius: 25px; border: none;"
-
         self.setReadOnly(True)
         self.setAcceptRichText(True)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        self.setStyleSheet(styles)
-        self.setText(message) if mode == "user" else self.setMarkdown(message)
+        if mode == "user":
+            self.setPlainText(message)
+        else:
+            self.setMarkdown(message)
 
-        self.textChanged.connect(self.autoResize)
-
-    def wheelEvent(self, event):
-        event.ignore()
-
-    def autoResize(self):
-        self.doc.setTextWidth(self.viewport().width())
+    def resize(self):
         margins = self.contentsMargins()
         height = int(self.doc.size().height() + margins.top() + margins.bottom()) + 8
         self.setFixedHeight(height)
-        self.update()
+        self.heightChanged.emit()
 
     def resizeEvent(self, event):
-        self.autoResize()
+        super().resizeEvent(event)
+        self.resize()
 
     def mouseMoveEvent(self, event):
+        view = self.viewport()
         anchor = self.anchorAt(event.pos())
         if anchor:
-            self.view.setCursor(Qt.PointingHandCursor)
+            view.setCursor(Qt.PointingHandCursor)
         else:
-            self.view.setCursor(Qt.IBeamCursor)
+            view.setCursor(Qt.IBeamCursor)
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
@@ -52,3 +85,6 @@ class MessageBox(QTextEdit):
         if anchor:
             Utilities.open_link(anchor)
         super().mouseReleaseEvent(event)
+
+    def wheelEvent(self, event):
+        event.ignore()
