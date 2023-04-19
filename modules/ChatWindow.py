@@ -200,6 +200,7 @@ class ChatWindow(QMainWindow):
         message = message.strip()
         message_widget = MessageBox(message, mode)
         self.chat_log_layout.addWidget(message_widget)
+        self.chat_log_layout.update()
         self.scroll_to_bottom(message_widget.height())
 
     def scroll_to_bottom(self, message_height):

@@ -31,7 +31,6 @@ class MessageBox(QWidget):
     def update_height(self):
         new_height = self.text_message.height() + self.author_label.height() * 2
         self.setFixedHeight(new_height)
-        self.layout.update()
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
