@@ -119,7 +119,7 @@ class ChatWindow(QMainWindow):
 
         self.chat_log_layout = QVBoxLayout(self.conversation_container)
         self.chat_log_layout.setAlignment(Qt.AlignTop)
-        self.chat_log_layout.setContentsMargins(0, 0, 0, 0)
+        self.chat_log_layout.setContentsMargins(0, 10, 0, 10)
 
         self.chat_log = QScrollArea(widgetResizable=True)
         self.chat_log.setWidget(self.conversation_container)
