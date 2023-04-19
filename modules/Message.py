@@ -1,4 +1,5 @@
 from config import colors
+import markdown2
 from PyQt5.QtWidgets import QSizePolicy, QTextEdit, QLabel, QWidget, QVBoxLayout
 from PyQt5.QtCore import Qt, pyqtSignal
 
@@ -51,15 +52,21 @@ class Message(QTextEdit):
         super().__init__()
         self.doc = self.document()
         self.setReadOnly(True)
-        self.setAcceptRichText(True)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        if mode == "user":
-            self.setPlainText(message)
-        else:
-            self.setMarkdown(message)
+        html = markdown2.markdown(message, extras=["fenced-code-blocks", "codehilite", "tables"])
+        self.setHtml(self.format_code(html))
+
+    def format_code(self, code):
+        try:
+            with open("styles/markdown.css") as f:
+                style = f.read()
+                return f"<style>{style}</style>{code}"
+        except Exception as e:
+            print(e)
+            return code
 
     def resize(self):
         margins = self.contentsMargins()
