@@ -1,4 +1,4 @@
-from config import colors, shortcuts
+from config import colors
 import markdown2
 from PyQt5.QtWidgets import QSizePolicy, QTextEdit, QLabel, QWidget, QVBoxLayout
 from PyQt5.QtCore import Qt, pyqtSignal
