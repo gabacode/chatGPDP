@@ -1,4 +1,5 @@
 from config import colors
+import markdown2
 from PyQt5.QtWidgets import QSizePolicy, QTextEdit, QLabel, QWidget, QVBoxLayout
 from PyQt5.QtCore import Qt, pyqtSignal
 
@@ -9,7 +10,6 @@ class MessageBox(QWidget):
     def __init__(self, message, mode):
         super().__init__()
         self.layout = QVBoxLayout(self)
-        self.layout.setAlignment(Qt.AlignTop)
         self.setLayout(self.layout)
 
         styles = {
@@ -20,7 +20,7 @@ class MessageBox(QWidget):
         self.author_label = AuthorLabel(mode)
         self.author_label.setStyleSheet(styles["author"])
 
-        self.text_message = Message(message, mode)
+        self.text_message = Message(message)
         self.text_message.setStyleSheet(styles["message"])
 
         self.layout.addWidget(self.author_label)
@@ -46,24 +46,37 @@ class AuthorLabel(QLabel):
 
 class Message(QTextEdit):
     heightChanged = pyqtSignal()
+    plugins = ["fenced-code-blocks", "codehilite", "tables", "break-on-newline"]
+    styles = ""
 
-    def __init__(self, message, mode):
+    def __init__(self, message):
         super().__init__()
         self.doc = self.document()
+        self.message = message
         self.setReadOnly(True)
-        self.setAcceptRichText(True)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        if mode == "user":
-            self.setPlainText(message)
-        else:
-            self.setMarkdown(message)
+        Message.styles = Message.styles or self.load_css()
+
+        html = markdown2.markdown(self.message, extras=Message.plugins)
+        self.setHtml(self.format_code(html))
+        
+    def load_css(self):
+        try:
+            with open("styles/markdown.css") as f:
+                return f.read()
+        except Exception as e:
+            print(e)
+            return ""
+
+    def format_code(self, code):
+        return f"<style>{Message.styles}</style>{code}" if Message.styles else code
 
     def resize(self):
         margins = self.contentsMargins()
-        height = int(self.doc.size().height() + margins.top() + margins.bottom()) + 8
+        height = int(self.doc.size().height() + margins.top() + margins.bottom())
         self.setFixedHeight(height)
         self.heightChanged.emit()
 
