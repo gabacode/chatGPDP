@@ -1,37 +1,103 @@
 from config import colors
-from PyQt5.QtWidgets import QSizePolicy, QTextEdit
-from PyQt5.QtCore import Qt
+import markdown2
+from PyQt5.QtWidgets import QSizePolicy, QTextEdit, QLabel, QWidget, QVBoxLayout
+from PyQt5.QtCore import Qt, pyqtSignal
+
+from modules.Utilities import Utilities
 
 
-class MessageBox(QTextEdit):
+class MessageBox(QWidget):
     def __init__(self, message, mode):
         super().__init__()
-        self.message = message
-        self.mode = mode
+        self.layout = QVBoxLayout(self)
+        self.setLayout(self.layout)
+
+        styles = {
+            "author": f"color: {colors[mode]['foreground']}; font-weight: bold; margin-left: 5px;",
+            "message": f"background-color: {colors[mode]['background']}; color: {colors[mode]['foreground']}; border-radius: 25px; border: none;",
+        }
+
+        self.author_label = AuthorLabel(mode)
+        self.author_label.setStyleSheet(styles["author"])
+
+        self.text_message = Message(message)
+        self.text_message.setStyleSheet(styles["message"])
+
+        self.layout.addWidget(self.author_label)
+        self.layout.addWidget(self.text_message)
+
+        self.text_message.heightChanged.connect(self.update_height)
+
+    def update_height(self):
+        new_height = self.text_message.height() + self.author_label.height() * 2
+        self.setFixedHeight(new_height)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.update_height()
+
+
+class AuthorLabel(QLabel):
+    def __init__(self, mode):
+        super().__init__()
+        self.setMaximumHeight(20)
+        self.setText(Utilities.get_name_from_mode(mode) + ":")
+
+
+class Message(QTextEdit):
+    heightChanged = pyqtSignal()
+    plugins = ["fenced-code-blocks", "codehilite", "tables", "break-on-newline"]
+    styles = ""
+
+    def __init__(self, message):
+        super().__init__()
         self.doc = self.document()
-
-        styles = f"background-color: {colors[mode]['background']}; color: {colors[mode]['foreground']}; border-radius: 25px; border: none;"
-
+        self.message = message
         self.setReadOnly(True)
-        self.setAcceptRichText(True)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        self.setStyleSheet(styles)
-        self.setText(message) if mode == "user" else self.setMarkdown(message)
+        Message.styles = Message.styles or self.load_css()
 
-        self.textChanged.connect(self.autoResize)
+        html = markdown2.markdown(self.message, extras=Message.plugins)
+        self.setHtml(self.format_code(html))
+        
+    def load_css(self):
+        try:
+            with open("styles/markdown.css") as f:
+                return f.read()
+        except Exception as e:
+            print(e)
+            return ""
+
+    def format_code(self, code):
+        return f"<style>{Message.styles}</style>{code}" if Message.styles else code
+
+    def resize(self):
+        margins = self.contentsMargins()
+        height = int(self.doc.size().height() + margins.top() + margins.bottom())
+        self.setFixedHeight(height)
+        self.heightChanged.emit()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.resize()
+
+    def mouseMoveEvent(self, event):
+        view = self.viewport()
+        anchor = self.anchorAt(event.pos())
+        if anchor:
+            view.setCursor(Qt.PointingHandCursor)
+        else:
+            view.setCursor(Qt.IBeamCursor)
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        anchor = self.anchorAt(event.pos())
+        if anchor:
+            Utilities.open_link(anchor)
+        super().mouseReleaseEvent(event)
 
     def wheelEvent(self, event):
         event.ignore()
-
-    def autoResize(self):
-        self.doc.setTextWidth(self.viewport().width())
-        margins = self.contentsMargins()
-        height = int(self.doc.size().height() + margins.top() + margins.bottom()) + 8
-        self.setFixedHeight(height)
-        self.update()
-
-    def resizeEvent(self, event):
-        self.autoResize()
