@@ -8,6 +8,8 @@ from modules.Utilities import Utilities
 
 
 class MessageBox(QWidget):
+    messageChanged = pyqtSignal()
+
     def __init__(self, chatbot, message, mode):
         super().__init__()
         self.layout = QVBoxLayout(self)
@@ -22,12 +24,16 @@ class MessageBox(QWidget):
         self.author_label.setStyleSheet(styles["author"])
 
         self.text_message = Message(chatbot, message)
+        self.text_message.messageChanged.connect(self.emit_signal)
         self.text_message.setStyleSheet(styles["message"])
 
         self.layout.addWidget(self.author_label)
         self.layout.addWidget(self.text_message)
 
         self.text_message.heightChanged.connect(self.update_height)
+
+    def emit_signal(self):
+        self.messageChanged.emit()
 
     def update_height(self):
         new_height = self.text_message.height() + self.author_label.height() * 2
@@ -47,6 +53,7 @@ class AuthorLabel(QLabel):
 
 class Message(QTextEdit):
     heightChanged = pyqtSignal()
+    messageChanged = pyqtSignal()
     plugins = ["fenced-code-blocks", "codehilite", "tables", "break-on-newline"]
     styles = ""
 
@@ -119,7 +126,7 @@ class Message(QTextEdit):
         self.setHtml(self.to_markdown(new_message))
         self.chatbot.replace_message(index, new_message)
         self.textChanged.disconnect(self.resize)
-
+        self.messageChanged.emit()
         self.document().setModified(True)
 
     def delete_message(self):
@@ -128,6 +135,7 @@ class Message(QTextEdit):
             return
         self.chatbot.remove_from_history(index)
         layout.takeAt(index).widget().deleteLater()
+        self.messageChanged.emit()
 
     def get_message_index(self):
         message_box = self.parentWidget()

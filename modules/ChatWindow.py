@@ -202,9 +202,17 @@ class ChatWindow(QMainWindow):
     def append_message(self, mode, message):
         message = message.strip()
         message_widget = MessageBox(self.chatbot, message, mode)
+        message_widget.messageChanged.connect(self.set_to_save)
         self.chat_log_layout.addWidget(message_widget)
         self.chat_log_layout.update()
         self.scroll_to_bottom(message_widget.height())
+
+    def set_to_save(self):
+        self.setWindowTitle(
+            f"{self.window_title} - {Utilities.path_strip(self.opened_file)}*"
+            if self.opened_file
+            else f"{self.window_title} - New Chat*"
+        )
 
     def scroll_to_bottom(self, message_height):
         self.chat_log.verticalScrollBar().setMaximum(self.chat_log.verticalScrollBar().maximum() + message_height)
