@@ -10,7 +10,6 @@ class MessageBox(QWidget):
     def __init__(self, message, mode):
         super().__init__()
         self.layout = QVBoxLayout(self)
-        self.layout.setAlignment(Qt.AlignTop)
         self.setLayout(self.layout)
 
         styles = {
@@ -47,6 +46,7 @@ class AuthorLabel(QLabel):
 
 class Message(QTextEdit):
     heightChanged = pyqtSignal()
+    css = ""
 
     def __init__(self, message, mode):
         super().__init__()
@@ -56,33 +56,31 @@ class Message(QTextEdit):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
+        Message.css = Message.css or self.load_css()
+
         html = markdown2.markdown(message, extras=["fenced-code-blocks", "codehilite", "tables"])
         self.setHtml(self.format_code(html))
 
-    def format_code(self, code):
+    def load_css(self):
         try:
             with open("styles/markdown.css") as f:
-                style = f.read()
-                return f"<style>{style}</style>{code}"
+                return f.read()
         except Exception as e:
             print(e)
-            return code
+            return ""
+
+    def format_code(self, code):
+        return f"<style>{Message.css}</style>{code}" if Message.css else code
 
     def resize(self):
         margins = self.contentsMargins()
-        height = int(self.doc.size().height() + margins.top() + margins.bottom()) + 8
+        height = int(self.doc.size().height() + margins.top() + margins.bottom())
         self.setFixedHeight(height)
         self.heightChanged.emit()
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self.resize()
-
-    def mousePressEvent(self, event):
-        super().mousePressEvent(event)
-        widgets = self.parentWidget()
-        print(widgets)
-        print(self)
 
     def mouseMoveEvent(self, event):
         view = self.viewport()
