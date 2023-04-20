@@ -2,12 +2,13 @@ from config import colors
 import markdown2
 from PyQt5.QtWidgets import QSizePolicy, QTextEdit, QLabel, QWidget, QVBoxLayout
 from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QIcon
 
 from modules.Utilities import Utilities
 
 
 class MessageBox(QWidget):
-    def __init__(self, message, mode):
+    def __init__(self, chatbot, message, mode):
         super().__init__()
         self.layout = QVBoxLayout(self)
         self.setLayout(self.layout)
@@ -20,7 +21,7 @@ class MessageBox(QWidget):
         self.author_label = AuthorLabel(mode)
         self.author_label.setStyleSheet(styles["author"])
 
-        self.text_message = Message(message)
+        self.text_message = Message(chatbot, message)
         self.text_message.setStyleSheet(styles["message"])
 
         self.layout.addWidget(self.author_label)
@@ -49,9 +50,10 @@ class Message(QTextEdit):
     plugins = ["fenced-code-blocks", "codehilite", "tables", "break-on-newline"]
     styles = ""
 
-    def __init__(self, message):
+    def __init__(self, chatbot, message):
         super().__init__()
         self.doc = self.document()
+        self.chatbot = chatbot
         self.message = message
         self.setReadOnly(True)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -79,6 +81,21 @@ class Message(QTextEdit):
         height = int(self.doc.size().height() + margins.top() + margins.bottom())
         self.setFixedHeight(height)
         self.heightChanged.emit()
+
+    def contextMenuEvent(self, event):
+        menu = self.createStandardContextMenu()
+        menu.addAction(QIcon.fromTheme("edit-delete"), "Delete", self.delete_message)
+        menu.exec_(self.mapToGlobal(event.pos()))
+
+    def delete_message(self):
+        message_box = self.parentWidget()
+        chat_log_layout = self.parentWidget().parentWidget().layout()
+        widget_list = [chat_log_layout.itemAt(i).widget() for i in range(chat_log_layout.count())]
+        message_index = widget_list.index(message_box)
+        if message_index == 0:
+            return
+        self.chatbot.remove_from_history(message_index)
+        chat_log_layout.takeAt(message_index).widget().deleteLater()
 
     def resizeEvent(self, event):
         super().resizeEvent(event)

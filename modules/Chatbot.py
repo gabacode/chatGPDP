@@ -76,3 +76,6 @@ class Chatbot:
 
     def add_to_history(self, message):
         self.history.append(message)
+
+    def remove_from_history(self, index):
+        self.history.pop(index)
