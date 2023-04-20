@@ -78,7 +78,7 @@ class Chatbot:
         return self.history[index]
 
     def replace_message(self, index, message):
-        self.history[index] = message
+        self.history[index]["content"] = message
 
     def add_to_history(self, message):
         self.history.append(message)
