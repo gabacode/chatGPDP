@@ -78,6 +78,12 @@ class Message(QTextEdit):
         super().resizeEvent(event)
         self.resize()
 
+    def mousePressEvent(self, event):
+        super().mousePressEvent(event)
+        widgets = self.parentWidget()
+        print(widgets)
+        print(self)
+
     def mouseMoveEvent(self, event):
         view = self.viewport()
         anchor = self.anchorAt(event.pos())

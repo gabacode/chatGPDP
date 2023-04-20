@@ -1,10 +1,15 @@
-table {
-    border-collapse: collapse;
-    width: 100%;
+p {
+  line-height: 1.5;
 }
-th, td {
-    border: 1px solid darkgray;
-    padding: 8px;
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th,
+td {
+  border: 1px solid darkgray;
+  padding: 8px;
 }
 
 .codehilite .hll {
