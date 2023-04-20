@@ -64,7 +64,7 @@ class Message(QTextEdit):
 
         html = markdown2.markdown(self.message, extras=Message.plugins)
         self.setHtml(self.format_code(html))
-        
+
     def load_css(self):
         try:
             with open("styles/markdown.css") as f:
@@ -84,18 +84,25 @@ class Message(QTextEdit):
 
     def contextMenuEvent(self, event):
         menu = self.createStandardContextMenu()
-        menu.addAction(QIcon.fromTheme("edit-delete"), "Delete", self.delete_message)
+        index, _ = self.get_message_index()
+        if index != 0:
+            menu.addSeparator()
+            menu.addAction(QIcon.fromTheme("edit-delete"), "Delete Message", self.delete_message)
         menu.exec_(self.mapToGlobal(event.pos()))
 
     def delete_message(self):
-        message_box = self.parentWidget()
-        chat_log_layout = self.parentWidget().parentWidget().layout()
-        widget_list = [chat_log_layout.itemAt(i).widget() for i in range(chat_log_layout.count())]
-        message_index = widget_list.index(message_box)
-        if message_index == 0:
+        index, layout = self.get_message_index()
+        if index == 0:
             return
-        self.chatbot.remove_from_history(message_index)
-        chat_log_layout.takeAt(message_index).widget().deleteLater()
+        self.chatbot.remove_from_history(index)
+        layout.takeAt(index).widget().deleteLater()
+
+    def get_message_index(self):
+        message_box = self.parentWidget()
+        layout = self.parentWidget().parentWidget().layout()
+        widget_list = [layout.itemAt(i).widget() for i in range(layout.count())]
+        index = widget_list.index(message_box)
+        return index, layout
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
