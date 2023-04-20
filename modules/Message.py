@@ -2,12 +2,15 @@ from config import colors
 import markdown2
 from PyQt5.QtWidgets import QSizePolicy, QTextEdit, QLabel, QWidget, QVBoxLayout
 from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QIcon
 
 from modules.Utilities import Utilities
 
 
 class MessageBox(QWidget):
-    def __init__(self, message, mode):
+    messageChanged = pyqtSignal()
+
+    def __init__(self, chatbot, message, mode):
         super().__init__()
         self.layout = QVBoxLayout(self)
         self.setLayout(self.layout)
@@ -20,13 +23,17 @@ class MessageBox(QWidget):
         self.author_label = AuthorLabel(mode)
         self.author_label.setStyleSheet(styles["author"])
 
-        self.text_message = Message(message)
+        self.text_message = Message(chatbot, message)
+        self.text_message.messageChanged.connect(self.emit_signal)
         self.text_message.setStyleSheet(styles["message"])
 
         self.layout.addWidget(self.author_label)
         self.layout.addWidget(self.text_message)
 
         self.text_message.heightChanged.connect(self.update_height)
+
+    def emit_signal(self):
+        self.messageChanged.emit()
 
     def update_height(self):
         new_height = self.text_message.height() + self.author_label.height() * 2
@@ -46,13 +53,16 @@ class AuthorLabel(QLabel):
 
 class Message(QTextEdit):
     heightChanged = pyqtSignal()
+    messageChanged = pyqtSignal()
     plugins = ["fenced-code-blocks", "codehilite", "tables", "break-on-newline"]
     styles = ""
 
-    def __init__(self, message):
+    def __init__(self, chatbot, message):
         super().__init__()
         self.doc = self.document()
+        self.chatbot = chatbot
         self.message = message
+        self.is_editing = False
         self.setReadOnly(True)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -60,9 +70,13 @@ class Message(QTextEdit):
 
         Message.styles = Message.styles or self.load_css()
 
-        html = markdown2.markdown(self.message, extras=Message.plugins)
-        self.setHtml(self.format_code(html))
-        
+        self.setHtml(self.to_markdown(self.message))
+
+    def to_markdown(self, text):
+        md = markdown2.markdown(text, extras=Message.plugins)
+        formatted = self.format_code(md)
+        return formatted
+
     def load_css(self):
         try:
             with open("styles/markdown.css") as f:
@@ -79,6 +93,56 @@ class Message(QTextEdit):
         height = int(self.doc.size().height() + margins.top() + margins.bottom())
         self.setFixedHeight(height)
         self.heightChanged.emit()
+
+    def contextMenuEvent(self, event):
+        menu = self.createStandardContextMenu()
+        menu.setStyleSheet("border: none;")
+        index, _ = self.get_message_index()
+        if index != 0:
+            if self.is_editing:
+                menu.addAction(QIcon.fromTheme("document-save"), "Save Message", self.save_message)
+            else:
+                menu.addAction(QIcon.fromTheme("document-new"), "Edit Message", self.edit_message)
+                menu.addAction(QIcon.fromTheme("edit-delete"), "Delete Message", self.delete_message)
+        menu.exec_(self.mapToGlobal(event.pos()))
+
+    def edit_message(self):
+        index, _ = self.get_message_index()
+        original_message = self.chatbot.get_message(index)
+        self.is_editing = True
+        self.setPlainText(original_message["content"])
+        self.setReadOnly(False)
+        self.setAcceptRichText(False)
+        self.setStyleSheet(self.styleSheet().replace("border: none;", "border: 2px solid #333;"))
+        self.textChanged.connect(self.resize)
+
+    def save_message(self):
+        self.is_editing = False
+        self.setReadOnly(True)
+        self.setStyleSheet(self.styleSheet().replace("border: 2px solid #333;", "border: none;"))
+
+        index, _ = self.get_message_index()
+        new_message = self.toPlainText()
+        self.setHtml(self.to_markdown(new_message))
+        self.chatbot.replace_message(index, new_message)
+        self.textChanged.disconnect(self.resize)
+        self.messageChanged.emit()
+        self.document().setModified(True)
+
+    def delete_message(self):
+        index, layout = self.get_message_index()
+        if index == 0:
+            return
+        self.chatbot.remove_from_history(index)
+        layout.takeAt(index).widget().deleteLater()
+        self.messageChanged.emit()
+
+    def get_message_index(self):
+        message_box = self.parentWidget()
+        layout = self.parentWidget().parentWidget().layout()
+        widget_list = [layout.itemAt(i).widget() for i in range(layout.count())]
+        index = widget_list.index(message_box)
+        return index, layout
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
