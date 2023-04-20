@@ -1,4 +1,4 @@
-from config import colors
+from config import colors, shortcuts
 import markdown2
 from PyQt5.QtWidgets import QSizePolicy, QTextEdit, QLabel, QWidget, QVBoxLayout
 from PyQt5.QtCore import Qt, pyqtSignal
@@ -55,6 +55,7 @@ class Message(QTextEdit):
         self.doc = self.document()
         self.chatbot = chatbot
         self.message = message
+        self.is_editing = False
         self.setReadOnly(True)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -62,8 +63,12 @@ class Message(QTextEdit):
 
         Message.styles = Message.styles or self.load_css()
 
-        html = markdown2.markdown(self.message, extras=Message.plugins)
-        self.setHtml(self.format_code(html))
+        self.setHtml(self.to_markdown(self.message))
+
+    def to_markdown(self, text):
+        md = markdown2.markdown(text, extras=Message.plugins)
+        formatted = self.format_code(md)
+        return formatted
 
     def load_css(self):
         try:
@@ -84,11 +89,38 @@ class Message(QTextEdit):
 
     def contextMenuEvent(self, event):
         menu = self.createStandardContextMenu()
+        menu.setStyleSheet("border: none;")
         index, _ = self.get_message_index()
         if index != 0:
-            menu.addSeparator()
-            menu.addAction(QIcon.fromTheme("edit-delete"), "Delete Message", self.delete_message)
+            if self.is_editing:
+                menu.addAction(QIcon.fromTheme("document-save"), "Save Message", self.save_message)
+            else:
+                menu.addAction(QIcon.fromTheme("document-new"), "Edit Message", self.edit_message)
+                menu.addAction(QIcon.fromTheme("edit-delete"), "Delete Message", self.delete_message)
         menu.exec_(self.mapToGlobal(event.pos()))
+
+    def edit_message(self):
+        index, _ = self.get_message_index()
+        original_message = self.chatbot.get_message(index)
+        self.is_editing = True
+        self.setPlainText(original_message["content"])
+        self.setReadOnly(False)
+        self.setAcceptRichText(False)
+        self.setStyleSheet(self.styleSheet().replace("border: none;", "border: 2px solid #333;"))
+        self.textChanged.connect(self.resize)
+
+    def save_message(self):
+        self.is_editing = False
+        self.setReadOnly(True)
+        self.setStyleSheet(self.styleSheet().replace("border: 2px solid #333;", "border: none;"))
+
+        index, _ = self.get_message_index()
+        new_message = self.toPlainText()
+        self.setHtml(self.to_markdown(new_message))
+        self.chatbot.replace_message(index, new_message)
+        self.textChanged.disconnect(self.resize)
+
+        self.document().setModified(True)
 
     def delete_message(self):
         index, layout = self.get_message_index()
