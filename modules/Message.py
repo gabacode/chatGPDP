@@ -20,7 +20,7 @@ class MessageBox(QWidget):
         self.author_label = AuthorLabel(mode)
         self.author_label.setStyleSheet(styles["author"])
 
-        self.text_message = Message(message, mode)
+        self.text_message = Message(message)
         self.text_message.setStyleSheet(styles["message"])
 
         self.layout.addWidget(self.author_label)
@@ -46,21 +46,23 @@ class AuthorLabel(QLabel):
 
 class Message(QTextEdit):
     heightChanged = pyqtSignal()
-    css = ""
+    plugins = ["fenced-code-blocks", "codehilite", "tables", "break-on-newline"]
+    styles = ""
 
-    def __init__(self, message, mode):
+    def __init__(self, message):
         super().__init__()
         self.doc = self.document()
+        self.message = message
         self.setReadOnly(True)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        Message.css = Message.css or self.load_css()
+        Message.styles = Message.styles or self.load_css()
 
-        html = markdown2.markdown(message, extras=["fenced-code-blocks", "codehilite", "tables"])
+        html = markdown2.markdown(self.message, extras=Message.plugins)
         self.setHtml(self.format_code(html))
-
+        
     def load_css(self):
         try:
             with open("styles/markdown.css") as f:
@@ -70,7 +72,7 @@ class Message(QTextEdit):
             return ""
 
     def format_code(self, code):
-        return f"<style>{Message.css}</style>{code}" if Message.css else code
+        return f"<style>{Message.styles}</style>{code}" if Message.styles else code
 
     def resize(self):
         margins = self.contentsMargins()
