@@ -1,12 +1,12 @@
 import sys
-from chatgpdp.resources import resources
+from chatgpdp.resources import resources_rc
 
 from chatgpdp.modules.utils.utilities import Utilities
 from chatgpdp.modules.ui.chat_window import ChatWindow
 from chatgpdp.styles.use_style import Style
 
-from PySide2.QtWidgets import QApplication
-from PySide2.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtGui import QIcon
 
 
 def app():

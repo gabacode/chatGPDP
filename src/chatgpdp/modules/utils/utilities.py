@@ -3,8 +3,8 @@ import sys
 import json
 from pathlib import Path
 
-from PySide2.QtCore import QUrl
-from PySide2.QtGui import QDesktopServices
+from PyQt5.QtCore import QUrl
+from PyQt5.QtGui import QDesktopServices
 
 try:
     from importlib import metadata as importlib_metadata

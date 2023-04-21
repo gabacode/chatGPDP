@@ -1,7 +1,7 @@
 import markdown2
-from PySide2.QtWidgets import QSizePolicy, QTextEdit, QLabel, QWidget, QVBoxLayout
-from PySide2.QtCore import Qt, Signal
-from PySide2.QtGui import QIcon
+from PyQt5.QtWidgets import QSizePolicy, QTextEdit, QLabel, QWidget, QVBoxLayout
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QIcon
 
 from chatgpdp.modules.utils.config import colors
 from chatgpdp.modules.utils.utilities import Utilities
@@ -9,7 +9,7 @@ from chatgpdp.styles.use_style import Style
 
 
 class MessageBox(QWidget):
-    messageChanged = Signal()
+    messageChanged = pyqtSignal()
 
     def __init__(self, chatbot, message, mode):
         super().__init__()
@@ -53,8 +53,8 @@ class AuthorLabel(QLabel):
 
 
 class Message(QTextEdit):
-    heightChanged = Signal()
-    messageChanged = Signal()
+    heightChanged = pyqtSignal()
+    messageChanged = pyqtSignal()
     plugins = ["fenced-code-blocks", "codehilite", "tables", "break-on-newline"]
     styles = ""
 
@@ -93,7 +93,7 @@ class Message(QTextEdit):
 
     def contextMenuEvent(self, event):
         menu = self.createStandardContextMenu()
-        menu.setStyleSheet("border: none;")
+        menu.setStyleSheet("border: none; border-radius: 0px;")
         index, _ = self.get_message_index()
         if index != 0:
             if self.is_editing:

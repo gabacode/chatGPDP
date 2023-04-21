@@ -1,8 +1,8 @@
-from PySide2.QtCore import Qt
-from PySide2.QtGui import QPixmap, QCursor
-from PySide2.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap, QCursor
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout
 
-from chatgpdp.resources import resources
+from chatgpdp.resources import resources_rc
 from chatgpdp.modules.utils.utilities import Utilities
 
 

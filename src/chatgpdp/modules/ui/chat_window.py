@@ -1,9 +1,9 @@
 import os
 import sys
 
-from PySide2.QtCore import Qt, QEvent, QTimer, Signal, Slot
-from PySide2.QtGui import QCursor
-from PySide2.QtWidgets import (
+from PyQt5.QtCore import Qt, QEvent, QTimer, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import QCursor
+from PyQt5.QtWidgets import (
     QAction,
     QComboBox,
     QDialog,
@@ -34,7 +34,7 @@ from chatgpdp.modules.threads.chat import ChatThread
 class ChatWindow(QMainWindow):
     metadata = Utilities.get_metadata()
     window_title = "ChatGPDP" + " v" + metadata["Version"]
-    loading_signal = Signal(bool)
+    loading_signal = pyqtSignal(bool)
 
     def __init__(self):
         super().__init__()
@@ -183,7 +183,7 @@ class ChatWindow(QMainWindow):
         self.temperature = value / 1000.0
         self.temperature_label.setText(f"Change temperature: {self.temperature}")
 
-    @Slot(bool)
+    @pyqtSlot(bool)
     def set_loading(self, is_loading):
         self.is_loading = is_loading
         self.send_button.setEnabled(not is_loading)
