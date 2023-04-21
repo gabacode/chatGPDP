@@ -37,7 +37,9 @@ class ChatWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
+        self.initUI()
 
+    def initUI(self):
         self.setWindowTitle(self.window_title)
 
         self.initial_prompt = load_initial_prompt()
@@ -199,10 +201,18 @@ class ChatWindow(QMainWindow):
 
     def append_message(self, mode, message):
         message = message.strip()
-        message_widget = MessageBox(message, mode)
+        message_widget = MessageBox(self.chatbot, message, mode)
+        message_widget.messageChanged.connect(self.set_to_save)
         self.chat_log_layout.addWidget(message_widget)
         self.chat_log_layout.update()
         self.scroll_to_bottom(message_widget.height())
+
+    def set_to_save(self):
+        self.setWindowTitle(
+            f"{self.window_title} - {Utilities.path_strip(self.opened_file)}*"
+            if self.opened_file
+            else f"{self.window_title} - New Chat*"
+        )
 
     def scroll_to_bottom(self, message_height):
         self.chat_log.verticalScrollBar().setMaximum(self.chat_log.verticalScrollBar().maximum() + message_height)
@@ -215,11 +225,7 @@ class ChatWindow(QMainWindow):
             self.prompt.setFocus()
             return
         self.append_message("user", message)
-        self.setWindowTitle(
-            f"{self.window_title} - {Utilities.path_strip(self.opened_file)}*"
-            if self.opened_file
-            else f"{self.window_title} - New Chat*"
-        )
+        self.set_to_save()
         self.prompt.clear()
 
         self.is_loading = True
@@ -307,19 +313,19 @@ class ChatWindow(QMainWindow):
             history = Utilities.load_chat(loaded_file)
             for i in reversed(range(self.chat_log_layout.count())):
                 self.chat_log_layout.itemAt(i).widget().setParent(None)
+            self.chatbot = Chatbot(history)
             for message in history:
                 self.append_message(message["role"], message["content"])
             self.set_opened_file(loaded_file)
-            self.chatbot = Chatbot(history)
 
     def reload_history(self):
         if self.opened_file:
             history = Utilities.load_chat(self.opened_file)
             for i in reversed(range(self.chat_log_layout.count())):
                 self.chat_log_layout.itemAt(i).widget().setParent(None)
+            self.chatbot = Chatbot(history)
             for message in history:
                 self.append_message(message["role"], message["content"])
-            self.chatbot = Chatbot(history)
 
     def closeEvent(self, event):
         reply = QMessageBox.question(
