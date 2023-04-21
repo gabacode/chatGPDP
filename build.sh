@@ -52,6 +52,7 @@ fi
 
 # If the user wants to run the app, run it
 read -p "Do you want to run the app? (y/n) " -n 1 -r
+echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
     echo $delimiters
