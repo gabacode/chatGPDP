@@ -1,7 +1,8 @@
 import os
 import openai
-from config import engines
 from dotenv import load_dotenv
+
+from chatgpdp.modules.utils.config import PATHS, engines
 
 from langchain.prompts import (
     ChatPromptTemplate,
@@ -16,21 +17,24 @@ from langchain.memory import ConversationBufferMemory, ChatMessageHistory
 
 
 class Chatbot:
+    env_path = PATHS["env"]
+    chatlogs_directory = PATHS["chatlogs"]
+
     def __init__(self, history):
         self.env_init()
         self.history = history
         self.memory = ConversationBufferMemory(return_messages=True)
 
     def env_init(self):
-        if not os.path.exists("chatlogs"):
-            os.mkdir("chatlogs")
-        if not os.path.exists(".env"):
-            with open(".env", "w") as f:
+        if not os.path.exists(self.chatlogs_directory):
+            os.mkdir(self.chatlogs_directory)
+        if not os.path.exists(self.env_path):
+            with open(self.env_path, "w") as f:
                 f.write("OPENAI_API_KEY=")
         self.reload_env()
 
     def reload_env(self):
-        load_dotenv(override=True)
+        load_dotenv(self.env_path, override=True)
         openai.api_key = os.environ["OPENAI_API_KEY"]
 
     def create_messages(self, prompt):
@@ -69,7 +73,9 @@ class Chatbot:
             self.add_to_history({"role": "assistant", "content": response_text})
             return response_text
         except Exception as e:
-            return "I'm sorry, we got an error:" + "\n" + str(e)
+            error = f"I'm sorry, we got an error: \n {e}"
+            self.add_to_history({"role": "system", "content": error})
+            return error
 
     def get_history(self):
         return self.history

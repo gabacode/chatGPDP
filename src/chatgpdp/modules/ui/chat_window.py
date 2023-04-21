@@ -1,11 +1,9 @@
 import os
 import sys
-from config import chatlogs_directory, engines, load_initial_prompt, shortcuts, version
-from modules.Chatbot import Chatbot
 
-from PyQt5.QtCore import Qt, QEvent, QTimer, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QCursor
-from PyQt5.QtWidgets import (
+from PySide2.QtCore import Qt, QEvent, QTimer, Signal, Slot
+from PySide2.QtGui import QCursor
+from PySide2.QtWidgets import (
     QAction,
     QComboBox,
     QDialog,
@@ -23,17 +21,20 @@ from PyQt5.QtWidgets import (
     QWidget,
     QMenu,
 )
-from modules.Message import MessageBox
-from modules.Utilities import Utilities
-from modules.dialogs.AboutDialog import AboutDialog
-from modules.dialogs.ConfigDialog import ConfigDialog
-from modules.dialogs.PersonalityDialog import PersonalityDialog
-from threads.ChatThread import ChatThread
+from chatgpdp.modules.utils.config import PATHS, engines, load_initial_prompt, shortcuts
+from chatgpdp.modules.chat.bot import Chatbot
+from chatgpdp.modules.chat.message import MessageBox
+from chatgpdp.modules.utils.utilities import Utilities
+from chatgpdp.modules.dialogs.about import AboutDialog
+from chatgpdp.modules.dialogs.config import ConfigDialog
+from chatgpdp.modules.dialogs.personality import PersonalityDialog
+from chatgpdp.modules.threads.chat import ChatThread
 
 
 class ChatWindow(QMainWindow):
-    window_title = "ChatGPDP" + " v" + version
-    loading_signal = pyqtSignal(bool)
+    metadata = Utilities.get_metadata()
+    window_title = "ChatGPDP" + " v" + metadata["Version"]
+    loading_signal = Signal(bool)
 
     def __init__(self):
         super().__init__()
@@ -182,7 +183,7 @@ class ChatWindow(QMainWindow):
         self.temperature = value / 1000.0
         self.temperature_label.setText(f"Change temperature: {self.temperature}")
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def set_loading(self, is_loading):
         self.is_loading = is_loading
         self.send_button.setEnabled(not is_loading)
@@ -299,7 +300,7 @@ class ChatWindow(QMainWindow):
 
     def save_history_as(self):
         file_filter = "JSON Files (*.json)"
-        new_file, _ = QFileDialog.getSaveFileName(self, "Save File", chatlogs_directory, file_filter)
+        new_file, _ = QFileDialog.getSaveFileName(self, "Save File", PATHS["chatlogs"], file_filter)
         if not new_file:
             return
         file_name = Utilities.save_chat(new_file, self.chatbot.history)
@@ -308,7 +309,7 @@ class ChatWindow(QMainWindow):
 
     def load_history(self):
         file_filter = "JSON Files (*.json)"
-        loaded_file, _ = QFileDialog.getOpenFileName(self, "Open File", chatlogs_directory, file_filter)
+        loaded_file, _ = QFileDialog.getOpenFileName(self, "Open File", PATHS["chatlogs"], file_filter)
         if loaded_file:
             history = Utilities.load_chat(loaded_file)
             for i in reversed(range(self.chat_log_layout.count())):

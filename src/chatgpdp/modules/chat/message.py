@@ -1,14 +1,15 @@
-from config import colors
 import markdown2
-from PyQt5.QtWidgets import QSizePolicy, QTextEdit, QLabel, QWidget, QVBoxLayout
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon
+from PySide2.QtWidgets import QSizePolicy, QTextEdit, QLabel, QWidget, QVBoxLayout
+from PySide2.QtCore import Qt, Signal
+from PySide2.QtGui import QIcon
 
-from modules.Utilities import Utilities
+from chatgpdp.modules.utils.config import colors
+from chatgpdp.modules.utils.utilities import Utilities
+from chatgpdp.styles.use_style import Style
 
 
 class MessageBox(QWidget):
-    messageChanged = pyqtSignal()
+    messageChanged = Signal()
 
     def __init__(self, chatbot, message, mode):
         super().__init__()
@@ -52,8 +53,8 @@ class AuthorLabel(QLabel):
 
 
 class Message(QTextEdit):
-    heightChanged = pyqtSignal()
-    messageChanged = pyqtSignal()
+    heightChanged = Signal()
+    messageChanged = Signal()
     plugins = ["fenced-code-blocks", "codehilite", "tables", "break-on-newline"]
     styles = ""
 
@@ -78,12 +79,8 @@ class Message(QTextEdit):
         return formatted
 
     def load_css(self):
-        try:
-            with open("styles/markdown.css") as f:
-                return f.read()
-        except Exception as e:
-            print(e)
-            return ""
+        style = Style.get_style("markdown.css")
+        return style
 
     def format_code(self, code):
         return f"<style>{Message.styles}</style>{code}" if Message.styles else code

@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import (
+from PySide2.QtWidgets import (
     QDialog,
     QLabel,
     QLineEdit,
@@ -6,13 +6,15 @@ from PyQt5.QtWidgets import (
     QDialogButtonBox,
 )
 
-from modules.Chatbot import Chatbot
+from chatgpdp.modules.utils.config import PATHS
+from chatgpdp.modules.chat.bot import Chatbot
 
 
 class ConfigDialog(QDialog):
+    env_path = PATHS["env"]
+
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.env_path = ".env"
         self.setWindowTitle("Settings")
         self.setFixedWidth(600)
         layout = QVBoxLayout(self)

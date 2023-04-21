@@ -1,11 +1,11 @@
-from PyQt5.QtWidgets import (
+from PySide2.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QTextEdit,
     QVBoxLayout,
 )
 
-from config import load_initial_prompt
+from chatgpdp.modules.utils.config import PATHS, load_initial_prompt
 
 
 class PersonalityDialog(QDialog):
@@ -30,7 +30,7 @@ class PersonalityDialog(QDialog):
 
     def save_file_and_close(self):
         self.personality = self.text_area.toPlainText()
-        with open("initial_prompt.txt", "w") as f:
+        with open(PATHS["initial_prompt"], "w") as f:
             f.write(self.personality)
         self.accept()
 

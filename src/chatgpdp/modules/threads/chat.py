@@ -1,8 +1,8 @@
-from PyQt5.QtCore import QThread, pyqtSignal
+from PySide2.QtCore import QThread, Signal
 
 
 class ChatThread(QThread):
-    response_signal = pyqtSignal(str)
+    response_signal = Signal(str)
 
     def __init__(self, chatbot, message, engine, temperature):
         super().__init__()

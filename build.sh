@@ -21,20 +21,48 @@ fi
 source $DIR/venv/bin/activate
 
 # Upgrade pip
-pip install --upgrade pip
+python -m pip install --upgrade pip
 
 # Install dependencies
 pip install -r $DIR/requirements.txt
 
-# Install pyinstaller
-pip install pyinstaller
+# Install briefcase
+pip install briefcase
 
-# Run pyinstaller
-pyinstaller $DIR/specs/single.spec
+# If the project doesn't have a build directory, create it
+if [ ! -d "$DIR/build" ]; then
+    echo $delimiters
+    echo "Build directory created"
+    echo $delimiters
+    briefcase create
+fi
+
+# Build for macOS or Linux
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    echo $delimiters
+    echo "macOS detected"
+    echo $delimiters
+    briefcase build macos
+else
+    echo $delimiters
+    echo "Building for Linux"
+    echo $delimiters
+    briefcase build linux
+fi
+
+# If the user wants to run the app, run it
+read -p "Do you want to run the app? (y/n) " -n 1 -r
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    echo $delimiters
+    echo "Running the app..."
+    echo $delimiters
+    briefcase run
+else
+    echo $delimiters
+    echo "See you soon 👋"
+    echo $delimiters
+fi
 
 # Deactivate virtualenv
 deactivate
-
-echo $delimiters
-echo "Build complete"
-echo $delimiters
