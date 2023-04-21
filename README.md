@@ -34,7 +34,7 @@ If you're interested in chatting with your own PDF documents, check the [chatPDF
 
 - Coming soon...
 
-### All the Operating Systems...
+### All the Operating Systems (Recommended)
 
 - [Install Python](https://www.python.org/downloads/) >=3.9.
 
