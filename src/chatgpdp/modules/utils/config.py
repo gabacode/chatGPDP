@@ -5,23 +5,17 @@ PATHS = {
     "base": BASE_DIR,
     "chatlogs": f"{BASE_DIR}/chatlogs",
     "env": f"{BASE_DIR}/.env",
-    "initial_prompt": f"{BASE_DIR}/initial_prompt.txt",
 }
 PROMPTS = {"default": "You are a useful and intelligent assistant. Be creative and have fun!"}
 
 
-def load_initial_prompt(retries=3):
-    try:
-        with open(PATHS["initial_prompt"], "r") as f:
-            return f.read().strip()
-    except FileNotFoundError:
-        if retries > 0:
-            with open(PATHS["initial_prompt"], "w") as f:
-                f.write(PROMPTS["default"])
-            return load_initial_prompt(retries - 1)
-        return PROMPTS["default"]
-    except Exception as e:
-        print(e)
+def load_initial_prompt(settings):
+    initial_prompt_key = "chat/initial_prompt"
+    initial_prompt = settings.value(initial_prompt_key)
+    if initial_prompt:
+        return initial_prompt
+    else:
+        settings.setValue(initial_prompt_key, PROMPTS["default"])
         return PROMPTS["default"]
 
 

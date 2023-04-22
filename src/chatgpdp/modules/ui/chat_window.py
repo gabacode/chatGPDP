@@ -16,7 +16,6 @@ from PyQt5.QtWidgets import (
     QTextEdit,
     QVBoxLayout,
     QWidget,
-    QMenu,
 )
 
 from chatgpdp.modules import ModelSelector, Temperature, Chatbot, MessageBox
@@ -38,7 +37,7 @@ class ChatWindow(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle(self.window_title)
-        self.initial_prompt = load_initial_prompt()
+        self.initial_prompt = load_initial_prompt(self.settings)
 
         geometry_key = "window/geometry"
         geometry = self.settings.value(geometry_key)
@@ -47,16 +46,17 @@ class ChatWindow(QMainWindow):
         else:
             self.setGeometry(100, 100, 800, 800)
 
-        initial_prompt_key = "chat/initial_prompt"
-        initial_prompt = self.settings.value(initial_prompt_key)
-        if initial_prompt:
-            self.initial_prompt = initial_prompt
-        else:
-            self.settings.setValue(initial_prompt_key, self.initial_prompt)
-
         self.chatbot = Chatbot([{"role": "system", "content": self.initial_prompt}])
 
-        self.temperature = 0.618
+        temperature_key = "engines/temperature"
+        saved_temperature = self.settings.value(temperature_key)
+        if saved_temperature:
+            self.temperature = saved_temperature
+            self.settings.setValue(temperature_key, self.temperature)
+        else:
+            self.temperature = 0.618
+            self.settings.setValue(temperature_key, self.temperature)
+
         self.opened_file = None
         self.is_loading = False
 

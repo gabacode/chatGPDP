@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (
 )
 
 from chatgpdp.modules.utils.config import PATHS, load_initial_prompt
+from chatgpdp.modules.utils.settings import Settings
 
 
 class PersonalityDialog(QDialog):
@@ -13,7 +14,8 @@ class PersonalityDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Change Personality")
         self.setFixedWidth(600)
-        self.personality = load_initial_prompt()
+        self.settings = Settings().get_settings()
+        self.personality = load_initial_prompt(self.settings)
 
         self.text_area = QTextEdit()
 
@@ -30,8 +32,7 @@ class PersonalityDialog(QDialog):
 
     def save_file_and_close(self):
         self.personality = self.text_area.toPlainText()
-        with open(PATHS["initial_prompt"], "w") as f:
-            f.write(self.personality)
+        self.settings.setValue("chat/initial_prompt", self.personality)
         self.accept()
 
     def reject(self):
