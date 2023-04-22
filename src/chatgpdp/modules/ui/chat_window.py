@@ -21,6 +21,7 @@ from PyQt5.QtWidgets import (
     QWidget,
     QMenu,
 )
+from chatgpdp.modules.ui.components.model_selector import ModelSelector
 from chatgpdp.modules.ui.components.temperature import Temperature
 from chatgpdp.modules.utils.config import PATHS, engines, load_initial_prompt, shortcuts
 from chatgpdp.modules.chat.bot import Chatbot
@@ -58,8 +59,7 @@ class ChatWindow(QMainWindow):
         self.is_loading = False
         self.loading_signal.connect(self.set_loading)
 
-        self.options = Utilities.get_engine_names(engines)
-        self.engine = self.engine, *_ = self.options
+
         self.temperature = 0.618
 
         # [MENU]
@@ -111,12 +111,7 @@ class ChatWindow(QMainWindow):
         self.create_menu(help_menu, menu_items["help"])
 
         # [SELECT ENGINE]
-        model_label = QLabel("Select a model:", self)
-        model_dropdown = QComboBox(self)
-        model_dropdown.addItems(self.options)
-        model_dropdown.setCurrentIndex(0)
-        model_dropdown.activated[str].connect(self.change_engine)
-
+        model_widget = ModelSelector()
         # [SELECT TEMPERATURE]
         temperature_widget = Temperature(self.temperature)
 
@@ -154,8 +149,7 @@ class ChatWindow(QMainWindow):
         # [LAYOUT]
         layout = QVBoxLayout()
         widgets = [
-            model_label,
-            model_dropdown,
+            model_widget,
             temperature_widget,
             self.divider,
             self.send_button,
@@ -179,8 +173,7 @@ class ChatWindow(QMainWindow):
             action.triggered.connect(item["function"])
             menu.addAction(action)
 
-    def change_engine(self, text):
-        self.engine = text
+
 
 
     @pyqtSlot(bool)
