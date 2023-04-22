@@ -5,32 +5,24 @@ from PyQt5.QtCore import Qt, QEvent, QTimer, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QCursor
 from PyQt5.QtWidgets import (
     QAction,
-    QComboBox,
     QDialog,
     QFileDialog,
     QSplitter,
-    QLabel,
     QMainWindow,
     QMessageBox,
     QPushButton,
     QScrollArea,
     QSizePolicy,
-    QSlider,
     QTextEdit,
     QVBoxLayout,
     QWidget,
     QMenu,
 )
-from chatgpdp.modules.ui.components.model_selector import ModelSelector
-from chatgpdp.modules.ui.components.temperature import Temperature
-from chatgpdp.modules.utils.config import PATHS, engines, load_initial_prompt, shortcuts
-from chatgpdp.modules.chat.bot import Chatbot
-from chatgpdp.modules.chat.message import MessageBox
-from chatgpdp.modules.utils.settings import Settings
-from chatgpdp.modules.utils.utilities import Utilities
-from chatgpdp.modules.dialogs.about import AboutDialog
-from chatgpdp.modules.dialogs.config import ConfigDialog
-from chatgpdp.modules.dialogs.personality import PersonalityDialog
+
+from chatgpdp.modules import ModelSelector, Temperature, Chatbot, MessageBox
+from chatgpdp.modules.dialogs import AboutDialog, ConfigDialog, PersonalityDialog
+from chatgpdp.modules.utils.config import PATHS, load_initial_prompt, shortcuts
+from chatgpdp.modules.utils import Settings, Utilities
 from chatgpdp.modules.threads.chat import ChatThread
 
 
@@ -46,72 +38,66 @@ class ChatWindow(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle(self.window_title)
+        self.initial_prompt = load_initial_prompt()
 
-        if self.settings.value("window/geometry"):
-            self.restoreGeometry(self.settings.value("window/geometry"))
+        geometry_key = "window/geometry"
+        geometry = self.settings.value(geometry_key)
+        if geometry:
+            self.restoreGeometry(geometry)
         else:
             self.setGeometry(100, 100, 800, 800)
 
-        self.initial_prompt = load_initial_prompt()
+        initial_prompt_key = "chat/initial_prompt"
+        initial_prompt = self.settings.value(initial_prompt_key)
+        if initial_prompt:
+            self.initial_prompt = initial_prompt
+        else:
+            self.settings.setValue(initial_prompt_key, self.initial_prompt)
+
         self.chatbot = Chatbot([{"role": "system", "content": self.initial_prompt}])
 
+        self.temperature = 0.618
         self.opened_file = None
         self.is_loading = False
+
         self.loading_signal.connect(self.set_loading)
-
-
-        self.temperature = 0.618
 
         # [MENU]
         menubar = self.menuBar()
-
-        file_menu = QMenu("File", self)
-        edit_menu = QMenu("Edit", self)
-        options_menu = QMenu("Options", self)
-        help_menu = QMenu("Help", self)
-
-        menubar.addMenu(file_menu)
-        menubar.addMenu(edit_menu)
-        menubar.addMenu(options_menu)
-        menubar.addMenu(help_menu)
-
         menu_items = {
-            "file": [
-                {"label": "New Chat", "function": self.new_chat, "shortcut": shortcuts["New"]},
-                {"label": "Load Chat", "function": self.load_history, "shortcut": shortcuts["Open"]},
-                {"label": "Save Chat", "function": self.save_history, "shortcut": shortcuts["Save"]},
-                {"label": "Save Chat As...", "function": self.save_history_as, "shortcut": shortcuts["SaveAs"]},
-                {"label": "Exit", "function": self.close, "shortcut": shortcuts["Exit"]},
+            "File": [
+                ("New Chat", shortcuts["New"], self.new_chat),
+                ("Load Chat", shortcuts["Open"], self.load_history),
+                ("Save Chat", shortcuts["Save"], self.save_history),
+                ("Save Chat As...", shortcuts["SaveAs"], self.save_history_as),
+                ("Exit", shortcuts["Exit"], self.close),
             ],
-            "edit": [
-                {
-                    "label": "Reload...",
-                    "function": self.reload_history,
-                    "shortcut": shortcuts["Reload"],
-                },
+            "Edit": [
+                ("Reload...", shortcuts["Reload"], self.reload_history),
             ],
-            "options": [
-                {
-                    "label": "Change Personality...",
-                    "function": self.change_personality,
-                    "shortcut": shortcuts["ChangePersonality"],
-                },
-                {"label": "Set API Key...", "function": self.show_config_dialog},
+            "Options": [
+                ("Change Personality...", shortcuts["ChangePersonality"], self.change_personality),
+                ("Set API Key...", None, self.show_config_dialog),
             ],
-            "help": [
-                {"label": "About...", "function": self.show_about_dialog},
-                {"label": "Get API Key...", "function": self.get_api_key},
-                {"label": "View Source...", "function": self.go_to_github},
+            "Help": [
+                ("About...", None, self.show_about_dialog),
+                ("Get API Key...", None, self.get_api_key),
+                ("View Source...", None, self.go_to_github),
             ],
         }
-
-        self.create_menu(file_menu, menu_items["file"])
-        self.create_menu(edit_menu, menu_items["edit"])
-        self.create_menu(options_menu, menu_items["options"])
-        self.create_menu(help_menu, menu_items["help"])
+        for menu_title, items in menu_items.items():
+            menu = menubar.addMenu(menu_title)
+            for label, shortcut, function in items:
+                action = QAction(label, self)
+                if shortcut:
+                    action.setShortcut(shortcut)
+                action.triggered.connect(function)
+                menu.addAction(action)
 
         # [SELECT ENGINE]
         model_widget = ModelSelector()
+        self.engine = model_widget.get_engine()
+
         # [SELECT TEMPERATURE]
         temperature_widget = Temperature(self.temperature)
 
@@ -164,17 +150,6 @@ class ChatWindow(QMainWindow):
         self.setCentralWidget(widget)
         self.append_message("system", self.initial_prompt)
         self.prompt.setFocus()
-
-    def create_menu(self, menu, menu_items):
-        for item in menu_items:
-            action = QAction(item["label"], self)
-            if "shortcut" in item:
-                action.setShortcut(item["shortcut"])
-            action.triggered.connect(item["function"])
-            menu.addAction(action)
-
-
-
 
     @pyqtSlot(bool)
     def set_loading(self, is_loading):
@@ -330,7 +305,7 @@ class ChatWindow(QMainWindow):
         elif reply == QMessageBox.Cancel:
             event.ignore()
             return
-        self.settings.setValue("window/geometry", self.saveGeometry());
+        self.settings.setValue("window/geometry", self.saveGeometry())
         event.accept()
 
     def get_api_key(self):
