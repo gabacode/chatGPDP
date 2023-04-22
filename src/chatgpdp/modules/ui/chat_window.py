@@ -287,7 +287,7 @@ class ChatWindow(QMainWindow):
             self.new_chat()
 
     def new_chat(self):
-        self.new_window = ChatWindow()
+        self.new_window = ChatWindow(self.metadata)
         self.new_window.setGeometry(100, 100, 800, 800)
         self.new_window.show()
 
