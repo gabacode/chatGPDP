@@ -14,7 +14,7 @@ class Temperature(QGroupBox):
         slider = QSlider(
             Qt.Horizontal, minimum=0, maximum=1000, value=618, tickInterval=10, tickPosition=QSlider.TicksBelow
         )
-        slider.valueChanged.connect(self.change_temperature)
+        slider.valueChanged.connect(self.set_temperature)
 
         layout = QVBoxLayout()
         layout.addWidget(self.label)
@@ -24,7 +24,7 @@ class Temperature(QGroupBox):
     def set_label(self, value):
         self.label.setText(f"{self.title}: {value}")
 
-    def change_temperature(self, value):
+    def set_temperature(self, value):
         self.temperature = value / 1000.0
         self.set_label(self.temperature)
 
