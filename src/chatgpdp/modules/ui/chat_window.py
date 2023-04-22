@@ -24,6 +24,7 @@ from PyQt5.QtWidgets import (
 from chatgpdp.modules.utils.config import PATHS, engines, load_initial_prompt, shortcuts
 from chatgpdp.modules.chat.bot import Chatbot
 from chatgpdp.modules.chat.message import MessageBox
+from chatgpdp.modules.utils.settings import Settings
 from chatgpdp.modules.utils.utilities import Utilities
 from chatgpdp.modules.dialogs.about import AboutDialog
 from chatgpdp.modules.dialogs.config import ConfigDialog
@@ -32,16 +33,22 @@ from chatgpdp.modules.threads.chat import ChatThread
 
 
 class ChatWindow(QMainWindow):
-    metadata = Utilities.get_metadata()
-    window_title = "ChatGPDP" + " v" + metadata["Version"]
     loading_signal = pyqtSignal(bool)
+    settings = Settings().get_settings()
 
-    def __init__(self):
+    def __init__(self, metadata):
         super().__init__()
+        self.metadata = metadata
+        self.window_title = f"{metadata['Formal-Name']} v{metadata['Version']}"
         self.initUI()
 
     def initUI(self):
         self.setWindowTitle(self.window_title)
+
+        if self.settings.value("window/geometry"):
+            self.restoreGeometry(self.settings.value("window/geometry"))
+        else:
+            self.setGeometry(100, 100, 800, 800)
 
         self.initial_prompt = load_initial_prompt()
         self.chatbot = Chatbot([{"role": "system", "content": self.initial_prompt}])
@@ -337,6 +344,7 @@ class ChatWindow(QMainWindow):
         elif reply == QMessageBox.Cancel:
             event.ignore()
             return
+        self.settings.setValue("window/geometry", self.saveGeometry());
         event.accept()
 
     def get_api_key(self):

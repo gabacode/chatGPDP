@@ -20,8 +20,7 @@ def app():
     except Exception as e:
         print(e)
 
-    main_window = ChatWindow()
-    main_window.setGeometry(100, 100, 800, 800)
+    main_window = ChatWindow(metadata)
     main_window.show()
 
     sys.exit(app.exec_())
