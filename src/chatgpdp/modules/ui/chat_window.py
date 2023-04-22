@@ -21,6 +21,7 @@ from PyQt5.QtWidgets import (
     QWidget,
     QMenu,
 )
+from chatgpdp.modules.ui.components.temperature import Temperature
 from chatgpdp.modules.utils.config import PATHS, engines, load_initial_prompt, shortcuts
 from chatgpdp.modules.chat.bot import Chatbot
 from chatgpdp.modules.chat.message import MessageBox
@@ -117,11 +118,7 @@ class ChatWindow(QMainWindow):
         model_dropdown.activated[str].connect(self.change_engine)
 
         # [SELECT TEMPERATURE]
-        self.temperature_label = QLabel(f"Select a temperature: {self.temperature}", self)
-        temperature_slider = QSlider(
-            Qt.Horizontal, self, minimum=0, maximum=1000, value=618, tickInterval=10, tickPosition=QSlider.TicksBelow
-        )
-        temperature_slider.valueChanged.connect(self.change_temperature)
+        temperature_widget = Temperature(self.temperature)
 
         # [CHATLOG]
         self.conversation_container = QWidget()
@@ -159,8 +156,7 @@ class ChatWindow(QMainWindow):
         widgets = [
             model_label,
             model_dropdown,
-            self.temperature_label,
-            temperature_slider,
+            temperature_widget,
             self.divider,
             self.send_button,
         ]
@@ -186,9 +182,6 @@ class ChatWindow(QMainWindow):
     def change_engine(self, text):
         self.engine = text
 
-    def change_temperature(self, value):
-        self.temperature = value / 1000.0
-        self.temperature_label.setText(f"Change temperature: {self.temperature}")
 
     @pyqtSlot(bool)
     def set_loading(self, is_loading):
