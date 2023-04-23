@@ -19,7 +19,7 @@ class Settings:
         return settings
 
     def set_environ(self, key, value):
-        os.environ[key] = value
+        os.environ.setdefault(key, value)
 
     def get_settings(self):
         return self._settings

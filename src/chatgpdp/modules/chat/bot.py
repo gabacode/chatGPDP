@@ -30,18 +30,12 @@ class Chatbot:
     def env_init(self):
         if not os.path.exists(self.chatlogs_directory):
             os.mkdir(self.chatlogs_directory)
-        api_key = self.settings.value("OPENAI_API_KEY")
-        if api_key:
-            Settings().set_environ("OPENAI_API_KEY", api_key)
-        else:
-            self.settings.setValue("OPENAI_API_KEY", "")
-            Settings().set_environ("OPENAI_API_KEY", "")
-
         self.reload_env()
 
     def reload_env(self):
         load_dotenv(override=True)
-        openai.api_key = os.environ["OPENAI_API_KEY"]
+        key = Settings().get_setting_by_key("OPENAI_API_KEY")
+        openai.api_key = key
 
     def create_messages(self, prompt):
         self.add_to_history({"role": "user", "content": prompt})
@@ -66,7 +60,7 @@ class Chatbot:
         try:
             history = self.create_messages(message)
             self.load_memory(history)
-            llm = ChatOpenAI(model_name=engines[engine]["name"], temperature=temperature)
+            llm = ChatOpenAI(model_name=engines[engine]["name"], temperature=temperature, openai_api_key=openai.api_key)
             prompt = ChatPromptTemplate.from_messages(
                 [
                     SystemMessagePromptTemplate.from_template(self.get_initial_prompt()),
