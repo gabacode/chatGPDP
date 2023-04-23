@@ -15,10 +15,12 @@ from langchain.chains import ConversationChain
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory, ChatMessageHistory
 
+from chatgpdp.modules.utils.settings import Settings
+
 
 class Chatbot:
-    env_path = PATHS["env"]
     chatlogs_directory = PATHS["chatlogs"]
+    settings = Settings().get_settings()
 
     def __init__(self, history):
         self.env_init()
@@ -28,13 +30,17 @@ class Chatbot:
     def env_init(self):
         if not os.path.exists(self.chatlogs_directory):
             os.mkdir(self.chatlogs_directory)
-        if not os.path.exists(self.env_path):
-            with open(self.env_path, "w") as f:
-                f.write("OPENAI_API_KEY=")
+        api_key = self.settings.value("OPENAI_API_KEY")
+        if api_key:
+            Settings().set_environ("OPENAI_API_KEY", api_key)
+        else:
+            self.settings.setValue("OPENAI_API_KEY", "")
+            Settings().set_environ("OPENAI_API_KEY", "")
+
         self.reload_env()
 
     def reload_env(self):
-        load_dotenv(self.env_path, override=True)
+        load_dotenv(override=True)
         openai.api_key = os.environ["OPENAI_API_KEY"]
 
     def create_messages(self, prompt):

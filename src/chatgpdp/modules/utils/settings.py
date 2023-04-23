@@ -18,5 +18,11 @@ class Settings:
         settings.setIniCodec("UTF-8")
         return settings
 
+    def set_environ(self, key, value):
+        os.environ[key] = value
+
     def get_settings(self):
         return self._settings
+
+    def get_setting_by_key(self, key):
+        return self._settings.value(key) if self._settings.value(key) else ""
