@@ -1,25 +1,24 @@
 import os
 import sys
 
-from PyQt5.QtCore import Qt, QEvent, QTimer, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QCursor
+from PyQt5.QtCore import QTimer, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import (
-    QAction,
     QDialog,
     QFileDialog,
-    QSplitter,
     QMainWindow,
     QMessageBox,
-    QPushButton,
-    QScrollArea,
     QSizePolicy,
-    QTextEdit,
     QVBoxLayout,
     QWidget,
 )
 
-from chatgpdp.modules import ModelSelector, Temperature, Chatbot, MessageBox
+from chatgpdp.modules import ModelSelector, Temperature, Chatbot
 from chatgpdp.modules.dialogs import AboutDialog, ConfigDialog, PersonalityDialog
+from chatgpdp.modules.ui.components.menu_bar import MenuBar
+from chatgpdp.modules.ui.components.prompt import Prompt
+from chatgpdp.modules.ui.components.chat_log import ChatLog
+from chatgpdp.modules.ui.components.divider import Divider
+from chatgpdp.modules.ui.components.send_button import SendButton
 from chatgpdp.modules.utils.config import PATHS, load_initial_prompt, shortcuts
 from chatgpdp.modules.utils import Settings, Utilities
 from chatgpdp.modules.threads.chat import ChatThread
@@ -28,128 +27,68 @@ from chatgpdp.modules.threads.chat import ChatThread
 class ChatWindow(QMainWindow):
     loading_signal = pyqtSignal(bool)
     settings = Settings().get_settings()
+    default_window_geometry = (100, 100, 800, 800)
 
     def __init__(self, metadata):
         super().__init__()
         self.metadata = metadata
         self.window_title = f"{metadata['Formal-Name']} v{metadata['Version']}"
+
+        self.load_state()
         self.initUI()
 
     def initUI(self):
         self.setWindowTitle(self.window_title)
+        self.setMenuBar(MenuBar(self, shortcuts))
+
+        model_selector = ModelSelector()
+        self.engine = model_selector.get_engine()
+
+        temperature_selector = Temperature(self.temperature)
+
+        self.chat_log = ChatLog(self)
+        self.prompt = Prompt(self)
+        self.divider = Divider(self, self.chat_log, self.prompt)
+
+        self.send_button = SendButton(self)
+
+        layout = QVBoxLayout()
+        widgets = [
+            model_selector,
+            temperature_selector,
+            self.divider,
+            self.send_button,
+        ]
+        for widget in widgets:
+            layout.addWidget(widget)
+        widget = QWidget()
+        widget.setLayout(layout)
+
+        self.setCentralWidget(widget)
+        self.chat_log.append_message("system", self.initial_prompt)
+        self.prompt.setFocus()
+
+    def load_state(self):
+        self.loading_signal.connect(self.set_loading)
         self.initial_prompt = load_initial_prompt(self.settings)
+        self.chatbot = Chatbot([{"role": "system", "content": self.initial_prompt}])
+        self.opened_file = None
+        self.is_loading = False
 
         geometry_key = "window/geometry"
         geometry = self.settings.value(geometry_key)
         if geometry:
             self.restoreGeometry(geometry)
         else:
-            self.setGeometry(100, 100, 800, 800)
-
-        self.chatbot = Chatbot([{"role": "system", "content": self.initial_prompt}])
+            self.setGeometry(*self.default_window_geometry)
 
         temperature_key = "engines/temperature"
         saved_temperature = self.settings.value(temperature_key)
         if saved_temperature:
             self.temperature = saved_temperature
-            self.settings.setValue(temperature_key, self.temperature)
         else:
             self.temperature = 0.618
-            self.settings.setValue(temperature_key, self.temperature)
-
-        self.opened_file = None
-        self.is_loading = False
-
-        self.loading_signal.connect(self.set_loading)
-
-        # [MENU]
-        menubar = self.menuBar()
-        menu_items = {
-            "File": [
-                ("New Chat", shortcuts["New"], self.new_chat),
-                ("Load Chat", shortcuts["Open"], self.load_history),
-                ("Save Chat", shortcuts["Save"], self.save_history),
-                ("Save Chat As...", shortcuts["SaveAs"], self.save_history_as),
-                ("Exit", shortcuts["Exit"], self.close),
-            ],
-            "Edit": [
-                ("Reload...", shortcuts["Reload"], self.reload_history),
-            ],
-            "Options": [
-                ("Change Personality...", shortcuts["ChangePersonality"], self.change_personality),
-                ("Set API Key...", None, self.show_config_dialog),
-            ],
-            "Help": [
-                ("About...", None, self.show_about_dialog),
-                ("Get API Key...", None, self.get_api_key),
-                ("View Source...", None, self.go_to_github),
-            ],
-        }
-        for menu_title, items in menu_items.items():
-            menu = menubar.addMenu(menu_title)
-            for label, shortcut, function in items:
-                action = QAction(label, self)
-                if shortcut:
-                    action.setShortcut(shortcut)
-                action.triggered.connect(function)
-                menu.addAction(action)
-
-        # [SELECT ENGINE]
-        model_widget = ModelSelector()
-        self.engine = model_widget.get_engine()
-
-        # [SELECT TEMPERATURE]
-        temperature_widget = Temperature(self.temperature)
-
-        # [CHATLOG]
-        self.conversation_container = QWidget()
-        self.conversation_container.setStyleSheet("background-color: #ffffff; border-radius: 5px;")
-
-        self.chat_log_layout = QVBoxLayout(self.conversation_container)
-        self.chat_log_layout.setAlignment(Qt.AlignTop)
-        self.chat_log_layout.setContentsMargins(0, 10, 0, 10)
-
-        self.chat_log = QScrollArea(widgetResizable=True)
-        self.chat_log.setWidget(self.conversation_container)
-
-        # [PROMPT]
-        self.prompt = QTextEdit(self)
-        self.prompt.setAcceptRichText(False)
-        self.prompt.setPlaceholderText("Type your message here... (Press Shift+ENTER to start a new line)")
-        self.prompt.installEventFilter(self)
-        self.prompt.textChanged.connect(self.resize_prompt)
-
-        # [DIVIDER]
-        self.divider = QSplitter(Qt.Vertical)
-        self.divider.addWidget(self.chat_log)
-        self.divider.addWidget(self.prompt)
-        self.divider.setSizes([300, 100])
-        self.divider.setCollapsible(0, False)
-        self.divider.setCollapsible(1, False)
-
-        # [SEND BUTTON]
-        self.send_button = QPushButton("Send", self)
-        self.send_button.setCursor(QCursor(Qt.PointingHandCursor))
-        self.send_button.clicked.connect(self.send_message)
-
-        # [LAYOUT]
-        layout = QVBoxLayout()
-        widgets = [
-            model_widget,
-            temperature_widget,
-            self.divider,
-            self.send_button,
-        ]
-        for widget in widgets:
-            layout.addWidget(widget)
-
-        # Create widget and init the layout
-        widget = QWidget()
-        widget.setLayout(layout)
-
-        self.setCentralWidget(widget)
-        self.append_message("system", self.initial_prompt)
-        self.prompt.setFocus()
+        self.settings.setValue(temperature_key, self.temperature)
 
     @pyqtSlot(bool)
     def set_loading(self, is_loading):
@@ -168,14 +107,6 @@ class ChatWindow(QMainWindow):
         self.loading_index = (self.loading_index + 1) % 4
         self.send_button.setText(f"{self.loading_text}{'.' * self.loading_index}{' ' * (3 - self.loading_index)}")
 
-    def append_message(self, mode, message):
-        message = message.strip()
-        message_widget = MessageBox(self.chatbot, message, mode)
-        message_widget.messageChanged.connect(self.set_to_save)
-        self.chat_log_layout.addWidget(message_widget)
-        self.chat_log_layout.update()
-        self.scroll_to_bottom(message_widget.height())
-
     def set_to_save(self):
         self.setWindowTitle(
             f"{self.window_title} - {Utilities.path_strip(self.opened_file)}*"
@@ -183,17 +114,13 @@ class ChatWindow(QMainWindow):
             else f"{self.window_title} - New Chat*"
         )
 
-    def scroll_to_bottom(self, message_height):
-        self.chat_log.verticalScrollBar().setMaximum(self.chat_log.verticalScrollBar().maximum() + message_height)
-        self.chat_log.verticalScrollBar().setValue(self.chat_log.verticalScrollBar().maximum())
-
     def send_message(self):
         message = self.prompt.toPlainText()
         if message.strip() == "":
             self.prompt.setText("")
             self.prompt.setFocus()
             return
-        self.append_message("user", message)
+        self.chat_log.append_message("user", message)
         self.set_to_save()
         self.prompt.clear()
 
@@ -209,26 +136,10 @@ class ChatWindow(QMainWindow):
         self.chat_thread.start()
 
     def handle_response(self, response):
-        self.append_message("assistant", response)
+        self.chat_log.append_message("assistant", response)
         self.is_loading = False
         self.loading_signal.emit(False)
         self.prompt.setFocus()
-
-    def resize_prompt(self):
-        documentHeight = self.prompt.document().size().height()
-        scrollbarHeight = self.prompt.verticalScrollBar().sizeHint().height()
-        contentHeight = documentHeight + scrollbarHeight
-        self.divider.setSizes([int(self.divider.height() - contentHeight), int(contentHeight)])
-
-    def eventFilter(self, obj, event):
-        if event.type() == QEvent.KeyPress and obj is self.prompt:
-            if event.key() == Qt.Key_Return and self.prompt.hasFocus():
-                if event.modifiers() == Qt.ShiftModifier:
-                    self.prompt.textCursor().insertText("\n")
-                else:
-                    self.send_message()
-                return True
-        return super().eventFilter(obj, event)
 
     def show_about_dialog(self):
         about_dialog = AboutDialog(self)
@@ -280,21 +191,19 @@ class ChatWindow(QMainWindow):
         loaded_file, _ = QFileDialog.getOpenFileName(self, "Open File", PATHS["chatlogs"], file_filter)
         if loaded_file:
             history = Utilities.load_chat(loaded_file)
-            for i in reversed(range(self.chat_log_layout.count())):
-                self.chat_log_layout.itemAt(i).widget().setParent(None)
+            self.chat_log.clear()
             self.chatbot = Chatbot(history)
             for message in history:
-                self.append_message(message["role"], message["content"])
+                self.chat_log.append_message(message["role"], message["content"])
             self.set_opened_file(loaded_file)
 
     def reload_history(self):
         if self.opened_file:
             history = Utilities.load_chat(self.opened_file)
-            for i in reversed(range(self.chat_log_layout.count())):
-                self.chat_log_layout.itemAt(i).widget().setParent(None)
+            self.chat_log.clear()
             self.chatbot = Chatbot(history)
             for message in history:
-                self.append_message(message["role"], message["content"])
+                self.chat_log.append_message(message["role"], message["content"])
 
     def closeEvent(self, event):
         reply = QMessageBox.question(
