@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (
 
 from chatgpdp.modules import ModelSelector, Temperature, Chatbot
 from chatgpdp.modules.dialogs import AboutDialog, ConfigDialog, PersonalityDialog
-from chatgpdp.modules.ui.components import MenuBar, ChatLog, Divider, Prompt, SendButton
+from chatgpdp.modules.ui.components import MenuBar, ChatBox, Divider, PromptBox, SendButton
 from chatgpdp.modules.utils.config import PATHS, load_initial_prompt, shortcuts
 from chatgpdp.modules.utils import Settings, Utilities
 from chatgpdp.modules.threads.chat import ChatThread
@@ -42,9 +42,9 @@ class ChatWindow(QMainWindow):
 
         temperature_selector = Temperature(self.temperature)
 
-        self.chat_log = ChatLog(self)
-        self.prompt = Prompt(self)
-        self.divider = Divider(self, self.chat_log, self.prompt)
+        self.chat_box = ChatBox(self)
+        self.prompt_box = PromptBox(self)
+        self.divider = Divider(self, self.chat_box, self.prompt_box)
 
         self.send_button = SendButton(on_click=self.send_message)
 
@@ -61,8 +61,8 @@ class ChatWindow(QMainWindow):
         widget.setLayout(layout)
 
         self.setCentralWidget(widget)
-        self.chat_log.append_message("system", self.initial_prompt)
-        self.prompt.setFocus()
+        self.chat_box.append_message("system", self.initial_prompt)
+        self.prompt_box.setFocus()
 
     def load_state(self):
         self.loading_signal.connect(self.set_loading)
@@ -111,14 +111,14 @@ class ChatWindow(QMainWindow):
         )
 
     def send_message(self):
-        message = self.prompt.toPlainText()
+        message = self.prompt_box.toPlainText()
         if message.strip() == "":
-            self.prompt.setText("")
-            self.prompt.setFocus()
+            self.prompt_box.setText("")
+            self.prompt_box.setFocus()
             return
-        self.chat_log.append_message("user", message)
+        self.chat_box.append_message("user", message)
         self.set_to_save()
-        self.prompt.clear()
+        self.prompt_box.clear()
 
         self.is_loading = True
         self.loading_signal.emit(True)
@@ -132,10 +132,10 @@ class ChatWindow(QMainWindow):
         self.chat_thread.start()
 
     def handle_response(self, response):
-        self.chat_log.append_message("assistant", response)
+        self.chat_box.append_message("assistant", response)
         self.is_loading = False
         self.loading_signal.emit(False)
-        self.prompt.setFocus()
+        self.prompt_box.setFocus()
 
     def show_about_dialog(self):
         about_dialog = AboutDialog(self)
@@ -166,40 +166,32 @@ class ChatWindow(QMainWindow):
         self.opened_file = file_name
         self.setWindowTitle(f"{self.window_title} - {Utilities.path_strip(file_name)}")
 
-    def save_history(self):
-        if self.opened_file:
-            file_name = Utilities.save_chat(self.opened_file, self.chatbot.history)
-            self.set_opened_file(file_name if file_name else self.opened_file)
-        else:
-            self.save_history_as()
-
-    def save_history_as(self):
-        file_filter = "JSON Files (*.json)"
-        new_file, _ = QFileDialog.getSaveFileName(self, "Save File", PATHS["chatlogs"], file_filter)
-        if not new_file:
-            return
-        file_name = Utilities.save_chat(new_file, self.chatbot.history)
+    def save_history(self, new_file=None):
+        if not new_file and not self.opened_file:
+            new_file, _ = QFileDialog.getSaveFileName(self, "Save File", PATHS["chatlogs"], "JSON Files (*.json)")
+            if not new_file:
+                return
+        file_name = Utilities.save_chat(new_file or self.opened_file, self.chatbot.history)
         if file_name:
             self.set_opened_file(file_name)
 
-    def load_history(self):
-        file_filter = "JSON Files (*.json)"
-        loaded_file, _ = QFileDialog.getOpenFileName(self, "Open File", PATHS["chatlogs"], file_filter)
-        if loaded_file:
-            history = Utilities.load_chat(loaded_file)
-            self.chat_log.clear()
-            self.chatbot = Chatbot(history)
-            for message in history:
-                self.chat_log.append_message(message["role"], message["content"])
-            self.set_opened_file(loaded_file)
+    def load_history(self, loaded_file=None):
+        if not loaded_file:
+            loaded_file, _ = QFileDialog.getOpenFileName(self, "Open File", PATHS["chatlogs"], "JSON Files (*.json)")
+            if not loaded_file:
+                return
+        history = Utilities.load_chat(loaded_file)
+        self.chat_box.clear()
+        self.chatbot = Chatbot(history)
+        for message in history:
+            self.chat_box.append_message(message["role"], message["content"])
+        self.set_opened_file(loaded_file)
+
+    def save_history_as(self):
+        self.save_history(new_file=None)
 
     def reload_history(self):
-        if self.opened_file:
-            history = Utilities.load_chat(self.opened_file)
-            self.chat_log.clear()
-            self.chatbot = Chatbot(history)
-            for message in history:
-                self.chat_log.append_message(message["role"], message["content"])
+        self.load_history(loaded_file=self.opened_file)
 
     def closeEvent(self, event):
         reply = QMessageBox.question(

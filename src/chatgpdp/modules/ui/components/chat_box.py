@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (
 from chatgpdp.modules.chat.message import MessageBox
 
 
-class ChatLog(QScrollArea):
+class ChatBox(QScrollArea):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent

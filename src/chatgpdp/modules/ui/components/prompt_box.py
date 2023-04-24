@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QTextEdit
 from PyQt5.QtCore import Qt, QEvent
 
 
-class Prompt(QTextEdit):
+class PromptBox(QTextEdit):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
