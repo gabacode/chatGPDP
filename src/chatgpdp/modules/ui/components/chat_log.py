@@ -13,6 +13,8 @@ class ChatLog(QScrollArea):
         super().__init__()
         self.parent = parent
         self.setWidgetResizable(True)
+        scrollbar = self.verticalScrollBar()
+        scrollbar.rangeChanged.connect(self.scroll_to_bottom)
 
         self.container = QWidget()
         self.container.setObjectName("conversation_container")
@@ -28,14 +30,11 @@ class ChatLog(QScrollArea):
         message_widget = MessageBox(self.parent.chatbot, message, mode)
         message_widget.messageChanged.connect(self.parent.set_to_save)
         self.layout.addWidget(message_widget)
-        self.scroll_to_bottom(message_widget.height())
 
     def clear(self):
         for i in reversed(range(self.layout.count())):
             self.layout.itemAt(i).widget().deleteLater()
 
-    def scroll_to_bottom(self, message_height):
-        this_max = self.verticalScrollBar().maximum()
-        new_max = this_max + message_height
-        self.verticalScrollBar().setMaximum(new_max)
-        self.verticalScrollBar().setValue(new_max)
+    def scroll_to_bottom(self):
+        scrollbar = self.verticalScrollBar()
+        scrollbar.setValue(scrollbar.maximum())

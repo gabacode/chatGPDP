@@ -50,7 +50,7 @@ class ChatWindow(QMainWindow):
         self.prompt = Prompt(self)
         self.divider = Divider(self, self.chat_log, self.prompt)
 
-        self.send_button = SendButton(self)
+        self.send_button = SendButton(on_click=self.send_message)
 
         layout = QVBoxLayout()
         widgets = [
