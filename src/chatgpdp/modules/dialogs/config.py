@@ -6,7 +6,6 @@ from PyQt5.QtWidgets import (
     QDialogButtonBox,
 )
 
-from chatgpdp.modules.utils.config import PATHS
 from chatgpdp.modules.chat.bot import Chatbot
 from chatgpdp.modules.utils.settings import Settings
 
@@ -43,7 +42,6 @@ class ConfigDialog(QDialog):
             if isinstance(widget, QLineEdit):
                 key = widget.parent().findChild(QLabel).text()
                 value = widget.text()
-                print(key, value)
                 Settings().get_settings().setValue(key, value)
                 Settings().set_environ(key, value)
         Chatbot.reload_env(self)
