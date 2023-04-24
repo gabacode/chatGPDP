@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import (
 from chatgpdp.modules import ModelSelector, Temperature, Chatbot
 from chatgpdp.modules.dialogs import AboutDialog, ConfigDialog, PersonalityDialog
 from chatgpdp.modules.ui.components import MenuBar, ChatBox, Divider, PromptBox, SendButton
-from chatgpdp.modules.utils.config import PATHS, load_initial_prompt, shortcuts
+from chatgpdp.modules.utils.config import PATHS, load_initial_prompt
 from chatgpdp.modules.utils import Settings, Utilities
 from chatgpdp.modules.threads.chat import ChatThread
 
@@ -35,7 +35,7 @@ class ChatWindow(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle(self.window_title)
-        self.setMenuBar(MenuBar(self, shortcuts))
+        self.setMenuBar(MenuBar(self))
 
         model_selector = ModelSelector()
         self.engine = model_selector.get_engine()

@@ -1,26 +1,42 @@
+from typing import TYPE_CHECKING
 from PyQt5.QtWidgets import QAction, QMenuBar
+from chatgpdp.modules.utils.utilities import Utilities
+
+if TYPE_CHECKING:
+    from chatgpdp.modules.ui.chat_window import ChatWindow
 
 
 class MenuBar(QMenuBar):
-    def __init__(self, chat_window, shortcuts):
+    generate_shortcut = Utilities.generate_shortcut
+    shortcuts = {
+        "New": generate_shortcut("N"),
+        "Open": generate_shortcut("O"),
+        "Reload": generate_shortcut("R"),
+        "Save": generate_shortcut("S"),
+        "SaveAs": generate_shortcut("Shift+S"),
+        "Exit": generate_shortcut("Q"),
+        "ChangePersonality": generate_shortcut("Shift+P"),
+    }
+
+    def __init__(self, chat_window: "ChatWindow") -> None:
         super().__init__()
 
         self.chat_window = chat_window
 
         self.menu_items = {
             "File": [
-                ("New Chat", shortcuts["New"], self.chat_window.new_chat),
-                ("Load Chat", shortcuts["Open"], self.chat_window.load_history),
-                ("Save Chat", shortcuts["Save"], self.chat_window.save_history),
-                ("Save Chat As...", shortcuts["SaveAs"], self.chat_window.save_history_as),
-                ("Exit", shortcuts["Exit"], self.chat_window.close),
+                ("New Chat", self.shortcuts["New"], self.chat_window.new_chat),
+                ("Load Chat", self.shortcuts["Open"], self.chat_window.load_history),
+                ("Save Chat", self.shortcuts["Save"], self.chat_window.save_history),
+                ("Save Chat As...", self.shortcuts["SaveAs"], self.chat_window.save_history_as),
+                ("Exit", self.shortcuts["Exit"], self.chat_window.close),
             ],
             "Edit": [
-                ("Reload...", shortcuts["Reload"], self.chat_window.reload_history),
+                ("Reload...", self.shortcuts["Reload"], self.chat_window.reload_history),
             ],
             "Options": [
                 ("Set API Key...", None, self.chat_window.show_config_dialog),
-                ("Change Personality...", shortcuts["ChangePersonality"], self.chat_window.change_personality),
+                ("Change Personality...", self.shortcuts["ChangePersonality"], self.chat_window.change_personality),
             ],
             "Help": [
                 ("About...", None, self.chat_window.show_about_dialog),
@@ -29,9 +45,9 @@ class MenuBar(QMenuBar):
             ],
         }
 
-        self.setup()
+        self.create_menu()
 
-    def setup(self):
+    def create_menu(self):
         for menu_title, items in self.menu_items.items():
             menu = self.addMenu(menu_title)
             for label, shortcut, function in items:
