@@ -44,4 +44,8 @@ engines = {
         "name": "gpt-3.5-turbo",
         "max_tokens": 2048,
     },
+    "gpt-3.5-turbo-0301": {
+        "name": "gpt-3.5-turbo-0301",
+        "max_tokens": 4096,
+    },
 }
