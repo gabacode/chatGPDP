@@ -46,7 +46,7 @@ class MessageBox(QWidget):
         self.update_height()
 
     def colorize(self, mode, type):
-        return self.settings.value(f"colors/{mode}")[type]
+        return self.settings.value(f"colors/{mode}/{type}")
 
 
 class AuthorLabel(QLabel):

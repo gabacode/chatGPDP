@@ -26,27 +26,27 @@ class SettingsDialog(QDialog):
         api_key_frame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         api_key_frame.setFrameShape(QFrame.StyledPanel)
         api_key_layout = QVBoxLayout(api_key_frame)
-        label = QLabel("OPENAI_API_KEY")
-        edit = QLineEdit(self.settings.value("OPENAI_API_KEY"))
-        api_key_layout.addWidget(label)
-        api_key_layout.addWidget(edit)
+        self.api_key_label = QLabel("OPENAI_API_KEY")
+        self.api_key_text = QLineEdit(self.settings.value("OPENAI_API_KEY"))
+        api_key_layout.addWidget(self.api_key_label)
+        api_key_layout.addWidget(self.api_key_text)
 
         # Colors settings
         colors_frame = QFrame()
         colors_frame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         colors_frame.setFrameShape(QFrame.StyledPanel)
-        colors_layout = QVBoxLayout(colors_frame)
+        self.colors_layout = QVBoxLayout(colors_frame)
         color_scopes = ["system", "assistant", "user"]
         for scope in color_scopes:
-            color = self.settings.value(f"colors/{scope}")
-            background, foreground = color["background"], color["foreground"]
+            background = self.settings.value(f"colors/{scope}/background")
+            foreground = self.settings.value(f"colors/{scope}/foreground")
 
-            foreground_picker = ColorPicker(f"colors/{scope}/foreground", "Text", foreground)
-            background_picker = ColorPicker(f"colors/{scope}/background", "Background", background)
+            foreground_picker = ColorPicker(f"{scope}/foreground", "Text", foreground)
+            background_picker = ColorPicker(f"{scope}/background", "Background", background)
 
-            colors_layout.addWidget(QLabel(f"{scope.capitalize()} colors:"))
-            colors_layout.addWidget(foreground_picker)
-            colors_layout.addWidget(background_picker)
+            self.colors_layout.addWidget(QLabel(f"{scope.capitalize()} colors:"))
+            self.colors_layout.addWidget(foreground_picker)
+            self.colors_layout.addWidget(background_picker)
 
         layout.addWidget(api_key_frame)
         layout.addWidget(colors_frame)
@@ -57,11 +57,9 @@ class SettingsDialog(QDialog):
         layout.addWidget(button_box)
 
     def write_env(self):
-        for i in range(self.layout().count()):
-            widget = self.layout().itemAt(i).widget()
-            if isinstance(widget, QLineEdit):
-                key = widget.parent().findChild(QLabel).text()
-                value = widget.text()
-                Settings().get().setValue(key, value)
-                Settings().set_environ(key, value)
+        self.settings.setValue("OPENAI_API_KEY", self.api_key_text.text())
+        self.settings.beginGroup("colors")
+        for child in self.findChildren(ColorPicker):
+            self.settings.setValue(child.scope, str(child.color).upper())
+        self.settings.endGroup()
         Chatbot.reload_env(self)
