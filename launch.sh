@@ -21,23 +21,28 @@ fi
 source $DIR/venv/bin/activate
 
 # Upgrade pip
-pip install --upgrade pip
+python -m pip install --upgrade pip
 
 # Install dependencies
 pip install -r $DIR/requirements.txt
 
-# Clear the terminal
-clear
+# Install briefcase
+pip install briefcase
 
-# Start the program
-echo "Starting your conversation..."
+# Run the app in dev mode
+briefcase dev
 
-# Run program
-python $DIR/app.py
-
-# Deactivate virtualenv
-deactivate
+# See if there are errors, if so, exit
+if [ $? -ne 0 ]; then
+    echo $delimiters
+    echo "There was an error, exiting..."
+    echo $delimiters
+    exit 1
+fi
 
 echo $delimiters
 echo "See you soon 👋"
 echo $delimiters
+
+# Deactivate virtualenv
+deactivate
