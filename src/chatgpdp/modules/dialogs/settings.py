@@ -39,12 +39,15 @@ class SettingsDialog(QDialog):
         color_scopes = ["system", "assistant", "user"]
         for scope in color_scopes:
             background = self.settings.value(f"colors/{scope}/background")
+            label = self.settings.value(f"colors/{scope}/label")
             foreground = self.settings.value(f"colors/{scope}/foreground")
 
+            label_picker = ColorPicker(f"{scope}/label", "Label", label)
             foreground_picker = ColorPicker(f"{scope}/foreground", "Text", foreground)
             background_picker = ColorPicker(f"{scope}/background", "Background", background)
 
             self.colors_layout.addWidget(QLabel(f"{scope.capitalize()} colors:"))
+            self.colors_layout.addWidget(label_picker)
             self.colors_layout.addWidget(foreground_picker)
             self.colors_layout.addWidget(background_picker)
 
