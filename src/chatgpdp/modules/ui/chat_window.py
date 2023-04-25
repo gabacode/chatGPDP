@@ -138,7 +138,7 @@ class ChatWindow(QMainWindow):
     def show_settings(self):
         config_dialog = SettingsDialog(self)
         if config_dialog.exec_() == QDialog.Accepted:
-            config_dialog.write_env()
+            config_dialog.save_settings()
         else:
             config_dialog.close()
 

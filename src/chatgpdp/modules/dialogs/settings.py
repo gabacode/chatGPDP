@@ -1,12 +1,15 @@
 from PyQt5.QtWidgets import (
     QDialog,
-    QLabel,
     QLineEdit,
-    QFrame,
-    QSizePolicy,
+    QGroupBox,
     QVBoxLayout,
+    QHBoxLayout,
+    QScrollArea,
+    QWidget,
     QDialogButtonBox,
 )
+
+from PyQt5.QtCore import Qt
 
 from chatgpdp.modules.chat.bot import Chatbot
 from chatgpdp.modules.dialogs.components.color_picker import ColorPicker
@@ -17,64 +20,68 @@ class SettingsDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Settings")
-        self.setFixedWidth(600)
+        self.setMinimumWidth(600)
         self.settings = Settings().get()
-        layout = QVBoxLayout(self)
 
-        # API key settings
-        api_key_frame = QFrame()
-        api_key_frame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        api_key_frame.setFrameShape(QFrame.StyledPanel)
-        api_key_layout = QVBoxLayout(api_key_frame)
-        self.api_key_label = QLabel("OPENAI_API_KEY")
-        self.api_key_text = QLineEdit(self.settings.value("OPENAI_API_KEY"))
-        api_key_layout.addWidget(self.api_key_label)
-        api_key_layout.addWidget(self.api_key_text)
-
-        # Colors settings
-        colors_frame = QFrame()
-        colors_frame_title = QLabel("Colors:")
-        colors_frame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        colors_frame.setFrameShape(QFrame.StyledPanel)
-        self.colors_layout = QVBoxLayout(colors_frame)
-        self.colors_layout.addWidget(colors_frame_title)
-        color_scopes = ["system", "assistant", "user"]
-        for scope in color_scopes:
-            inner_frame = QFrame()
-
-            divider = QFrame()
-            divider.setFrameShape(QFrame.HLine)
-            divider.setFrameShadow(QFrame.Sunken)
-            self.colors_layout.addWidget(divider)
-
-            background = self.settings.value(f"colors/{scope}/background")
-            label = self.settings.value(f"colors/{scope}/label")
-            foreground = self.settings.value(f"colors/{scope}/foreground")
-
-            label_picker = ColorPicker(f"{scope}/label", "Label:", label)
-            background_picker = ColorPicker(f"{scope}/background", "Background:", background)
-            foreground_picker = ColorPicker(f"{scope}/foreground", "Message:", foreground)
-
-            self.colors_layout.addWidget(QLabel(f"{scope.capitalize()}:"))
-            inner_layout = QVBoxLayout(inner_frame)
-            inner_layout.addWidget(label_picker)
-            inner_layout.addWidget(foreground_picker)
-            inner_layout.addWidget(background_picker)
-
-            self.colors_layout.addWidget(inner_frame)
-
-        layout.addWidget(api_key_frame)
-        layout.addWidget(colors_frame)
+        self.api_settings = ApiSettings(self.settings)
+        colors_settings = ColorSetting(self.settings)
 
         button_box = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
+        for button in button_box.buttons():
+            button.setCursor(Qt.PointingHandCursor)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
-        layout.addWidget(button_box)
 
-    def write_env(self):
-        self.settings.setValue("OPENAI_API_KEY", self.api_key_text.text())
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll_area_content = QWidget(scroll_area)
+        scroll_area.setWidget(scroll_area_content)
+
+        scroll_area_layout = QVBoxLayout(scroll_area_content)
+        scroll_area_layout.addWidget(self.api_settings)
+        scroll_area_layout.addWidget(colors_settings)
+
+        button_widget = QWidget()
+        button_layout = QHBoxLayout(button_widget)
+        button_layout.addStretch()
+        button_layout.addWidget(button_box)
+
+        main_layout = QVBoxLayout(self)
+        main_layout.addWidget(scroll_area)
+        main_layout.addWidget(button_widget)
+
+    def save_settings(self):
+        self.settings.setValue("OPENAI_API_KEY", self.api_settings.get_value())
         self.settings.beginGroup("colors")
         for child in self.findChildren(ColorPicker):
             self.settings.setValue(child.scope, str(child.color).upper())
         self.settings.endGroup()
         Chatbot.reload_env(self)
+
+
+class ApiSettings(QGroupBox):
+    def __init__(self, settings):
+        super().__init__("OpenAI API Key")
+        self.settings = settings
+        layout = QVBoxLayout(self)
+        self.value = QLineEdit(self.settings.value("OPENAI_API_KEY"))
+        layout.addWidget(self.value)
+
+    def get_value(self):
+        return self.value.text()
+
+
+class ColorSetting(QGroupBox):
+    def __init__(self, settings):
+        super().__init__("Colors")
+        self.settings = settings
+        layout = QVBoxLayout(self)
+        for scope in ["system", "assistant", "user"]:
+            group_box = QGroupBox(scope.capitalize())
+            group_box_layout = QVBoxLayout(group_box)
+            for color_type in ["label", "foreground", "background"]:
+                color_value = self.settings.value(f"colors/{scope}/{color_type}")
+                color_picker = ColorPicker(f"{scope}/{color_type}", f"{color_type.capitalize()}:", color_value)
+                group_box_layout.addWidget(color_picker)
+            layout.addWidget(group_box)
