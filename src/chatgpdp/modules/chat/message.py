@@ -134,9 +134,9 @@ class Message(QTextEdit):
         index, layout = self.get_message_index()
         if index == 0:
             return
+        self.messageChanged.emit()
         self.chatbot.remove_from_history(index)
         layout.takeAt(index).widget().deleteLater()
-        self.messageChanged.emit()
 
     def get_message_index(self):
         message_box = self.parentWidget()
