@@ -20,7 +20,7 @@ Being open source, means that you can understand and learn how to build a simila
 
 - You can change your fictional character's desired behavior via the `Options -> Change Personality` menu.
 
-- You can right click on a message to edit, or saving a new message to alter the course of your conversation.
+- You can right click on a message to edit, or save a new message to alter the course of your conversation.
 
 - You can take a screenshot of your conversation via `Edit -> Take Screenshot`.
 
@@ -44,7 +44,7 @@ Being open source, means that you can understand and learn how to build a simila
 
 ### Linux (Debian, Ubuntu etc.)
 
-- Download and install the latest [.deb Installer](https://github.com/gabacode/chatGPDP/releases/latest).
+- Download and install the latest [.AppImage](https://github.com/gabacode/chatGPDP/releases/latest).
 
 ## Run without installer
 
