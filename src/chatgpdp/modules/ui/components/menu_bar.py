@@ -16,6 +16,7 @@ class MenuBar(QMenuBar):
         "SaveAs": generate_shortcut("Shift+S"),
         "Exit": generate_shortcut("Q"),
         "ChangePersonality": generate_shortcut("Shift+P"),
+        "Screenshot": generate_shortcut("T"),
     }
 
     def __init__(self, chat_window: "ChatWindow") -> None:
@@ -33,6 +34,7 @@ class MenuBar(QMenuBar):
             ],
             "Edit": [
                 ("Reload...", self.shortcuts["Reload"], self.chat_window.reload_history),
+                ("Take Screenshot", self.shortcuts["Screenshot"], self.chat_window.take_screen_shot),
             ],
             "Options": [
                 ("Settings...", None, self.chat_window.show_settings),

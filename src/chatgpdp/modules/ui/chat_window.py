@@ -1,5 +1,6 @@
 import os
 import sys
+from datetime import datetime
 
 from PyQt5.QtCore import QTimer, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import (
@@ -11,6 +12,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from PyQt5.QtGui import QPixmap
 
 from chatgpdp.modules import ModelSelector, Temperature, Chatbot
 from chatgpdp.modules.dialogs import AboutDialog, SettingsDialog, PersonalityDialog
@@ -184,6 +186,18 @@ class ChatWindow(QMainWindow):
 
     def reload_history(self):
         self.load_history(loaded_file=self.opened_file)
+
+    def take_screen_shot(self):
+        now = datetime.now()
+        date_string = now.strftime("%Y-%m-%d_%H-%M-%S")
+        widget = self.chat_box.widget()
+        screenshot = widget.grab()
+        pix = QPixmap(screenshot)
+        file_name, _ = QFileDialog.getSaveFileName(
+            self, "Save File", f"chatGPDP-{date_string}.png", "PNG Files (*.png)"
+        )
+        if file_name:
+            pix.save(file_name, "PNG")
 
     def closeEvent(self, event):
         reply = QMessageBox.question(

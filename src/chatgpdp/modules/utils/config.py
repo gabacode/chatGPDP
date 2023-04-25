@@ -4,7 +4,7 @@ BASE_DIR = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
 PATHS = {
     "base": BASE_DIR,
     "chatlogs": f"{BASE_DIR}/chatGPDP/chatlogs",
-    "env": f"{BASE_DIR}/.env",
+    "screenshots": f"{BASE_DIR}/chatGPDP/screenshots",
 }
 PROMPTS = {"default": "You are a useful and intelligent assistant. Be creative and have fun!"}
 
