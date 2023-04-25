@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import (
     QLineEdit,
     QGroupBox,
     QVBoxLayout,
+    QHBoxLayout,
     QScrollArea,
     QWidget,
     QDialogButtonBox,
@@ -39,11 +40,16 @@ class SettingsDialog(QDialog):
 
         scroll_area_layout = QVBoxLayout(scroll_area_content)
         scroll_area_layout.addWidget(self.api_settings)
-        scroll_area_layout.addWidget(button_box)
         scroll_area_layout.addWidget(colors_settings)
 
-        layout = QVBoxLayout(self)
-        layout.addWidget(scroll_area)
+        button_widget = QWidget()
+        button_layout = QHBoxLayout(button_widget)
+        button_layout.addStretch()
+        button_layout.addWidget(button_box)
+
+        main_layout = QVBoxLayout(self)
+        main_layout.addWidget(scroll_area)
+        main_layout.addWidget(button_widget)
 
     def save_settings(self):
         self.settings.setValue("OPENAI_API_KEY", self.api_settings.get_value())
