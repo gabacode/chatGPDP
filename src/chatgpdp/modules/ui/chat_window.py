@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import (
 )
 
 from chatgpdp.modules import ModelSelector, Temperature, Chatbot
-from chatgpdp.modules.dialogs import AboutDialog, ConfigDialog, PersonalityDialog
+from chatgpdp.modules.dialogs import AboutDialog, SettingsDialog, PersonalityDialog
 from chatgpdp.modules.ui.components import MenuBar, ChatBox, Divider, PromptBox, SendButton
 from chatgpdp.modules.utils.config import PATHS
 from chatgpdp.modules.utils import Settings, Utilities
@@ -133,8 +133,8 @@ class ChatWindow(QMainWindow):
         about_dialog = AboutDialog(self)
         about_dialog.exec_()
 
-    def show_config_dialog(self):
-        config_dialog = ConfigDialog(self)
+    def show_settings(self):
+        config_dialog = SettingsDialog(self)
         if config_dialog.exec_() == QDialog.Accepted:
             config_dialog.write_env()
         else:

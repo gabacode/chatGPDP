@@ -18,7 +18,7 @@ class MessageBox(QWidget):
         self.setLayout(self.layout)
 
         styles = {
-            "author": f"color: {self.colorize(mode, 'foreground')}; font-weight: bold; margin-left: 5px;",
+            "author": f"color: {self.colorize(mode, 'label')}; font-weight: bold; margin-left: 5px;",
             "message": f"background-color: {self.colorize(mode, 'background')}; color: {self.colorize(mode, 'foreground')}; border-radius: 25px; border: none;",
         }
 
@@ -46,7 +46,7 @@ class MessageBox(QWidget):
         self.update_height()
 
     def colorize(self, mode, type):
-        return self.settings.value(f"colors/{mode}")[type]
+        return self.settings.value(f"colors/{mode}/{type}")
 
 
 class AuthorLabel(QLabel):
@@ -134,9 +134,9 @@ class Message(QTextEdit):
         index, layout = self.get_message_index()
         if index == 0:
             return
+        self.messageChanged.emit()
         self.chatbot.remove_from_history(index)
         layout.takeAt(index).widget().deleteLater()
-        self.messageChanged.emit()
 
     def get_message_index(self):
         message_box = self.parentWidget()

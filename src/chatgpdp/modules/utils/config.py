@@ -18,14 +18,17 @@ DEFAULT_SETTINGS = {
     },
     "colors": {
         "user": {
+            "label": "#000000",
             "background": "#F0F0F0",
             "foreground": "#000000",
         },
         "assistant": {
+            "label": "#000000",
             "background": "#F0F0F0",
             "foreground": "#000000",
         },
         "system": {
+            "label": "#000000",
             "background": "#F0F0F0",
             "foreground": "#000000",
         },

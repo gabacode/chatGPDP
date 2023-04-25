@@ -35,7 +35,7 @@ class MenuBar(QMenuBar):
                 ("Reload...", self.shortcuts["Reload"], self.chat_window.reload_history),
             ],
             "Options": [
-                ("Set API Key...", None, self.chat_window.show_config_dialog),
+                ("Settings...", None, self.chat_window.show_settings),
                 ("Change Personality...", self.shortcuts["ChangePersonality"], self.chat_window.change_personality),
             ],
             "Help": [

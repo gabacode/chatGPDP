@@ -36,10 +36,18 @@ class Settings:
             if isinstance(value, dict):
                 self._settings.beginGroup(key)
                 for subkey, subvalue in value.items():
-                    self._settings.setValue(subkey, self._settings.value(subkey, subvalue))
+                    if isinstance(subvalue, dict):
+                        for subsubkey, subsubvalue in subvalue.items():
+                            actual_setting = self._settings.value(f"{subkey}/{subsubkey}", subsubvalue)
+                            self._settings.setValue(f"{subkey}/{subsubkey}", actual_setting)
+                    else:
+                        actual_setting = self._settings.value(subkey, subvalue)
+                        self._settings.setValue(subkey, actual_setting)
+
                 self._settings.endGroup()
             else:
-                self._settings.setValue(key, self._settings.value(key, value))
+                actual_setting = self._settings.value(key, value)
+                self._settings.setValue(key, actual_setting)
 
     def set_environ(self, key, value):
         """
