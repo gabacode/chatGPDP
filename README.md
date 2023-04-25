@@ -18,11 +18,11 @@ Being open source, means that you can understand and learn how to build a simila
 
 - Set your API key and change the chat's colors from the top menu `Options -> Settings` or `Preferences` on macOS.
 
-- You can change your fictional character's desired behavior via the `Options -> Change Personality` menu.
+- Change your fictional character's desired behavior via the `Options -> Change Personality` menu.
 
-- You can right click on a message to edit, or save a new message to alter the course of your conversation.
+- Right click on a message to Edit, Save, or Delete the message, and alter the course of your conversation.
 
-- You can take a screenshot of your conversation via `Edit -> Take Screenshot`.
+- Take a screenshot of your conversation via `Edit -> Take Screenshot`.
 
 - Save and load conversations from the `File` menu.
 
