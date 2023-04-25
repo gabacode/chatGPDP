@@ -1,7 +1,7 @@
 [tool.briefcase]
 project_name = "chatGPDP"
 bundle = "art.gab.chatgpdp"
-version = "0.4.0.dev1"
+version = "0.4.0"
 url = "https://github.com/gabacode/chatGPDP"
 license = "Creative Commons Attribution 4.0 International"
 author = "Gabriele Arcangelo Scalici"
