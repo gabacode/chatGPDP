@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import (
 
 from PyQt5.QtCore import Qt
 
+from chatgpdp.modules.chat.bot import Chatbot
 from chatgpdp.modules.dialogs.components.color_picker import ColorPicker
 from chatgpdp.modules.utils.settings import Settings
 
@@ -19,13 +20,14 @@ class SettingsDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Settings")
         self.setMinimumWidth(600)
-        self.setMinimumHeight(800)
         self.settings = Settings().get()
 
         self.api_settings = ApiSettings(self.settings)
         colors_settings = ColorSetting(self.settings)
 
         button_box = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
+        for button in button_box.buttons():
+            button.setCursor(Qt.PointingHandCursor)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
 
@@ -37,11 +39,19 @@ class SettingsDialog(QDialog):
 
         scroll_area_layout = QVBoxLayout(scroll_area_content)
         scroll_area_layout.addWidget(self.api_settings)
-        scroll_area_layout.addWidget(colors_settings)
         scroll_area_layout.addWidget(button_box)
+        scroll_area_layout.addWidget(colors_settings)
 
         layout = QVBoxLayout(self)
         layout.addWidget(scroll_area)
+
+    def save_settings(self):
+        self.settings.setValue("OPENAI_API_KEY", self.api_settings.get_value())
+        self.settings.beginGroup("colors")
+        for child in self.findChildren(ColorPicker):
+            self.settings.setValue(child.scope, str(child.color).upper())
+        self.settings.endGroup()
+        Chatbot.reload_env(self)
 
 
 class ApiSettings(QGroupBox):
