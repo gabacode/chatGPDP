@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import (
+    QAction,
     QDialog,
     QLabel,
     QLineEdit,
@@ -7,6 +8,9 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QDialogButtonBox,
 )
+
+from PyQt5.QtGui import QIcon
+
 
 from chatgpdp.modules.chat.bot import Chatbot
 from chatgpdp.modules.dialogs.components.color_picker import ColorPicker
@@ -21,13 +25,21 @@ class SettingsDialog(QDialog):
         self.settings = Settings().get()
         layout = QVBoxLayout(self)
 
+        toggle_action = QAction(QIcon.fromTheme("dialog-password"), "Show API key", self)
+        toggle_action.setCheckable(True)
+        toggle_action.setChecked(False)
+
         # API key settings
         api_key_frame = QFrame()
         api_key_frame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         api_key_frame.setFrameShape(QFrame.StyledPanel)
         api_key_layout = QVBoxLayout(api_key_frame)
+
         self.api_key_label = QLabel("OPENAI_API_KEY")
         self.api_key_text = QLineEdit(self.settings.value("OPENAI_API_KEY"))
+        self.api_key_text.setEchoMode(QLineEdit.Password)
+        self.api_key_text.addAction(toggle_action, QLineEdit.TrailingPosition)
+
         api_key_layout.addWidget(self.api_key_label)
         api_key_layout.addWidget(self.api_key_text)
 
@@ -70,6 +82,10 @@ class SettingsDialog(QDialog):
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         layout.addWidget(button_box)
+
+        toggle_action.triggered.connect(
+            lambda: self.api_key_text.setEchoMode(QLineEdit.Normal if toggle_action.isChecked() else QLineEdit.Password)
+        )
 
     def write_env(self):
         self.settings.setValue("OPENAI_API_KEY", self.api_key_text.text())
