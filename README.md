@@ -12,9 +12,13 @@ If you're interested in chatting with your own PDF documents, check the [chatPDF
 
 - Get a GPT API key from [OpenAI](https://platform.openai.com/account/api-keys) if you don't have one already.
 
-- Set your API key from the top menu `Options -> Settings`.
+- Set your API key and change the chat's colors from the top menu `Options -> Settings`.
 
 - You can change your fictional character's desired behavior via the `Options -> Change Personality` menu.
+
+- You can right click on a message to edit, or saving a new message to alter the course of your conversation.
+
+- You can take a screenshot of your conversation via `Edit -> Take Screenshot`.
 
 - Save and load conversations from the `File` menu.
 
@@ -28,26 +32,32 @@ If you're interested in chatting with your own PDF documents, check the [chatPDF
 
 ### Windows 7 and greater
 
-- Download and install the [latest Windows Installer](https://github.com/gabacode/chatGPDP/releases/latest).
+- Download and install the latest [Windows Installer](https://github.com/gabacode/chatGPDP/releases/latest).
 
-### macOS Catalina and greater
+### macOS (x86_64 only)
 
-- Coming soon...
+- Download and install the latest [.dmg Image](https://github.com/gabacode/chatGPDP/releases/latest).
 
-### All the Operating Systems (Recommended)
+### Linux (Debian, Ubuntu etc.)
+
+- Download and install the latest [.deb Installer](https://github.com/gabacode/chatGPDP/releases/latest).
+
+## Run without installer
 
 - [Install Python](https://www.python.org/downloads/) >=3.9.
 
-- Install the dependencies:
+- Launch the scripts provided:
+
+#### On Linux/macOS
 
 ```bash
-pip install -r requirements.txt
+./launch.sh
 ```
 
-- Run the app:
+#### On Windows
 
 ```bash
-python3 app.py
+launch.bat
 ```
 
 ---
@@ -70,7 +80,7 @@ Go to the main folder of the project and run:
 build.bat
 ```
 
-Your compiled file will be inside the `/dist` folder.
+Your compiled file will be inside the `/build` folder.
 
 ## Why this project?
 
