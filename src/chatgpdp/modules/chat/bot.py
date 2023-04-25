@@ -1,7 +1,8 @@
 import os
 import openai
-from config import engines
 from dotenv import load_dotenv
+
+from chatgpdp.modules.utils.config import PATHS, engines
 
 from langchain.prompts import (
     ChatPromptTemplate,
@@ -14,24 +15,27 @@ from langchain.chains import ConversationChain
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory, ChatMessageHistory
 
+from chatgpdp.modules.utils.settings import Settings
+
 
 class Chatbot:
+    chatlogs_directory = PATHS["chatlogs"]
+    settings = Settings().get()
+
     def __init__(self, history):
         self.env_init()
         self.history = history
         self.memory = ConversationBufferMemory(return_messages=True)
 
     def env_init(self):
-        if not os.path.exists("chatlogs"):
-            os.mkdir("chatlogs")
-        if not os.path.exists(".env"):
-            with open(".env", "w") as f:
-                f.write("OPENAI_API_KEY=")
+        if not os.path.exists(self.chatlogs_directory):
+            os.mkdir(self.chatlogs_directory)
         self.reload_env()
 
     def reload_env(self):
         load_dotenv(override=True)
-        openai.api_key = os.environ["OPENAI_API_KEY"]
+        key = Settings().get_by_key("OPENAI_API_KEY")
+        openai.api_key = key
 
     def create_messages(self, prompt):
         self.add_to_history({"role": "user", "content": prompt})
@@ -56,7 +60,7 @@ class Chatbot:
         try:
             history = self.create_messages(message)
             self.load_memory(history)
-            llm = ChatOpenAI(model_name=engines[engine]["name"], temperature=temperature)
+            llm = ChatOpenAI(model_name=engines[engine]["name"], temperature=temperature, openai_api_key=openai.api_key)
             prompt = ChatPromptTemplate.from_messages(
                 [
                     SystemMessagePromptTemplate.from_template(self.get_initial_prompt()),
@@ -69,7 +73,9 @@ class Chatbot:
             self.add_to_history({"role": "assistant", "content": response_text})
             return response_text
         except Exception as e:
-            return "I'm sorry, we got an error:" + "\n" + str(e)
+            error = f"I'm sorry, we got an error: \n {e}"
+            self.add_to_history({"role": "system", "content": error})
+            return error
 
     def get_history(self):
         return self.history

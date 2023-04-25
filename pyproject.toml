@@ -1,0 +1,113 @@
+[tool.briefcase]
+project_name = "chatGPDP"
+bundle = "art.gab.chatgpdp"
+version = "0.4.0.dev1"
+url = "https://github.com/gabacode/chatGPDP"
+license = "Creative Commons Attribution 4.0 International"
+author = "Gabriele Arcangelo Scalici"
+author_email = "hello@gab.art"
+
+[tool.briefcase.app.chatgpdp]
+formal_name = "chatGPDP"
+description = "Chat with your favourite fictional characters!"
+long_description = "GPDP stands for 'Giving Power to Democratic Participation', it's a censorship-resistant way of experimenting with LLMs in a safe and responsible way."
+icon = "src/chatgpdp/resources/chatgpdp"
+sources = [
+    "src/chatgpdp",
+]
+requires = [
+    "langchain==0.0.136",
+    "markdown2==2.4.8",
+    "openai==0.27.2",
+    "pygments==2.15.1",
+    "pyqt5==5.15.9",
+    "python-dotenv==1.0.0"
+]
+
+
+[tool.briefcase.app.chatgpdp.macOS]
+requires = [
+    "std-nslog~=1.0.0"
+]
+
+[tool.briefcase.app.chatgpdp.linux]
+requires = [
+]
+
+[tool.briefcase.app.chatgpdp.linux.system.debian]
+system_requires = [
+]
+
+system_runtime_requires = [
+    # Derived from https://doc.qt.io/qt-6/linux-requirements.html
+    "libxrender1",
+    "libxcb-render0",
+    "libxcb-render-util0",
+    "libxcb-shape0",
+    "libxcb-randr0",
+    "libxcb-xfixes0",
+    "libxcb-xkb1",
+    "libxcb-sync1",
+    "libxcb-shm0",
+    "libxcb-icccm4",
+    "libxcb-keysyms1",
+    "libxcb-image0",
+    "libxcb-util1",
+    "libxkbcommon0",
+    "libxkbcommon-x11-0",
+    "libfontconfig1",
+    "libfreetype6",
+    "libxext6",
+    "libx11-6",
+    "libxcb1",
+    "libx11-xcb1",
+    "libsm6",
+    "libice6",
+    "libglib2.0-0",
+    "libgl1",
+    "libegl1-mesa",
+    "libdbus-1-3",
+    "libgssapi-krb5-2",
+]
+
+[tool.briefcase.app.chatgpdp.linux.system.rhel]
+system_requires = [
+]
+
+system_runtime_requires = [
+    "qt5-qtbase-gui",
+]
+
+[tool.briefcase.app.chatgpdp.linux.system.arch]
+system_requires = [
+]
+
+system_runtime_requires = [
+]
+
+[tool.briefcase.app.chatgpdp.linux.appimage]
+manylinux = "manylinux2014"
+
+system_requires = [
+# ?? FIXME
+]
+linuxdeploy_plugins = []
+
+[tool.briefcase.app.chatgpdp.linux.flatpak]
+flatpak_runtime = "org.kde.Platform"
+flatpak_runtime_version = "6.4"
+flatpak_sdk = "org.kde.Sdk"
+
+[tool.briefcase.app.chatgpdp.windows]
+requires = []
+
+# Mobile deployments
+[tool.briefcase.app.chatgpdp.iOS]
+supported = false
+
+[tool.briefcase.app.chatgpdp.android]
+supported = false
+
+# Web deployments
+[tool.briefcase.app.chatgpdp.web]
+supported = false

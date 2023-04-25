@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
 )
 
-from config import load_initial_prompt
+from chatgpdp.modules.utils.settings import Settings
 
 
 class PersonalityDialog(QDialog):
@@ -13,7 +13,8 @@ class PersonalityDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Change Personality")
         self.setFixedWidth(600)
-        self.personality = load_initial_prompt()
+        self.settings = Settings()
+        self.personality = self.settings.get_by_key("chat/initial_prompt")
 
         self.text_area = QTextEdit()
 
@@ -30,8 +31,7 @@ class PersonalityDialog(QDialog):
 
     def save_file_and_close(self):
         self.personality = self.text_area.toPlainText()
-        with open("initial_prompt.txt", "w") as f:
-            f.write(self.personality)
+        self.settings.get().setValue("chat/initial_prompt", self.personality)
         self.accept()
 
     def reject(self):

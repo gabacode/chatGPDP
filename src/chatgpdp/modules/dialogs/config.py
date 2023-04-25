@@ -6,24 +6,27 @@ from PyQt5.QtWidgets import (
     QDialogButtonBox,
 )
 
-from modules.Chatbot import Chatbot
+from chatgpdp.modules.chat.bot import Chatbot
+from chatgpdp.modules.utils.settings import Settings
 
 
 class ConfigDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.env_path = ".env"
         self.setWindowTitle("Settings")
         self.setFixedWidth(600)
         layout = QVBoxLayout(self)
 
-        # Add the options
-        options = self.read_env()
+        options = [
+            {
+                "label": QLabel("OPENAI_API_KEY"),
+                "value": QLineEdit(Settings().get_by_key("OPENAI_API_KEY")),
+            }
+        ]
+
         for option in options:
-            option_label = QLabel(option[0])
-            option_edit = QLineEdit(option[1])
-            layout.addWidget(option_label)
-            layout.addWidget(option_edit)
+            layout.addWidget(option["label"])
+            layout.addWidget(option["value"])
 
         layout.addWidget(QLabel(""))
 
@@ -33,23 +36,12 @@ class ConfigDialog(QDialog):
         button_box.rejected.connect(self.reject)
         layout.addWidget(button_box)
 
-    def read_env(self):
-        options = []
-        with open(self.env_path, "r") as f:
-            for line in f:
-                key, value = line.strip().split("=")
-                options.append((key, value))
-        return options
-
     def write_env(self):
-        updated_options = []
         for i in range(self.layout().count()):
             widget = self.layout().itemAt(i).widget()
             if isinstance(widget, QLineEdit):
                 key = widget.parent().findChild(QLabel).text()
                 value = widget.text()
-                updated_options.append((key, value))
-        with open(self.env_path, "w") as f:
-            for option in updated_options:
-                f.write(f"{option[0]}={option[1]}\n")
+                Settings().get().setValue(key, value)
+                Settings().set_environ(key, value)
         Chatbot.reload_env(self)
