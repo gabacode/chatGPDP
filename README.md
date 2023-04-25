@@ -1,18 +1,22 @@
-# ChatGPDP
-
-Chat with your favourite fictional characters!
-
-This is a fake scenario and should not be taken seriously.
+# ChatGPDP - chat with your favourite characters
 
 Change the initial prompt to change your fictional character's desired behavior.
 
 If you're interested in chatting with your own PDF documents, check the [chatPDF](https://github.com/gabacode/chatPDF) project!
 
+## Why this project?
+
+We shouldn't really need a reason to publish a project like this, but particular times call for particular measures.
+
+GPDP stands for "Giving Power to Democratic Participation", it's a censorship-resistant (for now) way of accessing to OpenAI's [GPT-3.5 models](https://platform.openai.com/docs/models/gpt-3-5) while their GDPR compliance is being evaluated.
+
+Being open source, means that you can understand and learn how to build a similar bot, giving you a degree of "freedom" in setting your initial prompt, to experiment with different bot personalities, and satisfying your curiosity.
+
 ## General Notes
 
 - Get a GPT API key from [OpenAI](https://platform.openai.com/account/api-keys) if you don't have one already.
 
-- Set your API key and change the chat's colors from the top menu `Options -> Settings`.
+- Set your API key and change the chat's colors from the top menu `Options -> Settings` or `Preferences` on macOS.
 
 - You can change your fictional character's desired behavior via the `Options -> Change Personality` menu.
 
@@ -82,19 +86,10 @@ build.bat
 
 Your compiled file will be inside the `/build` folder.
 
-## Why this project?
-
-We shouldn't really need a reason to publish a project like this, but particular times call for particular measures.
-
-GPDP stands for "Giving Power to Democratic Participation", it's a censorship-resistant (for now) way of accessing to OpenAI's [GPT-3.5 models](https://platform.openai.com/docs/models/gpt-3-5) while their GDPR compliance is being evaluated.
-
-Also, being open source, means that you can understand and learn how to build a similar bot, giving you a degree of "freedom" in setting your initial prompt, to experiment with different bot personalities, and satisfying your curiosity.
-
-Being an embedded and portable solution, means that you can share your conversations across different devices, and even with your friends.
+### So Long, and Thanks for All your laws 👋
 
 Feel free to post on this repository for [feedback and suggestions](https://github.com/gabacode/chatGPDP/issues).
 
 Use this technology responsibly, and don't forget to have fun!
 
 Peace.
-
