@@ -1,6 +1,5 @@
 import os
 import openai
-from dotenv import load_dotenv
 
 from chatgpdp.modules.utils.config import PATHS, engines
 
@@ -36,7 +35,6 @@ class Chatbot:
         self.reload_env()
 
     def reload_env(self):
-        load_dotenv(override=True)
         key = Settings().get_by_key("OPENAI_API_KEY")
         openai.api_key = key
 
