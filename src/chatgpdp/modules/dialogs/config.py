@@ -20,7 +20,7 @@ class ConfigDialog(QDialog):
         options = [
             {
                 "label": QLabel("OPENAI_API_KEY"),
-                "value": QLineEdit(Settings().get_setting_by_key("OPENAI_API_KEY")),
+                "value": QLineEdit(Settings().get_by_key("OPENAI_API_KEY")),
             }
         ]
 
@@ -42,6 +42,6 @@ class ConfigDialog(QDialog):
             if isinstance(widget, QLineEdit):
                 key = widget.parent().findChild(QLabel).text()
                 value = widget.text()
-                Settings().get_settings().setValue(key, value)
+                Settings().get().setValue(key, value)
                 Settings().set_environ(key, value)
         Chatbot.reload_env(self)

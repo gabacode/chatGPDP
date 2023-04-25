@@ -9,30 +9,32 @@ PATHS = {
 PROMPTS = {"default": "You are a useful and intelligent assistant. Be creative and have fun!"}
 
 
-def load_initial_prompt(settings):
-    initial_prompt_key = "chat/initial_prompt"
-    initial_prompt = settings.value(initial_prompt_key)
-    if initial_prompt:
-        return initial_prompt
-    else:
-        settings.setValue(initial_prompt_key, PROMPTS["default"])
-        return PROMPTS["default"]
-
-
-colors = {
-    "user": {
-        "background": "#F0F0F0",
-        "foreground": "#000000",
+DEFAULT_SETTINGS = {
+    "OPENAI_API_KEY": "",
+    "chat": {
+        "initial_prompt": PROMPTS["default"],
+        "max_tokens": 2048,
+        "temperature": 0.618,
     },
-    "assistant": {
-        "background": "#F0F0F0",
-        "foreground": "#000000",
+    "colors": {
+        "user": {
+            "background": "#F0F0F0",
+            "foreground": "#000000",
+        },
+        "assistant": {
+            "background": "#F0F0F0",
+            "foreground": "#000000",
+        },
+        "system": {
+            "background": "#F0F0F0",
+            "foreground": "#000000",
+        },
     },
-    "system": {
-        "background": "#F0F0F0",
-        "foreground": "#000000",
+    "window": {
+        "geometry": "",
     },
 }
+
 
 engines = {
     "gpt-3.5-turbo": {

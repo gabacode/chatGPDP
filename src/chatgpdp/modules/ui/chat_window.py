@@ -15,14 +15,14 @@ from PyQt5.QtWidgets import (
 from chatgpdp.modules import ModelSelector, Temperature, Chatbot
 from chatgpdp.modules.dialogs import AboutDialog, ConfigDialog, PersonalityDialog
 from chatgpdp.modules.ui.components import MenuBar, ChatBox, Divider, PromptBox, SendButton
-from chatgpdp.modules.utils.config import PATHS, load_initial_prompt
+from chatgpdp.modules.utils.config import PATHS
 from chatgpdp.modules.utils import Settings, Utilities
 from chatgpdp.modules.threads.chat import ChatThread
 
 
 class ChatWindow(QMainWindow):
     loading_signal = pyqtSignal(bool)
-    settings = Settings().get_settings()
+    settings = Settings().get()
     default_window_geometry = (100, 100, 800, 800)
 
     def __init__(self, metadata):
@@ -39,7 +39,6 @@ class ChatWindow(QMainWindow):
 
         model_selector = ModelSelector()
         self.engine = model_selector.get_engine()
-
         temperature_selector = Temperature(self.temperature)
 
         self.chat_box = ChatBox(self)
@@ -66,25 +65,18 @@ class ChatWindow(QMainWindow):
 
     def load_state(self):
         self.loading_signal.connect(self.set_loading)
-        self.initial_prompt = load_initial_prompt(self.settings)
+        self.initial_prompt = self.settings.value("chat/initial_prompt")
+        self.temperature = self.settings.value("chat/temperature")
+
         self.chatbot = Chatbot([{"role": "system", "content": self.initial_prompt}])
         self.opened_file = None
         self.is_loading = False
 
-        geometry_key = "window/geometry"
-        geometry = self.settings.value(geometry_key)
+        geometry = self.settings.value("window/geometry")
         if geometry:
             self.restoreGeometry(geometry)
         else:
             self.setGeometry(*self.default_window_geometry)
-
-        temperature_key = "engines/temperature"
-        saved_temperature = self.settings.value(temperature_key)
-        if saved_temperature:
-            self.temperature = saved_temperature
-        else:
-            self.temperature = 0.618
-        self.settings.setValue(temperature_key, self.temperature)
 
     @pyqtSlot(bool)
     def set_loading(self, is_loading):
@@ -156,7 +148,7 @@ class ChatWindow(QMainWindow):
 
     def new_chat(self):
         self.new_window = ChatWindow(self.metadata)
-        self.new_window.setGeometry(100, 100, 800, 800)
+        self.new_window.setGeometry(*self.default_window_geometry)
         self.new_window.show()
 
     def restart_chat(self):

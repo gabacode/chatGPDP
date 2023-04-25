@@ -9,7 +9,7 @@ class Temperature(QGroupBox):
 
     def __init__(self, temperature):
         super().__init__()
-        self.settings = Settings().get_settings()
+        self.settings = Settings().get()
         self.temperature = temperature
         self.label = QLabel()
         self.initUI()
@@ -33,7 +33,7 @@ class Temperature(QGroupBox):
     def set_temperature(self, value):
         self.temperature = value / 1000.0
         self.set_label(self.temperature)
-        self.settings.setValue("engines/temperature", self.temperature)
+        self.settings.setValue("chat/temperature", self.temperature)
 
     def get_temperature(self):
         return self.temperature

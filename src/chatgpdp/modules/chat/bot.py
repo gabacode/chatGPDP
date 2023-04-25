@@ -20,7 +20,7 @@ from chatgpdp.modules.utils.settings import Settings
 
 class Chatbot:
     chatlogs_directory = PATHS["chatlogs"]
-    settings = Settings().get_settings()
+    settings = Settings().get()
 
     def __init__(self, history):
         self.env_init()
@@ -34,7 +34,7 @@ class Chatbot:
 
     def reload_env(self):
         load_dotenv(override=True)
-        key = Settings().get_setting_by_key("OPENAI_API_KEY")
+        key = Settings().get_by_key("OPENAI_API_KEY")
         openai.api_key = key
 
     def create_messages(self, prompt):
