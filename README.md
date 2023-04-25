@@ -1,6 +1,6 @@
 # ChatGPDP
 
-Chat with your favourite fictional characters! 
+Chat with your favourite fictional characters!
 
 This is a fake scenario and should not be taken seriously.
 
@@ -12,7 +12,7 @@ If you're interested in chatting with your own PDF documents, check the [chatPDF
 
 - Get a GPT API key from [OpenAI](https://platform.openai.com/account/api-keys) if you don't have one already.
 
-- Set your API key from the top menu `Options -> Set API key`.
+- Set your API key from the top menu `Options -> Settings`.
 
 - You can change your fictional character's desired behavior via the `Options -> Change Personality` menu.
 
