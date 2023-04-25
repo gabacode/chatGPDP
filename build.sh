@@ -32,7 +32,7 @@ pip install briefcase
 # If the project doesn't have a build directory, create it
 if [ ! -d "$DIR/build" ]; then
     echo $delimiters
-    echo "Build directory created"
+    echo "Creating project..."
     echo $delimiters
     briefcase create
 fi
