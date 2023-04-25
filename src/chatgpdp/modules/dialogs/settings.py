@@ -33,23 +33,35 @@ class SettingsDialog(QDialog):
 
         # Colors settings
         colors_frame = QFrame()
+        colors_frame_title = QLabel("Colors:")
         colors_frame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         colors_frame.setFrameShape(QFrame.StyledPanel)
         self.colors_layout = QVBoxLayout(colors_frame)
+        self.colors_layout.addWidget(colors_frame_title)
         color_scopes = ["system", "assistant", "user"]
         for scope in color_scopes:
+            inner_frame = QFrame()
+
+            divider = QFrame()
+            divider.setFrameShape(QFrame.HLine)
+            divider.setFrameShadow(QFrame.Sunken)
+            self.colors_layout.addWidget(divider)
+
             background = self.settings.value(f"colors/{scope}/background")
             label = self.settings.value(f"colors/{scope}/label")
             foreground = self.settings.value(f"colors/{scope}/foreground")
 
-            label_picker = ColorPicker(f"{scope}/label", "Label", label)
-            foreground_picker = ColorPicker(f"{scope}/foreground", "Text", foreground)
-            background_picker = ColorPicker(f"{scope}/background", "Background", background)
+            label_picker = ColorPicker(f"{scope}/label", "Label:", label)
+            background_picker = ColorPicker(f"{scope}/background", "Background:", background)
+            foreground_picker = ColorPicker(f"{scope}/foreground", "Message:", foreground)
 
-            self.colors_layout.addWidget(QLabel(f"{scope.capitalize()} colors:"))
-            self.colors_layout.addWidget(label_picker)
-            self.colors_layout.addWidget(foreground_picker)
-            self.colors_layout.addWidget(background_picker)
+            self.colors_layout.addWidget(QLabel(f"{scope.capitalize()}:"))
+            inner_layout = QVBoxLayout(inner_frame)
+            inner_layout.addWidget(label_picker)
+            inner_layout.addWidget(foreground_picker)
+            inner_layout.addWidget(background_picker)
+
+            self.colors_layout.addWidget(inner_frame)
 
         layout.addWidget(api_key_frame)
         layout.addWidget(colors_frame)
