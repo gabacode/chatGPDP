@@ -17,7 +17,6 @@ class Utilities:
     A collection of utility functions.
 
     Methods:
-        - get_project_root() -> str
         - save_chat(file: str, history: list) -> str
         - load_chat(file: str) -> list
         - get_engine_names(engines_dict: dict) -> list
@@ -27,15 +26,6 @@ class Utilities:
         - path_strip(path: str, keep_extension: bool = False) -> str
         - get_metadata() -> dict
     """
-
-    @staticmethod
-    def get_project_root() -> str:
-        """
-        Returns the root directory of the current Python project.
-        """
-        main_file = Path(os.path.abspath(sys.argv[0]))
-        root_folder = main_file.parents[2]
-        return str(root_folder)
 
     @staticmethod
     def save_chat(file: str, history: list) -> str:

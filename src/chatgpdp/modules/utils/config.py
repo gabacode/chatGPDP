@@ -1,9 +1,9 @@
-from chatgpdp.modules.utils.utilities import Utilities
+from PyQt5.QtCore import QStandardPaths
 
-BASE_DIR = Utilities.get_project_root()
+BASE_DIR = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
 PATHS = {
     "base": BASE_DIR,
-    "chatlogs": f"{BASE_DIR}/chatlogs",
+    "chatlogs": f"{BASE_DIR}/chatGPDP/chatlogs",
     "env": f"{BASE_DIR}/.env",
 }
 PROMPTS = {"default": "You are a useful and intelligent assistant. Be creative and have fun!"}
