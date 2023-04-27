@@ -13,8 +13,9 @@ class ChatBox(QScrollArea):
         super().__init__()
         self.parent = parent
         self.setWidgetResizable(True)
-        scrollbar = self.verticalScrollBar()
-        scrollbar.rangeChanged.connect(self.scroll_to_bottom)
+        self.scrollbar = self.verticalScrollBar()
+        self.scrollbar.rangeChanged.connect(self.scroll_to_bottom)
+        self.is_editing = False
 
         self.container = QWidget()
         self.container.setObjectName("conversation_container")
@@ -26,6 +27,7 @@ class ChatBox(QScrollArea):
         self.setWidget(self.container)
 
     def append_message(self, mode, message):
+        self.is_editing = False
         message = message.strip()
         message_widget = MessageBox(self.parent.chatbot, message, mode)
         message_widget.messageChanged.connect(self.parent.set_to_save)
@@ -36,5 +38,5 @@ class ChatBox(QScrollArea):
             self.layout.itemAt(i).widget().deleteLater()
 
     def scroll_to_bottom(self):
-        scrollbar = self.verticalScrollBar()
-        scrollbar.setValue(scrollbar.maximum())
+        if not self.is_editing:
+            self.scrollbar.setValue(self.scrollbar.maximum())

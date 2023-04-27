@@ -111,6 +111,7 @@ class Message(QTextEdit):
         index, _ = self.get_message_index()
         original_message = self.chatbot.get_message(index)
         self.is_editing = True
+        self.parent().parent().parent().parent().is_editing = True
         self.setPlainText(original_message["content"])
         self.setReadOnly(False)
         self.setAcceptRichText(False)

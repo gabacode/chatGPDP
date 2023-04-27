@@ -61,7 +61,12 @@ class Chatbot:
         try:
             history = self.create_messages(message)
             self.load_memory(history)
-            llm = ChatOpenAI(model_name=engines[engine]["name"], temperature=temperature, openai_api_key=openai.api_key)
+            llm = ChatOpenAI(
+                model_name=engines[engine]["name"],
+                temperature=temperature,
+                openai_api_key=openai.api_key,
+                request_timeout=120,
+            )
             prompt = ChatPromptTemplate.from_messages(
                 [
                     SystemMessagePromptTemplate.from_template(self.get_initial_prompt()),
