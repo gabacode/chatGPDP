@@ -160,14 +160,12 @@ class ChatWindow(QMainWindow):
         self.opened_file = file_name
         self.setWindowTitle(f"{self.window_title} - {Utilities.path_strip(file_name)}")
 
-    def save_history(self, new_file=None):
-        if not new_file and not self.opened_file:
-            new_file, _ = QFileDialog.getSaveFileName(self, "Save File", PATHS["chatlogs"], "JSON Files (*.json)")
-            if not new_file:
-                return
-        file_name = Utilities.save_chat(new_file or self.opened_file, self.chatbot.history)
-        if file_name:
-            self.set_opened_file(file_name)
+    def save_history(self):
+        if self.opened_file:
+            Utilities.save_chat(self.opened_file, self.chatbot.history)
+            self.set_opened_file(self.opened_file)
+        else:
+            self.save_history_as()
 
     def load_history(self, loaded_file=None):
         if not loaded_file:
@@ -182,7 +180,10 @@ class ChatWindow(QMainWindow):
         self.set_opened_file(loaded_file)
 
     def save_history_as(self):
-        self.save_history(new_file=None)
+        new_file, _ = QFileDialog.getSaveFileName(self, "Save File", PATHS["chatlogs"], "JSON Files (*.json)")
+        if new_file:
+            Utilities.save_chat(new_file, self.chatbot.history)
+            self.set_opened_file(new_file)
 
     def reload_history(self):
         self.load_history(loaded_file=self.opened_file)
