@@ -5,6 +5,7 @@ PATHS = {
     "base": BASE_DIR,
     "chatlogs": f"{BASE_DIR}/chatGPDP/chatlogs",
     "screenshots": f"{BASE_DIR}/chatGPDP/screenshots",
+    "embeddings": f"{BASE_DIR}/chatGPDP/embeddings",
 }
 PROMPTS = {"default": "You are a useful and intelligent assistant. Be creative and have fun!"}
 
