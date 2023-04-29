@@ -17,6 +17,7 @@ from PyQt5.QtGui import QPixmap
 from chatgpdp.modules import ModelSelector, Temperature, Chatbot
 from chatgpdp.modules.dialogs import AboutDialog, SettingsDialog, PersonalityDialog
 from chatgpdp.modules.ui.components import MenuBar, ChatBox, Divider, PromptBox, SendButton
+from chatgpdp.modules.ui.components.add_knowledge import Knowledge
 from chatgpdp.modules.utils.config import PATHS
 from chatgpdp.modules.utils import Settings, Utilities
 from chatgpdp.modules.threads.chat import ChatThread
@@ -39,6 +40,8 @@ class ChatWindow(QMainWindow):
         self.setWindowTitle(self.window_title)
         self.setMenuBar(MenuBar(self))
 
+        self.knowledge = Knowledge()
+
         model_selector = ModelSelector()
         self.engine = model_selector.get_engine()
         temperature_selector = Temperature(self.temperature)
@@ -53,6 +56,7 @@ class ChatWindow(QMainWindow):
         widgets = [
             model_selector,
             temperature_selector,
+            self.knowledge.cb,
             self.divider,
             self.send_button,
         ]
@@ -121,7 +125,13 @@ class ChatWindow(QMainWindow):
             self.chat_thread.terminate()
             self.chat_thread.wait()
 
-        self.chat_thread = ChatThread(self.chatbot, message, self.engine, self.temperature)
+        self.chat_thread = ChatThread(
+            self.chatbot,
+            message,
+            self.engine,
+            self.temperature,
+            self.knowledge.selected_file,
+        )
         self.chat_thread.response_signal.connect(self.handle_response)
         self.chat_thread.start()
 
