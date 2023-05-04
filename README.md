@@ -46,7 +46,7 @@ Being open source, means that you can understand and learn how to build a simila
 
 - Download and install the latest [.AppImage](https://github.com/gabacode/chatGPDP/releases/latest).
 
-## Run without installer
+## Run without installer (Recommended)
 
 - [Install Python](https://www.python.org/downloads/) >=3.9.
 
