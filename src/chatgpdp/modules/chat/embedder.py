@@ -43,13 +43,13 @@ class Embedder:
         # Load the data from the file using Langchain
         if filename.endswith(".pdf"):
             loader = PyPDFLoader(file_path=tmp_file_path)
-            data = loader.load_and_split(text_splitter=text_splitter)
+            data = loader.load_and_split(text_splitter)
         elif filename.endswith(".txt"):
             loader = TextLoader(file_path=tmp_file_path)
-            data = loader.load(text_splitter=text_splitter)
+            data = loader.load_and_split(text_splitter)
         elif filename.endswith(".csv"):
             loader = CSVLoader(file_path=tmp_file_path)
-            data = loader.load()
+            data = loader.load_and_split(text_splitter)
 
         # Create an embeddings object using Langchain
         embeddings = OpenAIEmbeddings(openai_api_key=self.key)
