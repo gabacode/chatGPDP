@@ -1,26 +1,56 @@
 from PyQt5.QtWidgets import QPushButton, QFileDialog, QWidget
+from PyQt5.QtCore import Qt
 
 from chatgpdp.modules.utils.config import PATHS
+
+
+class FileSelectDialog(QFileDialog):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.allowed_mime_types = ["text/plain", "application/pdf", "text/csv"]
+        self.setup_dialog()
+
+    def setup_dialog(self):
+        self.setFileMode(QFileDialog.ExistingFile)
+        self.setViewMode(QFileDialog.Detail)
+        self.setOption(QFileDialog.DontUseNativeDialog, True)
+        self.setAcceptMode(QFileDialog.AcceptOpen)
+        self.setMimeTypeFilters(self.allowed_mime_types)
 
 
 class Knowledge(QWidget):
     def __init__(self):
         super().__init__()
-        self.selected_files = []
 
+        self.selected_files = []
+        self.create_add_button()
+
+    def create_add_button(self):
         self.btn = QPushButton("+ Add Knowledge")
+        self.btn.setCursor(Qt.PointingHandCursor)
         self.btn.clicked.connect(self.add_file)
 
     def add_file(self):
-        new_file, _ = QFileDialog.getOpenFileName(self, "Open File", PATHS["base"], "PDF (*.pdf);;Text (*.txt)")
-        if new_file:
-            self.selected_files.append(new_file)
-            self.btn.setText(new_file.split("/")[-1])
-            self.btn.clicked.disconnect()
-            self.btn.clicked.connect(self.remove_file)
+        dialog = FileSelectDialog(self, "Select File", PATHS["base"])
+        dialog.exec_()
+
+        selected_files = dialog.selectedFiles()
+        if selected_files:
+            self.selected_files = selected_files[:1]
+            self.update_button_to_remove()
+
+    def update_button_to_remove(self):
+        self.btn.setStyleSheet("background-color: #4CAF50;")
+        self.btn.setText(f"{self.selected_files[0].split('/')[-1]} - (Click to remove)")
+        self.btn.clicked.disconnect()
+        self.btn.clicked.connect(self.remove_file)
 
     def remove_file(self):
         self.selected_files = []
+        self.update_button_to_add()
+
+    def update_button_to_add(self):
         self.btn.setText("+ Add Knowledge")
         self.btn.clicked.disconnect()
         self.btn.clicked.connect(self.add_file)
+        self.btn.setStyleSheet("")

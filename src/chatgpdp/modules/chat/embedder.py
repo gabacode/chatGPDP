@@ -1,7 +1,8 @@
 import os
 import pickle
 import tempfile
-from langchain.document_loaders import PyPDFLoader, TextLoader
+from langchain.document_loaders import PyPDFLoader, TextLoader, CSVLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import FAISS
 from langchain.embeddings.openai import OpenAIEmbeddings
 from chatgpdp.modules.utils.config import PATHS
@@ -33,12 +34,21 @@ class Embedder:
 
         print("Loading the data...", str(tmp_file_path))
 
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=2500,
+            chunk_overlap=100,
+            length_function=len,
+        )
+
         # Load the data from the file using Langchain
         if filename.endswith(".pdf"):
             loader = PyPDFLoader(file_path=tmp_file_path)
-            data = loader.load_and_split()
+            data = loader.load_and_split(text_splitter=text_splitter)
         elif filename.endswith(".txt"):
             loader = TextLoader(file_path=tmp_file_path)
+            data = loader.load(text_splitter=text_splitter)
+        elif filename.endswith(".csv"):
+            loader = CSVLoader(file_path=tmp_file_path)
             data = loader.load()
 
         # Create an embeddings object using Langchain
