@@ -96,7 +96,7 @@ class Chatbot:
                 model_name=engines[engine]["name"],
                 temperature=temperature,
                 openai_api_key=openai.api_key,
-                request_timeout=120,
+                request_timeout=600,
             )
             prompt = ChatPromptTemplate.from_messages(
                 [

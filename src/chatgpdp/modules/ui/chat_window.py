@@ -44,6 +44,7 @@ class ChatWindow(QMainWindow):
 
         model_selector = ModelSelector()
         self.engine = model_selector.get_engine()
+        model_selector.set_engine = self.update_engine
         temperature_selector = Temperature(self.temperature)
 
         self.chat_box = ChatBox(self)
@@ -68,6 +69,9 @@ class ChatWindow(QMainWindow):
         self.setCentralWidget(widget)
         self.chat_box.append_message("system", self.initial_prompt)
         self.prompt_box.setFocus()
+
+    def update_engine(self, engine):
+        self.engine = engine
 
     def load_state(self):
         self.loading_signal.connect(self.set_loading)
@@ -125,13 +129,11 @@ class ChatWindow(QMainWindow):
             self.chat_thread.terminate()
             self.chat_thread.wait()
 
-        self.chat_thread = ChatThread(
-            self.chatbot,
-            message,
-            self.engine,
-            self.temperature,
-            self.knowledge.selected_file,
-        )
+        model_selector = ModelSelector()
+        engine = model_selector.get_engine()
+        temperature_selector = Temperature(self.temperature)
+        temperature = temperature_selector.get_temperature()
+        self.chat_thread = ChatThread(self.chatbot, message, engine, temperature, self.knowledge.selected_file)
         self.chat_thread.response_signal.connect(self.handle_response)
         self.chat_thread.start()
 

@@ -11,7 +11,7 @@ set "DIR=%~dp0"
 
 :: Create virtualenv
 if not exist "%DIR%\venv" (
-    py -3 -m venv "%DIR%\venv"
+    python -m venv "%DIR%\venv"
     echo %delimiters%
     echo Virtualenv created
     echo %delimiters%

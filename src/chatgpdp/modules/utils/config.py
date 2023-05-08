@@ -7,14 +7,34 @@ PATHS = {
     "screenshots": f"{BASE_DIR}/chatGPDP/screenshots",
     "embeddings": f"{BASE_DIR}/chatGPDP/embeddings",
 }
+DEFAULT_ENGINE = "gpt-3.5-turbo"
 PROMPTS = {"default": "You are a useful and intelligent assistant. Be creative and have fun!"}
 
+engines = {
+    "gpt-3.5-turbo": {
+        "name": "gpt-3.5-turbo",
+        "max_tokens": 2048,
+    },
+    "gpt-3.5-turbo-0301": {
+        "name": "gpt-3.5-turbo-0301",
+        "max_tokens": 4096,
+    },
+    "gpt-4": {
+        "name": "gpt-4",
+        "max_tokens": 8192,
+    },
+    "gpt-4-0314": {
+        "name": "gpt-4-0314",
+        "max_tokens": 8192,
+    },
+}
 
 DEFAULT_SETTINGS = {
     "OPENAI_API_KEY": "",
     "chat": {
+        "engine": engines[DEFAULT_ENGINE]["name"],
         "initial_prompt": PROMPTS["default"],
-        "max_tokens": 2048,
+        "max_tokens": engines[DEFAULT_ENGINE]["max_tokens"],
         "temperature": 0.618,
     },
     "colors": {
@@ -36,17 +56,5 @@ DEFAULT_SETTINGS = {
     },
     "window": {
         "geometry": "",
-    },
-}
-
-
-engines = {
-    "gpt-3.5-turbo": {
-        "name": "gpt-3.5-turbo",
-        "max_tokens": 2048,
-    },
-    "gpt-3.5-turbo-0301": {
-        "name": "gpt-3.5-turbo-0301",
-        "max_tokens": 4096,
     },
 }
