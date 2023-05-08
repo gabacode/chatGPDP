@@ -20,7 +20,9 @@ class Knowledge(QWidget):
             self.with_documents = False
 
     def add_file(self):
-        new_file, _ = QFileDialog.getOpenFileName(self, "Open File", PATHS["base"], "PDF Files (*.pdf)")
+        new_file, _ = QFileDialog.getOpenFileName(
+            self, "Open File", PATHS["base"], "PDF (*.pdf);;Text (*.txt)"
+        )
         if new_file:
             self.selected_file = new_file
         else:

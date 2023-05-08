@@ -1,7 +1,7 @@
 import os
 import pickle
 import tempfile
-from langchain.document_loaders import PyPDFLoader
+from langchain.document_loaders import PyPDFLoader, TextLoader
 from langchain.vectorstores import FAISS
 from langchain.embeddings.openai import OpenAIEmbeddings
 from chatgpdp.modules.utils.config import PATHS
@@ -31,9 +31,15 @@ class Embedder:
             tmp_file.write(file)
             tmp_file_path = tmp_file.name
 
+        print("Loading the data...", str(tmp_file_path))
+
         # Load the data from the file using Langchain
-        loader = PyPDFLoader(file_path=tmp_file_path)
-        data = loader.load_and_split()
+        if filename.endswith(".pdf"):
+            loader = PyPDFLoader(file_path=tmp_file_path)
+            data = loader.load_and_split()
+        elif filename.endswith(".txt"):
+            loader = TextLoader(file_path=tmp_file_path)
+            data = loader.load()
 
         # Create an embeddings object using Langchain
         embeddings = OpenAIEmbeddings(openai_api_key=self.key)
@@ -45,6 +51,8 @@ class Embedder:
         # Save the vectors to a pickle file
         with open(f"{self.PATH}/{filename}.pkl", "wb") as f:
             pickle.dump(vectors, f)
+
+        print("Done!")
 
     def getDocEmbeds(self, file, filename):
         """
