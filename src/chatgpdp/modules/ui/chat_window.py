@@ -42,10 +42,10 @@ class ChatWindow(QMainWindow):
 
         self.knowledge = Knowledge()
 
-        model_selector = ModelSelector()
-        self.engine = model_selector.get_engine()
-        model_selector.set_engine = self.update_engine
-        temperature_selector = Temperature(self.temperature)
+        self.model_selector = ModelSelector()
+        self.engine = self.model_selector.get_engine()
+        self.model_selector.set_engine = self.update_engine
+        self.temperature_selector = Temperature(self.temperature)
 
         self.chat_box = ChatBox(self)
         self.prompt_box = PromptBox(self)
@@ -55,9 +55,9 @@ class ChatWindow(QMainWindow):
 
         layout = QVBoxLayout()
         widgets = [
-            model_selector,
-            temperature_selector,
-            self.knowledge.cb,
+            self.model_selector,
+            self.temperature_selector,
+            self.knowledge.btn,
             self.divider,
             self.send_button,
         ]
@@ -129,11 +129,10 @@ class ChatWindow(QMainWindow):
             self.chat_thread.terminate()
             self.chat_thread.wait()
 
-        model_selector = ModelSelector()
-        engine = model_selector.get_engine()
-        temperature_selector = Temperature(self.temperature)
-        temperature = temperature_selector.get_temperature()
-        self.chat_thread = ChatThread(self.chatbot, message, engine, temperature, self.knowledge.selected_file)
+        engine = self.model_selector.get_engine()
+        temperature = self.temperature_selector.get_temperature()
+
+        self.chat_thread = ChatThread(self.chatbot, message, engine, temperature, self.knowledge.selected_files)
         self.chat_thread.response_signal.connect(self.handle_response)
         self.chat_thread.start()
 
