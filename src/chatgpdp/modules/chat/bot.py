@@ -86,7 +86,9 @@ class Chatbot:
             self.add_to_history({"role": "assistant", "content": response_text})
             return response_text
         except Exception as e:
-            return f"Sorry, we got an error: \n {e}"
+            error = f"I'm sorry, we got an error: \n {e}"
+            self.add_to_history({"role": "system", "content": error})
+            return error
 
     def chat(self, message, engine, temperature):
         try:
