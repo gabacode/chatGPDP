@@ -120,10 +120,16 @@ class Chatbot:
         return self.history
 
     def get_message(self, index):
-        return self.history[index]
+        try:
+            return self.history[index]
+        except Exception as e:
+            print(e)
 
     def replace_message(self, index, message):
-        self.history[index]["content"] = message
+        try:
+            self.history[index]["content"] = message
+        except Exception as e:
+            print(e)
 
     def add_to_history(self, message):
         self.history.append(message)
