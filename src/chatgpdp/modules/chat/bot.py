@@ -1,9 +1,11 @@
 import os
+from langchain.chains.llm import LLMChain
 import openai
 from chatgpdp.modules.chat.embedder import Embedder
 
 from chatgpdp.modules.utils.config import PATHS, engines
 from langchain import PromptTemplate
+from langchain.chains.qa_with_sources import load_qa_with_sources_chain
 
 from langchain.prompts import (
     ChatPromptTemplate,
@@ -64,6 +66,8 @@ class Chatbot:
         self.memory = ConversationBufferMemory(chat_memory=chat_memory, return_messages=True)
 
     def qa(self, message, engine, temperature, file_path):
+        history = self.create_messages(message)
+        self.load_memory(history)
         uploaded_file = open(file_path, "rb")
         uploaded_file.seek(0)
         file = uploaded_file.read()
@@ -89,13 +93,17 @@ class Chatbot:
                 request_timeout=120,
                 max_tokens=512,
             )
-            qa = ConversationalRetrievalChain.from_llm(
-                llm=llm,
+
+            question_generator = LLMChain(llm=llm, prompt=prompt)
+            doc_chain = load_qa_with_sources_chain(llm, chain_type="map_reduce")
+
+            qa = ConversationalRetrievalChain(
                 retriever=vectors.as_retriever(),
+                question_generator=question_generator,
+                combine_docs_chain=doc_chain,
                 return_source_documents=True,
-                prompt=prompt,
             )
-            result = qa({"question": message, "chat_history": self.history})
+            result = qa({"question": message, "chat_history": []})
             response_text = result["answer"]
             self.add_to_history({"role": "user", "content": message})
             self.add_to_history({"role": "assistant", "content": response_text})
