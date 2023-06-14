@@ -3,6 +3,7 @@ import openai
 from chatgpdp.modules.chat.embedder import Embedder
 
 from chatgpdp.modules.utils.config import PATHS, engines
+from langchain import PromptTemplate
 
 from langchain.prompts import (
     ChatPromptTemplate,
@@ -67,6 +68,19 @@ class Chatbot:
         uploaded_file.seek(0)
         file = uploaded_file.read()
         vectors = self.embeds.getDocEmbeds(file, uploaded_file.name)
+
+        template = """Given the following extracted parts of a long document and a question, create a final answer with references ("SOURCES"). 
+        If you don't know the answer, just say that you don't know. Don't try to make up an answer.
+        ALWAYS return a "SOURCES" part in your answer.
+        Respond in Italian.
+
+        QUESTION: {question}
+        =========
+        {summaries}
+        =========
+        FINAL ANSWER IN ITALIAN:"""
+        prompt = PromptTemplate(template=template, input_variables=["summaries", "question"])
+
         try:
             llm = ChatOpenAI(
                 temperature=temperature,
@@ -79,6 +93,7 @@ class Chatbot:
                 llm=llm,
                 retriever=vectors.as_retriever(),
                 return_source_documents=True,
+                prompt=prompt,
             )
             result = qa({"question": message, "chat_history": self.history})
             response_text = result["answer"]

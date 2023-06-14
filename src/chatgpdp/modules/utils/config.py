@@ -19,9 +19,21 @@ engines = {
         "name": "gpt-3.5-turbo-0301",
         "max_tokens": 4096,
     },
+    "gpt-3.5-turbo-0613": {
+        "name": "gpt-3.5-turbo-0613",
+        "max_tokens": 8192,
+    },
+    "gpt-3.5-turbo-16k": {
+        "name": "gpt-3.5-turbo-16k",
+        "max_tokens": 16384,
+    },
     "gpt-4": {
         "name": "gpt-4",
         "max_tokens": 8192,
+    },
+    "gpt-4-32k": {
+        "name": "gpt-4-32k",
+        "max_tokens": 32768,
     },
     "gpt-4-0314": {
         "name": "gpt-4-0314",
@@ -41,17 +53,17 @@ DEFAULT_SETTINGS = {
         "user": {
             "label": "#000000",
             "background": "#F0F0F0",
-            "foreground": "#000000",
+            "text": "#000000",
         },
         "assistant": {
             "label": "#000000",
             "background": "#F0F0F0",
-            "foreground": "#000000",
+            "text": "#000000",
         },
         "system": {
             "label": "#000000",
             "background": "#F0F0F0",
-            "foreground": "#000000",
+            "text": "#000000",
         },
     },
     "window": {

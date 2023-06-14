@@ -24,7 +24,7 @@ QScrollArea {
 }
 
 QTextEdit {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 QLabel {
@@ -132,7 +132,6 @@ QPushButton {
   color: white;
   border: none;
   padding: 10px 20px;
-  font-size: 16px;
   margin: 4px 2px;
   border-radius: 6px;
 }
@@ -153,7 +152,6 @@ QPushButton:disabled {
 }
 
 QMenu { 
-  background-color: #f2f2f2;
   border: 1px solid #c2c2c2; 
 }
 QMenu::item:selected { 

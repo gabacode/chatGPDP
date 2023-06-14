@@ -1,6 +1,6 @@
 faiss-cpu==1.7.4
 importlib-metadata==6.5.0
-langchain==0.0.136
+langchain==0.0.200
 markdown2==2.4.8
 openai==0.27.2
 pypdf==3.8.1

@@ -7,7 +7,7 @@ from chatgpdp.modules.utils.config import PATHS
 class FileSelectDialog(QFileDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.allowed_mime_types = ["text/plain", "application/pdf", "text/csv"]
+        # self.allowed_mime_types = ["text/plain", "application/pdf", "text/csv"]
         self.setup_dialog()
 
     def setup_dialog(self):
@@ -15,7 +15,8 @@ class FileSelectDialog(QFileDialog):
         self.setViewMode(QFileDialog.Detail)
         self.setOption(QFileDialog.DontUseNativeDialog, True)
         self.setAcceptMode(QFileDialog.AcceptOpen)
-        self.setMimeTypeFilters(self.allowed_mime_types)
+        self.setNameFilter("*.pdf *.csv *.txt *.php")
+        #self.setMimeTypeFilters(self.allowed_mime_types)
 
 
 class Knowledge(QWidget):

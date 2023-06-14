@@ -19,7 +19,7 @@ class MessageBox(QWidget):
 
         styles = {
             "author": f"color: {self.colorize(mode, 'label')}; font-weight: bold; margin-left: 5px;",
-            "message": f"background-color: {self.colorize(mode, 'background')}; color: {self.colorize(mode, 'foreground')}; border-radius: 25px; border: none;",
+            "message": f"background-color: {self.colorize(mode, 'background')}; color: {self.colorize(mode, 'text')}; border-radius: 25px; border: none;",
         }
 
         self.author_label = AuthorLabel(mode)

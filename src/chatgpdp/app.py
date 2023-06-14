@@ -6,7 +6,7 @@ from chatgpdp.modules.ui.chat_window import ChatWindow
 from chatgpdp.styles.use_style import Style
 
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QFontDatabase
 
 
 def app():
@@ -14,6 +14,9 @@ def app():
     QApplication.setApplicationName(metadata["Formal-Name"])
 
     app = QApplication(sys.argv)
+    app_font = QApplication.font()
+    app_font.setPointSize(QFontDatabase.systemFont(QFontDatabase.TitleFont).pointSize())
+    app.setFont(app_font)
     try:
         app.setWindowIcon(QIcon(":/icons/chatgpdp.ico"))
         app.setStyleSheet(Style.get_style("main.qss"))
