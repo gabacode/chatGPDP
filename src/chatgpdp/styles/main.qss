@@ -152,13 +152,8 @@ QPushButton:disabled {
   color: #666;
 }
 
-QMenu { 
-  background-color: #f2f2f2;
-  border: 1px solid #c2c2c2; 
-}
 QMenu::item:selected { 
   background-color: #2d83af;
-  color: #ffffff; 
 }
 
 QMenu::separator { 
