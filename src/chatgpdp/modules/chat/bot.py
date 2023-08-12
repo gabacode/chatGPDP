@@ -144,14 +144,14 @@ class Chatbot:
                     memory=self.memory,
                     verbose=True,
                 )
-                response = conversation.predict(input=message)
+                response = (conversation.predict(input=message)).strip()
 
                 self.add_to_history({"role": "assistant", "content": response})
 
                 return response
 
-        except Exception as e:
-            error = f"I'm sorry, we got an error: \n {traceback.format_exc()}"
+        except (TypeError, ValueError) as e:
+            error = f"I'm sorry, we got an error: {e} \n {traceback.format_exc()}"
             self.add_to_history({"role": "system", "content": error})
             return error
 
