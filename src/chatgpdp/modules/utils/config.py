@@ -6,6 +6,7 @@ PATHS = {
     "chatlogs": f"{BASE_DIR}/chatGPDP/chatlogs",
     "screenshots": f"{BASE_DIR}/chatGPDP/screenshots",
     "embeddings": f"{BASE_DIR}/chatGPDP/embeddings",
+    "models": f"{BASE_DIR}/chatGPDP/models",
 }
 DEFAULT_ENGINE = "gpt-3.5-turbo"
 PROMPTS = {"default": "You are a useful and intelligent assistant. Be creative and have fun!"}
@@ -27,6 +28,18 @@ engines = {
         "name": "gpt-4-0314",
         "max_tokens": 8192,
     },
+    "ggml-gpt4all-j-v1.3-groovy.bin": {
+        "name": "ggml-gpt4all-j-v1.3-groovy.bin",
+        "max_tokens": 2048,
+    },
+    "wizardLM-13B-Uncensored.ggmlv3.q4_0.bin": {
+        "name": "wizardLM-13B-Uncensored.ggmlv3.q4_0.bin",
+        "max_tokens": 2048,
+    },
+    "nous-hermes-13b.ggmlv3.q4_0.bin": {
+        "name": "nous-hermes-13b.ggmlv3.q4_0.bin",
+        "max_tokens": 2048,
+    }
 }
 
 DEFAULT_SETTINGS = {

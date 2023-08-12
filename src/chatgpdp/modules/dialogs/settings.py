@@ -57,7 +57,7 @@ class SettingsDialog(QDialog):
         for child in self.findChildren(ColorPicker):
             self.settings.setValue(child.scope, str(child.color).upper())
         self.settings.endGroup()
-        Chatbot.reload_env(self)
+        reload_env()
 
 
 class ApiSettings(QGroupBox):
