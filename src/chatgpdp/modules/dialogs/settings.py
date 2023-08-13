@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (
 
 from PyQt5.QtCore import Qt
 
-from chatgpdp.modules.chat.bot import Chatbot
+from chatgpdp.modules.chat.bot import reload_env
 from chatgpdp.modules.dialogs.components.color_picker import ColorPicker
 from chatgpdp.modules.utils.settings import Settings
 
