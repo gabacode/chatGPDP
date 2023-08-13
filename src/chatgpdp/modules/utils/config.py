@@ -39,6 +39,10 @@ engines = {
     "nous-hermes-13b.ggmlv3.q4_0.bin": {
         "name": "nous-hermes-13b.ggmlv3.q4_0.bin",
         "max_tokens": 2048,
+    },
+    "llama-2-7b-chat.ggmlv3.q2_K.bin": {
+        "name": "llama-2-7b-chat.ggmlv3.q2_K.bin",
+        "max_tokens": 2048,
     }
 }
 
