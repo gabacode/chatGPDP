@@ -125,9 +125,12 @@ class Chatbot:
                 return response
 
             else:
-                self.load_memory(self.history, return_messages=False)
+                self.load_memory(self.history, return_messages=is_gpt)
                 model_name = engines[engine]["name"]
                 model_path = os.path.join(PATHS["models"], model_name)
+
+                if not os.path.exists(model_path):
+                    model_path = model_name
 
                 llm = GPT4All(
                     model=model_path,
