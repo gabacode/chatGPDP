@@ -91,8 +91,7 @@ class Chatbot:
 
     def chat(self, message, engine, temperature):
         try:
-            # history = self.create_messages(message)
-            is_gpt = 'ggml' not in engines[engine]['name']
+            is_gpt = engines[engine]['name'].startswith("gpt-")
 
             if is_gpt:
                 self.load_memory(self.history)
@@ -120,6 +119,7 @@ class Chatbot:
 
                 response = conversation.predict(input=message)
 
+                self.add_to_history({"role": "user", "content": message})
                 self.add_to_history({"role": "assistant", "content": response})
 
                 return response
@@ -131,11 +131,11 @@ class Chatbot:
 
                 llm = GPT4All(
                     model=model_path,
-                    verbose=False,
                     backend="gptj",
                     temp=temperature,
                     n_threads=8,
                     n_predict=256,
+                    max_tokens=engines[engine]["max_tokens"],
                     allow_download=True,
                 )
 
@@ -146,6 +146,7 @@ class Chatbot:
                 )
                 response = (conversation.predict(input=message)).strip()
 
+                self.add_to_history({"role": "user", "content": message})
                 self.add_to_history({"role": "assistant", "content": response})
 
                 return response
