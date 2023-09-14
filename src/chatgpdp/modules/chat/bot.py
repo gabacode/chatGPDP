@@ -73,16 +73,15 @@ class Chatbot:
         file = uploaded_file.read()
         vectors = self.embeds.getDocEmbeds(file, uploaded_file.name)
 
-        template = """Given the following extracted parts of a long document and a question, create a final answer with references ("SOURCES"). 
-        If you don't know the answer, just say that you don't know. Don't try to make up an answer.
-        ALWAYS return a "SOURCES" part in your answer.
-        Respond in Italian.
-
+        template = self.get_initial_prompt() + "\n"
+        template += """
+        Be as accurate as possible, if you are not sure, say 'I don't know'.
         QUESTION: {question}
         =========
         {summaries}
         =========
-        FINAL ANSWER IN ITALIAN:"""
+        ANSWER:
+        """
         prompt = PromptTemplate(template=template, input_variables=["summaries", "question"])
 
         try:
@@ -95,7 +94,7 @@ class Chatbot:
             )
 
             question_generator = LLMChain(llm=llm, prompt=prompt)
-            doc_chain = load_qa_with_sources_chain(llm, chain_type="map_reduce")
+            doc_chain = load_qa_with_sources_chain(llm, chain_type="stuff")
 
             qa = ConversationalRetrievalChain(
                 retriever=vectors.as_retriever(),

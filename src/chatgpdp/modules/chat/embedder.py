@@ -40,15 +40,17 @@ class Embedder:
             length_function=len,
         )
 
+        text_extensions = [".txt", ".php", ".sch"]
+
         # Load the data from the file using Langchain
         if filename.endswith(".pdf"):
             loader = PyPDFLoader(file_path=tmp_file_path)
             data = loader.load_and_split(text_splitter)
-        elif filename.endswith(".txt"):
-            loader = TextLoader(file_path=tmp_file_path)
-            data = loader.load_and_split(text_splitter)
         elif filename.endswith(".csv"):
             loader = CSVLoader(file_path=tmp_file_path)
+            data = loader.load_and_split(text_splitter)
+        elif any(filename.endswith(ext) for ext in text_extensions):
+            loader = TextLoader(file_path=tmp_file_path)
             data = loader.load_and_split(text_splitter)
 
         # Create an embeddings object using Langchain
