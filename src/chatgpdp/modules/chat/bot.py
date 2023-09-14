@@ -1,19 +1,10 @@
 import os
 from langchain.chains.llm import LLMChain
 import openai
-from chatgpdp.modules.chat.embedder import Embedder
 
-from chatgpdp.modules.utils.config import PATHS, engines
 from langchain import PromptTemplate
 from langchain.chains.qa_with_sources import load_qa_with_sources_chain
 
-from langchain.prompts import (
-    ChatPromptTemplate,
-    MessagesPlaceholder,
-    SystemMessagePromptTemplate,
-    HumanMessagePromptTemplate,
-)
-from langchain.schema import AIMessage, HumanMessage
 import traceback
 
 from langchain.chains import (

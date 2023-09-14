@@ -11,7 +11,7 @@ PATHS = {
 DEFAULT_ENGINE = "gpt-3.5-turbo"
 PROMPTS = {"default": "You are a useful and intelligent assistant. Be creative and have fun!"}
 
-engines = {
+engines_list = {
     "gpt-3.5-turbo": {
         "name": "gpt-3.5-turbo",
         "max_tokens": 2048,
@@ -55,8 +55,14 @@ engines = {
     "llama-2-7b-chat.ggmlv3.q2_K.bin": {
         "name": "llama-2-7b-chat.ggmlv3.q2_K.bin",
         "max_tokens": 2048,
-    }
+    },
+    "ggml-replit-code-v1-3b.bin": {
+        "name": "ggml-replit-code-v1-3b.bin",
+        "max_tokens": 2048,
+    },
 }
+
+engines = {k: v for k, v in sorted(engines_list.items())}
 
 DEFAULT_SETTINGS = {
     "OPENAI_API_KEY": "",
