@@ -30,6 +30,7 @@ pip install -r $DIR/requirements.txt
 pip install briefcase
 
 # Run the app in dev mode
+cd $DIR
 briefcase dev
 
 # See if there are errors, if so, exit
@@ -37,8 +38,10 @@ if [ $? -ne 0 ]; then
     echo $delimiters
     echo "There was an error, exiting..."
     echo $delimiters
+    read -p "Press enter to continue"
     exit 1
 fi
+
 
 echo $delimiters
 echo "See you soon 👋"

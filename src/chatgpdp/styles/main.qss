@@ -156,7 +156,6 @@ QMenu {
 }
 QMenu::item:selected { 
   background-color: #2d83af;
-  color: #ffffff; 
 }
 
 QMenu::separator { 
