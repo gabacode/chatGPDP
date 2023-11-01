@@ -17,10 +17,10 @@ sources = [
     "src/chatgpdp",
 ]
 requires = [
-    "langchain==0.0.136",
-    "markdown2==2.4.8",
-    "openai==0.27.2",
-    "pygments==2.15.1",
+    "langchain==0.0.262",
+    "markdown2==2.4.10",
+    "openai==0.27.8",
+    "pygments==2.16.1",
     "pyqt5==5.15.9",
 ]
 
